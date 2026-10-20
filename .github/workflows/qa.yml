@@ -24,8 +24,8 @@ jobs:
 
           path = Path('data/references/POBLACION_EUSTAT_2025_v1.json')
           payload = json.loads(path.read_text(encoding='utf-8'))
-          assert payload['summary']['total_population'] == 150832
-          assert payload['summary']['sections'] == 109
-          assert payload['validation']['geometry_joined'] is False
+          assert payload['total_population'] == 150832
+          assert payload['sections'] == 109
+          assert payload['validation']['spatial_coverage_ready'] is False
           print('Eustat 2025: 109 secciones, 150832 habitantes; sin afirmar cobertura espacial.')
           PY
