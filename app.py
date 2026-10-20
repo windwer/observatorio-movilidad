@@ -27,7 +27,7 @@ DB=Path(os.environ.get('OBS_DB',ROOT/'data'/'observatorio.sqlite3'))
 HOST=os.environ.get('OBS_HOST','127.0.0.1')
 PASSWORD=os.environ.get('OBS_PASSWORD')
 USERNAME=os.environ.get('OBS_USERNAME','analista')
-APP_VERSION='0.6.6'
+APP_VERSION='1.0'
 if HOST not in ('127.0.0.1','localhost','::1'):
     if not PASSWORD or len(PASSWORD)<24 or PASSWORD.startswith(('CHANGE_ME','password','Password')):
         raise RuntimeError('Acceso remoto no permitido sin una OBS_PASSWORD fuerte (mínimo 24 caracteres). Requiere también HTTPS en el proxy.')
@@ -381,7 +381,7 @@ def data_quality_all(_:bool=Depends(guard)):
 
 @app.get('/api/version')
 def version(_:bool=Depends(guard)):
-    return {'version':APP_VERSION,'date_cutoff':'2026-10-18','data_state':'unverified_until_audit','api_schema':'v0.6.6','package':'historical-real-gtfs'}
+    return {'version':APP_VERSION,'date_cutoff':'2026-10-18','data_state':'unverified_until_audit','api_schema':'v1.0','package':'historical-real-gtfs'}
 
 @app.middleware('http')
 async def safe_response_headers(request:Request,call_next):

@@ -13,7 +13,7 @@ import time
 import urllib.request
 import webbrowser
 
-VERSION='0.6.6'
+VERSION='1.0'
 ROOT=Path(__file__).resolve().parent
 
 def free_port():

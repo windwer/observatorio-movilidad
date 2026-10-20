@@ -28,7 +28,7 @@ jobs:
           import app
           import engine
 
-          assert app.version(True)['version'] == '0.6.6'
+          assert app.version(True)['version'] == '1.0'
           path = Path(tempfile.mkstemp(suffix='.sqlite3')[1])
           conn = engine.connect(path)
           conn.execute("INSERT INTO feeds(sha256,operator,snapshot_date,original_name,imported_at,min_date,max_date) VALUES ('qa','ekialdebus','2026-10-01','qa.zip','2026-10-01T00:00:00','2026-10-01','2026-10-31')")
@@ -39,7 +39,7 @@ jobs:
           assert [row['name'] for row in catalog['routes']] == ['L1', 'L2']
           conn.close()
           path.unlink(missing_ok=True)
-          print('v0.6.6 y catálogo de líneas: OK')
+          print('v1.0 y catálogo de líneas: OK')
           PY
       - name: Validar referencia poblacional Eustat
         run: |

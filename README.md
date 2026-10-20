@@ -3,7 +3,7 @@
 Visor reproducible para analizar red, oferta y accesibilidad peatonal de
 Irunbus y Ekialdebus, con histórico GTFS local y referencia poblacional Eustat
 2025. La entrega corresponde al paquete histórico `v1` y a la aplicación
-`v0.6.6`; mantiene la fase de
+`v1.0`; mantiene la fase de
 Product Review: los horarios GTFS describen oferta programada, no prueban por sí
 solos el servicio prestado.
 
