@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.env
+*.log
+.DS_Store
+
+# Runtime data: the complete historical package is distributed separately.
+data/real/observatorio_real.sqlite3
+data/real/observatorio_real.sqlite3-*
+data/real/originals/*.zip
+data/real/originals/*.ZIP

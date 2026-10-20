@@ -1,0 +1,28 @@
+{
+  "source": "Eustat",
+  "source_url": "https://es.eustat.eus/elementos/xls0011434_c.csv",
+  "reference_date": "2025-01-01",
+  "source_file": "eustat_2025_original.csv",
+  "sha256": "600a0b87b7b5feb85c548c7c23bc0f517941f83b80ffafcf8a79d7d5482997f1",
+  "sections": 109,
+  "districts": 12,
+  "total_population": 150832,
+  "regions": {
+    "Bidasoaldea": 77625,
+    "Oarsoaldea": 73207
+  },
+  "municipalities": {
+    "Irun": {"sections": 42, "population": 60665},
+    "Hondarribia": {"sections": 12, "population": 16960},
+    "Errenteria": {"sections": 31, "population": 39779},
+    "Pasaia": {"sections": 13, "population": 16767},
+    "Lezo": {"sections": 4, "population": 6188},
+    "Oiartzun": {"sections": 7, "population": 10473}
+  },
+  "validation": {
+    "district_subtotals_match_sections": true,
+    "all_six_municipalities_present": true,
+    "spatial_coverage_ready": false,
+    "coverage_note": "Estos habitantes son la base censal territorial. No se presentan como población cubierta por una isócrona hasta disponer de una unión espacial residencial verificable."
+  }
+}

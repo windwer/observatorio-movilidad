@@ -1,0 +1,7 @@
+{
+  "description": "Sustituir geometry_keys por nombres comprobados con prepare_census.py inspect. No ejecutar sin validar los campos del SHP.",
+  "geometry_keys": ["REEMPLAZAR_COD_MUNICIPIO", "REEMPLAZAR_DISTRITO", "REEMPLAZAR_SECCION"],
+  "population_keys": ["municipality_code", "district", "section"],
+  "people_column": "population",
+  "municipality_column": "municipality"
+}

@@ -1,0 +1,109 @@
+{
+  "version": "0.5.0",
+  "date_utc": "2026-10-19T05:23:51+00:00",
+  "historical_cutoff": "2026-10-18",
+  "official_sources_imported": false,
+  "test_suite": {
+    "passed": true,
+    "summary": [
+      "Ran 63 tests in 1.120s",
+      "",
+      "OK"
+    ],
+    "stderr_tail": ""
+  },
+  "http_and_semantics": {
+    "/": {
+      "http": 200,
+      "ok": true,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "/static/app.js": {
+      "http": 200,
+      "ok": true,
+      "content_type": "text/javascript; charset=utf-8"
+    },
+    "/api/health": {
+      "http": 200,
+      "ok": true,
+      "content_type": "application/json"
+    },
+    "/api/version": {
+      "http": 200,
+      "ok": true,
+      "content_type": "application/json"
+    },
+    "/api/coverage?operator=ekialdebus&year=2025": {
+      "http": 200,
+      "ok": true,
+      "content_type": "application/json"
+    },
+    "/api/audit/readiness": {
+      "http": 200,
+      "ok": true,
+      "content_type": "application/json"
+    },
+    "/api/quality": {
+      "http": 200,
+      "ok": true,
+      "content_type": "application/json"
+    },
+    "/api/map/both?day=2026-10-16": {
+      "http": 200,
+      "ok": true,
+      "content_type": "application/json"
+    },
+    "fixed_cutoff": {
+      "ok": true,
+      "actual": "2026-10-18"
+    },
+    "planning_boundary": {
+      "ok": true,
+      "oct18_historical": "historical",
+      "oct19_planning": "planning"
+    },
+    "missing_not_zero": {
+      "ok": true,
+      "actual": "missing"
+    },
+    "no_false_publication": {
+      "ok": true,
+      "reason": [
+        "Histórico diario sin certificación completa para ambos operadores",
+        "Modelo residencial o red peatonal sin certificación de cobertura de seis municipios",
+        "Hay feeds utilizados sin validación estructural o no hay feeds verificados",
+        "La publicación requiere además revisión de seguridad, accesibilidad, despliegue y aprobación humana."
+      ]
+    },
+    "no_export": {
+      "ok": true
+    }
+  },
+  "historic_coverage": {
+    "ekialdebus": {
+      "expected_historical_days": 656,
+      "verified": 0,
+      "located_unverified": 0,
+      "missing": 656,
+      "rejected": 0
+    },
+    "irunbus": {
+      "expected_historical_days": 656,
+      "verified": 0,
+      "located_unverified": 0,
+      "missing": 656,
+      "rejected": 0
+    }
+  },
+  "geographic_ready": false,
+  "data_gate_passed": false,
+  "application_release_accepted": false,
+  "blockers": [
+    "GTFS históricos oficiales completos y autorizados de los dos operadores",
+    "Cotejo documental por fecha y calendario, incluido cambio de concesión de octubre de 2026",
+    "Secciones y población Eustat 2025 cruzadas con edificios y red peatonal de los seis municipios",
+    "Revisión manual de isócronas y de las diferencias espaciales y de oferta",
+    "Validación UX/seguridad en navegador y entorno Windows de destino",
+    "Aprobación privada final del proyecto"
+  ]
+}

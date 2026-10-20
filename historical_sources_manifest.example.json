@@ -1,0 +1,15 @@
+{
+  "description": "Plantilla: sustituir rutas y fechas por capturas originales verificadas; NO es evidencia histórica.",
+  "versions": [
+    {
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-10-01",
+      "path": "REEMPLAZAR_CON_ARCHIVO_REAL_ekialdebus.zip"
+    },
+    {
+      "operator": "irunbus",
+      "snapshot_date": "2025-10-01",
+      "path": "REEMPLAZAR_CON_ARCHIVO_REAL_irunbus.zip"
+    }
+  ]
+}

@@ -1,0 +1,2682 @@
+{
+  "schema": "observatorio.bulk_gtfs_import.v1",
+  "started_at": "2026-10-19T16:16:12.480282+00:00",
+  "input_root": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus",
+  "app_root": "C:\\Users\\OierMartinez\\Documents\\Codex\\2026-10-19\\referenced-chatgpt-conversation-this-is-an-2\\outputs\\Observatorio_Movilidad_real_v0.1_GTFS",
+  "operator_argument": "ekialdebus",
+  "recursive": true,
+  "dry_run": false,
+  "discovered": 81,
+  "valid": 81,
+  "unique_to_import": 80,
+  "duplicates": 1,
+  "errors": [],
+  "records": [
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250211_090152_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250211_090152_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250211_090152_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "16ab1be2191e2cc70ded51a674eace55b22635ce4e1de161534f16b592c7632f",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-02-11",
+      "rows": {
+        "stop_times": 64028,
+        "routes": 25,
+        "stops": 219,
+        "trips": 3472
+      },
+      "valid_from": "2025-02-11",
+      "valid_until_exclusive": "2025-02-18"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250218_090143_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250218_090143_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250218_090143_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "efe506b3585dbec97eed0dbbde7b095722c6e956bf6449db265dbef7921eb53f",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-02-18",
+      "rows": {
+        "stop_times": 64028,
+        "routes": 25,
+        "stops": 219,
+        "trips": 3472
+      },
+      "valid_from": "2025-02-18",
+      "valid_until_exclusive": "2025-02-25"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250225_090128_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250225_090128_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250225_090128_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "38ca05afc90ad666f4d80411234920a0e599e43132547ffb8b57236f4f146907",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-02-25",
+      "rows": {
+        "stop_times": 64028,
+        "routes": 25,
+        "stops": 219,
+        "trips": 3472
+      },
+      "valid_from": "2025-02-25",
+      "valid_until_exclusive": "2025-03-04"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250304_090018_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250304_090018_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250304_090018_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "55bf0136955c5455bca81abe88a6e2c30364f218521fdb557585cbece57de179",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-03-04",
+      "rows": {
+        "stop_times": 64028,
+        "routes": 25,
+        "stops": 219,
+        "trips": 3472
+      },
+      "valid_from": "2025-03-04",
+      "valid_until_exclusive": "2025-03-12"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250312_090020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250312_090020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250312_090020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "6c0b6f3b85ef21c76fa7c5efcb43c3ef8a35ef65d46add6c25c828eb51eae966",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-03-12",
+      "rows": {
+        "stop_times": 64024,
+        "routes": 25,
+        "stops": 218,
+        "trips": 3472
+      },
+      "valid_from": "2025-03-12",
+      "valid_until_exclusive": "2025-03-18"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250318_090035_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250318_090035_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250318_090035_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "a5f5e069e7399e91a57d1e9a9ec8fa53f92fb358307788df88c4d77d5bf7dee8",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-03-18",
+      "rows": {
+        "stop_times": 3472,
+        "routes": 25,
+        "stops": 23,
+        "trips": 3472
+      },
+      "valid_from": "2025-03-18",
+      "valid_until_exclusive": "2025-03-26"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250326_090023_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250326_090023_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250326_090023_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "9bd85cb2c75f11991b4e7425cee490f89877a6fc1cc2ad7f3283689ae97ada9b",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-03-26",
+      "rows": {
+        "stop_times": 64536,
+        "routes": 25,
+        "stops": 222,
+        "trips": 3472
+      },
+      "valid_from": "2025-03-26",
+      "valid_until_exclusive": "2025-03-28"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250328_090021_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250328_090021_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250328_090021_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "106ee8b4c31be1837de8247cd2f3bbaff1ebc08c58f438c49cfe337d650a9a2b",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-03-28",
+      "rows": {
+        "stop_times": 64536,
+        "routes": 25,
+        "stops": 222,
+        "trips": 3472
+      },
+      "valid_from": "2025-03-28",
+      "valid_until_exclusive": "2025-05-19"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250519_060220_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250519_060220_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250519_060220_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "30e90534fe4eef3fbc034b8f5984f87e3515e4d064f13566e0b35efc0e46175f",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-05-19",
+      "rows": {
+        "stop_times": 410153,
+        "routes": 25,
+        "stops": 222,
+        "trips": 22034
+      },
+      "valid_from": "2025-05-19",
+      "valid_until_exclusive": "2025-05-26"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250526_060020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250526_060020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250526_060020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "0145e7254685a36a027957463eac29b4a4ca69a94f2be0683052d612dfa56a20",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-05-26",
+      "rows": {
+        "stop_times": 410153,
+        "routes": 25,
+        "stops": 222,
+        "trips": 22034
+      },
+      "valid_from": "2025-05-26",
+      "valid_until_exclusive": "2025-06-02"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250602_060007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250602_060007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250602_060007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "1dcf3ac9e34ace02ddffc1bf06752734085d332bb256de478ac0b6571241244a",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-06-02",
+      "rows": {
+        "stop_times": 410151,
+        "routes": 25,
+        "stops": 222,
+        "trips": 22034
+      },
+      "valid_from": "2025-06-02",
+      "valid_until_exclusive": "2025-06-10"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250610_060133_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250610_060133_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250610_060133_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "29da3567cd8ad3fb64416fb835aa59c4c44dbedf4d5c07790162e75d98b34152",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-06-10",
+      "rows": {
+        "stop_times": 410153,
+        "routes": 25,
+        "stops": 222,
+        "trips": 22034
+      },
+      "valid_from": "2025-06-10",
+      "valid_until_exclusive": "2025-06-17"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250617_060013_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250617_060013_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250617_060013_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "17e4e8c53cac30e579c9ffafa6d6f75e35fd573be1d69ef73871e64698457043",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-06-17",
+      "rows": {
+        "stop_times": 412505,
+        "routes": 25,
+        "stops": 224,
+        "trips": 22034
+      },
+      "valid_from": "2025-06-17",
+      "valid_until_exclusive": "2025-07-04"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250704_060010_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250704_060010_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250704_060010_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "daf793e08b8c0faf1726221ca629458e5919fdd97e42ed422be56b3114110f57",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-07-04",
+      "rows": {
+        "stop_times": 413985,
+        "routes": 27,
+        "stops": 230,
+        "trips": 22306
+      },
+      "valid_from": "2025-07-04",
+      "valid_until_exclusive": "2025-07-10"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250710_060043_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250710_060043_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250710_060043_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "5992996f372b4180f0230c3fadfc3c13c1f017b52cdf6a1eaa43d7d3ab868dbb",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-07-10",
+      "rows": {
+        "stop_times": 413985,
+        "routes": 27,
+        "stops": 230,
+        "trips": 22306
+      },
+      "valid_from": "2025-07-10",
+      "valid_until_exclusive": "2025-07-23"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250723_060115_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250723_060115_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250723_060115_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "453b33b45bf6009d5197ac21cb992f44911823f27a6a6d56558e009926574488",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-07-23",
+      "rows": {
+        "stop_times": 206808,
+        "routes": 27,
+        "stops": 230,
+        "trips": 11216
+      },
+      "valid_from": "2025-07-23",
+      "valid_until_exclusive": "2025-07-30"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250730_060024_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250730_060024_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250730_060024_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "0c73090a7e449225586d4e4453fe2c050274b56ad52039466cfe28cc58a14332",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-07-30",
+      "rows": {
+        "stop_times": 258505,
+        "routes": 27,
+        "stops": 230,
+        "trips": 14066
+      },
+      "valid_from": "2025-07-30",
+      "valid_until_exclusive": "2025-08-13"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250813_060100_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250813_060100_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250813_060100_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "8e24a7563003ee1fb6133b7a96356ee39f24af343725f3b6bd085923933b085d",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-08-13",
+      "rows": {
+        "stop_times": 257979,
+        "routes": 27,
+        "stops": 230,
+        "trips": 14124
+      },
+      "valid_from": "2025-08-13",
+      "valid_until_exclusive": "2025-08-27"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250827_060035_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250827_060035_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250827_060035_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "d635dc086c108644c068203099dc9d69eeb2b93c392bc6c1fda07b58c7437a3f",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-08-27",
+      "rows": {
+        "stop_times": 230149,
+        "routes": 27,
+        "stops": 230,
+        "trips": 12570
+      },
+      "valid_from": "2025-08-27",
+      "valid_until_exclusive": "2025-09-02"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250902_060159_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250902_060159_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250902_060159_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "6bb8d57ac6979c784d0b9a51c1cb5cdc44cda24ab01f09ec1562303ab315704d",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-09-02",
+      "rows": {
+        "stop_times": 163664,
+        "routes": 27,
+        "stops": 230,
+        "trips": 8906
+      },
+      "valid_from": "2025-09-02",
+      "valid_until_exclusive": "2025-09-10"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250910_060020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250910_060020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250910_060020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "514da8c73678f98766a9da1e5d678c6803a605ef49d25e44bfcc2f28451f4ceb",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-09-10",
+      "rows": {
+        "stop_times": 193997,
+        "routes": 27,
+        "stops": 230,
+        "trips": 10522
+      },
+      "valid_from": "2025-09-10",
+      "valid_until_exclusive": "2025-09-23"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250923_060236_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250923_060236_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250923_060236_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "11a6db213c830e7e8d5947c655b62efcd3d658d4fa1568ee85e9e671fa803dbc",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-09-23",
+      "rows": {
+        "stop_times": 206269,
+        "routes": 27,
+        "stops": 230,
+        "trips": 11162
+      },
+      "valid_from": "2025-09-23",
+      "valid_until_exclusive": "2025-09-24"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250924_060124_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20250924_060124_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20250924_060124_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "53d3fb257d5e3f6762e38ca4f34014c182391b23a2ce7088b7916e1104635d81",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-09-24",
+      "rows": {
+        "stop_times": 206269,
+        "routes": 27,
+        "stops": 230,
+        "trips": 11162
+      },
+      "valid_from": "2025-09-24",
+      "valid_until_exclusive": "2025-10-01"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251001_060007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20251001_060007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20251001_060007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "d9e3cd42c4e7bd969b2b519ab528ba17c8e4c299f1c69ee51ac0d140efd61409",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-10-01",
+      "rows": {
+        "stop_times": 84551,
+        "routes": 27,
+        "stops": 230,
+        "trips": 4606
+      },
+      "valid_from": "2025-10-01",
+      "valid_until_exclusive": "2025-10-08"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251008_060107_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20251008_060107_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20251008_060107_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "0b63bf421387eb9afb953334a16e5308cee603fa325f594dd5b6d1eb150643b2",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-10-08",
+      "rows": {
+        "stop_times": 179843,
+        "routes": 26,
+        "stops": 229,
+        "trips": 9658
+      },
+      "valid_from": "2025-10-08",
+      "valid_until_exclusive": "2025-10-15"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251015_060051_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20251015_060051_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20251015_060051_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "a1c84859650a056ebe9da5e0e7de8351deaf73325450c5eba6016766e03df64b",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-10-15",
+      "rows": {
+        "stop_times": 179843,
+        "routes": 26,
+        "stops": 229,
+        "trips": 9658
+      },
+      "valid_from": "2025-10-15",
+      "valid_until_exclusive": "2025-10-22"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251022_060009_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20251022_060009_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20251022_060009_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "81c6670fa47b5ca9469d2f677fc9d5cbd51abf254be61fd34670a85f3e4bdcaf",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-10-22",
+      "rows": {
+        "stop_times": 179843,
+        "routes": 26,
+        "stops": 229,
+        "trips": 9658
+      },
+      "valid_from": "2025-10-22",
+      "valid_until_exclusive": "2025-10-28"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251028_070043_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20251028_070043_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20251028_070043_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "681c3f570f1acf75231a406d75696eceda7ed6c10acde5aac221417737e5eac0",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-10-28",
+      "rows": {
+        "stop_times": 179843,
+        "routes": 26,
+        "stops": 229,
+        "trips": 9658
+      },
+      "valid_from": "2025-10-28",
+      "valid_until_exclusive": "2025-11-04"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251104_070057_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20251104_070057_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20251104_070057_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "b031e9cbf340854cad8e459506187a9c773afed5142c2b100daec131ef462119",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-11-04",
+      "rows": {
+        "stop_times": 149423,
+        "routes": 26,
+        "stops": 229,
+        "trips": 8038
+      },
+      "valid_from": "2025-11-04",
+      "valid_until_exclusive": "2025-11-11"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251111_070014_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20251111_070014_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20251111_070014_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "b23fb1ad9dc8d4085fdaa23cf28d3152e5d7df86dc851a8c6783836ffa705697",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-11-11",
+      "rows": {
+        "stop_times": 149423,
+        "routes": 26,
+        "stops": 229,
+        "trips": 8038
+      },
+      "valid_from": "2025-11-11",
+      "valid_until_exclusive": "2025-11-18"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251118_070106_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20251118_070106_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20251118_070106_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "79a1017e211bb91e9754bfb266924f7dcf988b119bf80ebd1fe0d2b7303c080f",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-11-18",
+      "rows": {
+        "stop_times": 149423,
+        "routes": 26,
+        "stops": 229,
+        "trips": 8038
+      },
+      "valid_from": "2025-11-18",
+      "valid_until_exclusive": "2025-11-21"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251121_070016_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20251121_070016_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20251121_070016_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "b4e6a980cb26411a5b496373348c3612f5698a18343d2c9df3b065f2993c18dc",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-11-21",
+      "rows": {
+        "stop_times": 149423,
+        "routes": 26,
+        "stops": 229,
+        "trips": 8038
+      },
+      "valid_from": "2025-11-21",
+      "valid_until_exclusive": "2025-11-26"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251126_070021_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20251126_070021_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20251126_070021_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "584848348a18e75e993f740b59e70484281f143122f4e87aafdbb13c018ba3dd",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-11-26",
+      "rows": {
+        "stop_times": 149423,
+        "routes": 26,
+        "stops": 229,
+        "trips": 8038
+      },
+      "valid_from": "2025-11-26",
+      "valid_until_exclusive": "2025-12-02"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251202_070007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20251202_070007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20251202_070007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "ad6a9c36c2cd812e2f993a89d2615a579f9e2ebe2862962e04a2f09113a2ebc6",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-12-02",
+      "rows": {
+        "stop_times": 149423,
+        "routes": 26,
+        "stops": 229,
+        "trips": 8038
+      },
+      "valid_from": "2025-12-02",
+      "valid_until_exclusive": "2025-12-09"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251209_070057_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20251209_070057_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20251209_070057_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "5f01cdf1ae999a99803a675d965fe94e854cf0e76cd2ccbccdf8b4cfeff68bc8",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-12-09",
+      "rows": {
+        "stop_times": 106705,
+        "routes": 26,
+        "stops": 229,
+        "trips": 5778
+      },
+      "valid_from": "2025-12-09",
+      "valid_until_exclusive": "2025-12-16"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251216_070150_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20251216_070150_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20251216_070150_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "40e8e061de7f37ba9936a377364c56aed8fda29ea411eb610c6889868c2df187",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-12-16",
+      "rows": {
+        "stop_times": 106705,
+        "routes": 26,
+        "stops": 229,
+        "trips": 5778
+      },
+      "valid_from": "2025-12-16",
+      "valid_until_exclusive": "2025-12-23"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251223_070219_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20251223_070219_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20251223_070219_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "97a2b42111fba04faa5c5e6d32d17f022221032a875dc3092bc60e7f23226cf7",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-12-23",
+      "rows": {
+        "stop_times": 106705,
+        "routes": 26,
+        "stops": 229,
+        "trips": 5778
+      },
+      "valid_from": "2025-12-23",
+      "valid_until_exclusive": "2025-12-30"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251230_070030_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20251230_070030_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20251230_070030_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "105aa08b8b9b3879d25a0f9456980731b82da57461518c1a04b8ea53f043ee78",
+      "operator": "ekialdebus",
+      "snapshot_date": "2025-12-30",
+      "rows": {
+        "stop_times": 18642,
+        "routes": 21,
+        "stops": 226,
+        "trips": 1006
+      },
+      "valid_from": "2025-12-30",
+      "valid_until_exclusive": "2026-01-05"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260105_070051_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260105_070051_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260105_070051_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "815295bab64de2767e9b45432cdbf0f26b1db6f6201b373b7c111817e52f6438",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-01-05",
+      "rows": {
+        "stop_times": 0,
+        "routes": 0,
+        "stops": 0,
+        "trips": 0
+      },
+      "valid_from": "2026-01-05",
+      "valid_until_exclusive": "2026-01-13"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260113_070029_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260113_070029_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260113_070029_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "f1bb82c83e54efd64cfcd9235a1789933577927a5a3dacd60692b743807fcda2",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-01-13",
+      "rows": {
+        "stop_times": 68317,
+        "routes": 36,
+        "stops": 231,
+        "trips": 3651
+      },
+      "valid_from": "2026-01-13",
+      "valid_until_exclusive": "2026-01-20"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260120_070032_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260120_070032_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260120_070032_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "e5eb4aa9abf18a3c70e12eb015408d5b50832ba79ffe23a2435c0c2d045baf8e",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-01-20",
+      "rows": {
+        "stop_times": 71093,
+        "routes": 31,
+        "stops": 231,
+        "trips": 3784
+      },
+      "valid_from": "2026-01-20",
+      "valid_until_exclusive": "2026-01-27"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260127_070024_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260127_070024_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260127_070024_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "410befe20e4aba7b9fe8731decbc38a91c30562bf5e4c5b702f4f6a5a836199f",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-01-27",
+      "rows": {
+        "stop_times": 68010,
+        "routes": 26,
+        "stops": 228,
+        "trips": 3611
+      },
+      "valid_from": "2026-01-27",
+      "valid_until_exclusive": "2026-02-03"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260203_070022_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260203_070022_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260203_070022_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "9bbdc57daba5784b5e00e0c55a939c67477dc246f58992b9cf7e60d6acf95214",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-02-03",
+      "rows": {
+        "stop_times": 66069,
+        "routes": 26,
+        "stops": 228,
+        "trips": 3533
+      },
+      "valid_from": "2026-02-03",
+      "valid_until_exclusive": "2026-02-10"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260210_070036_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260210_070036_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260210_070036_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "281d4a262dd7f7ec70de75b367b883a51bc214458399a6b3173e8f3267bed0cc",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-02-10",
+      "rows": {
+        "stop_times": 66651,
+        "routes": 26,
+        "stops": 228,
+        "trips": 3563
+      },
+      "valid_from": "2026-02-10",
+      "valid_until_exclusive": "2026-02-17"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260217_070127_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260217_070127_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260217_070127_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "e36c70966d2f65ae5a38cc6df5f6aa1a4f527eb38876007cfd0da7a84bc30220",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-02-17",
+      "rows": {
+        "stop_times": 66388,
+        "routes": 36,
+        "stops": 231,
+        "trips": 3565
+      },
+      "valid_from": "2026-02-17",
+      "valid_until_exclusive": "2026-02-24"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260224_090059_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260224_090059_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260224_090059_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "cad1b526e3b2821fa6f953a880dece6ce990986cab98544424d002e9c0c27d3b",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-02-24",
+      "rows": {
+        "stop_times": 66286,
+        "routes": 36,
+        "stops": 231,
+        "trips": 3552
+      },
+      "valid_from": "2026-02-24",
+      "valid_until_exclusive": "2026-03-03"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260303_070038_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260303_070038_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260303_070038_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "710d1e6f1ccfd6edfa0df0b82ba59a8ee60383cbe73430e32a5607bd60a86286",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-03-03",
+      "rows": {
+        "stop_times": 12027,
+        "routes": 15,
+        "stops": 175,
+        "trips": 629
+      },
+      "valid_from": "2026-03-03",
+      "valid_until_exclusive": "2026-03-10"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260310_070025_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260310_070025_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260310_070025_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "680d75b8bd482a634ce3c491c2d82a44b7a18f92af22a8f75d5fdd7a81c83474",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-03-10",
+      "rows": {
+        "stop_times": 97282,
+        "routes": 36,
+        "stops": 231,
+        "trips": 5203
+      },
+      "valid_from": "2026-03-10",
+      "valid_until_exclusive": "2026-03-17"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260317_070034_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260317_070034_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260317_070034_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "471786542795ecfc1c44cd8119d0ac81834afe2411276491dcb700665b9280c0",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-03-17",
+      "rows": {
+        "stop_times": 103983,
+        "routes": 26,
+        "stops": 228,
+        "trips": 5512
+      },
+      "valid_from": "2026-03-17",
+      "valid_until_exclusive": "2026-03-24"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260324_070031_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260324_070031_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260324_070031_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "4218e44c821646a931eb6e160eabe05948da0c8c2fe02c552c700bd60c2253cd",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-03-24",
+      "rows": {
+        "stop_times": 104370,
+        "routes": 31,
+        "stops": 231,
+        "trips": 5540
+      },
+      "valid_from": "2026-03-24",
+      "valid_until_exclusive": "2026-03-31"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260331_060035_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260331_060035_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260331_060035_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "6cefe074a05df2620f922bb8ebc74de65ef3f93ac7966bbc84382571ce9ec36c",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-03-31",
+      "rows": {
+        "stop_times": 11626,
+        "routes": 10,
+        "stops": 173,
+        "trips": 609
+      },
+      "valid_from": "2026-03-31",
+      "valid_until_exclusive": "2026-04-07"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260407_060025_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260407_060025_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260407_060025_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "04f88bab98ad1414beb09751c390ae7cab60e500ec17efc969b20687455d310a",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-04-07",
+      "rows": {
+        "stop_times": 11626,
+        "routes": 10,
+        "stops": 173,
+        "trips": 609
+      },
+      "valid_from": "2026-04-07",
+      "valid_until_exclusive": "2026-04-14"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260414_060029_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260414_060029_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260414_060029_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "9531db53c5c907d8d72374b0d00e7399b174e529963df9bcf4874e400aedb85b",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-04-14",
+      "rows": {
+        "stop_times": 12027,
+        "routes": 15,
+        "stops": 175,
+        "trips": 629
+      },
+      "valid_from": "2026-04-14",
+      "valid_until_exclusive": "2026-04-21"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260421_080021_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260421_080021_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260421_080021_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "232b2232f7c702ea66c1ddb847ce1f8e64d8bd823adb2f6d5d1ca3ea51ef599e",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-04-21",
+      "rows": {
+        "stop_times": 91460,
+        "routes": 31,
+        "stops": 231,
+        "trips": 4869
+      },
+      "valid_from": "2026-04-21",
+      "valid_until_exclusive": "2026-04-24"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260424_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260424_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260424_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "9531db53c5c907d8d72374b0d00e7399b174e529963df9bcf4874e400aedb85b",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-04-24",
+      "rows": {
+        "stop_times": 12027,
+        "routes": 15,
+        "stops": 175,
+        "trips": 629
+      },
+      "valid_from": "2026-04-24",
+      "valid_until_exclusive": "2026-04-25"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260425_140012_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260425_140012_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260425_140012_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "5bf1af21a8319d1668a28b5efa943e8f29117573d6f45d8a0a0224a1c3f23b06",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-04-25",
+      "rows": {
+        "stop_times": 72306,
+        "routes": 26,
+        "stops": 228,
+        "trips": 3827
+      },
+      "valid_from": "2026-04-25",
+      "valid_until_exclusive": "2026-04-28"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260428_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260428_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260428_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "43e987e18215a86281155c5fcf44596e701ed44d57bd76b6829494f8c7887ca2",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-04-28",
+      "rows": {
+        "stop_times": 72425,
+        "routes": 36,
+        "stops": 231,
+        "trips": 3841
+      },
+      "valid_from": "2026-04-28",
+      "valid_until_exclusive": "2026-05-05"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260505_060014_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260505_060014_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260505_060014_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "990409f8874198673e33d232de87603553370aa62cceb2fcde8b9d1c99c54293",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-05-05",
+      "rows": {
+        "stop_times": 66258,
+        "routes": 36,
+        "stops": 231,
+        "trips": 3551
+      },
+      "valid_from": "2026-05-05",
+      "valid_until_exclusive": "2026-05-12"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260512_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260512_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260512_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "e519b81880ae6b71c37a3b5a6dac8183d3bd85caba42c1b5e76e3872694fc3d6",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-05-12",
+      "rows": {
+        "stop_times": 66408,
+        "routes": 26,
+        "stops": 228,
+        "trips": 3563
+      },
+      "valid_from": "2026-05-12",
+      "valid_until_exclusive": "2026-05-19"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260519_060003_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260519_060003_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260519_060003_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "a1c22327d73344fce638a21d658827a8d66851d65dc1e531b5333a57f44da1e7",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-05-19",
+      "rows": {
+        "stop_times": 66232,
+        "routes": 26,
+        "stops": 228,
+        "trips": 3552
+      },
+      "valid_from": "2026-05-19",
+      "valid_until_exclusive": "2026-05-27"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260527_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260527_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260527_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "4119f69e59269e3b704d8036cb7bf770be9dcb3655d15349b12ac881a653044a",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-05-27",
+      "rows": {
+        "stop_times": 66728,
+        "routes": 27,
+        "stops": 230,
+        "trips": 3683
+      },
+      "valid_from": "2026-05-27",
+      "valid_until_exclusive": "2026-06-02"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260602_060040_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260602_060040_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260602_060040_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "8c26d9a4906f4933502e51c293c6df8c5c1b6093a9cd08366bbecaabc785d1ed",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-06-02",
+      "rows": {
+        "stop_times": 66196,
+        "routes": 27,
+        "stops": 230,
+        "trips": 3644
+      },
+      "valid_from": "2026-06-02",
+      "valid_until_exclusive": "2026-06-09"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260609_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260609_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260609_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "85c0cd26437d081c978fd33d24e8e21e99ed44528a591001ef2853e0c311d565",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-06-09",
+      "rows": {
+        "stop_times": 66640,
+        "routes": 27,
+        "stops": 230,
+        "trips": 3665
+      },
+      "valid_from": "2026-06-09",
+      "valid_until_exclusive": "2026-06-18"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260618_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260618_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260618_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "07ff30497a738aeb9dd48416cf1117163d342e802dd5242b2d1c422e4911b760",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-06-18",
+      "rows": {
+        "stop_times": 105097,
+        "routes": 27,
+        "stops": 230,
+        "trips": 5822
+      },
+      "valid_from": "2026-06-18",
+      "valid_until_exclusive": "2026-06-23"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260623_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260623_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260623_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "0be8e7b4f8dc0077f470a52d8e1eb9b3d7770886222cc88c29cfdfe08923993b",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-06-23",
+      "rows": {
+        "stop_times": 106180,
+        "routes": 27,
+        "stops": 230,
+        "trips": 5883
+      },
+      "valid_from": "2026-06-23",
+      "valid_until_exclusive": "2026-06-30"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260630_060006_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260630_060006_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260630_060006_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "866ca4f5370364e9a82c2df3da41f3220d9e4f12b3ae0b596d0d91a4b4840bf7",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-06-30",
+      "rows": {
+        "stop_times": 105041,
+        "routes": 27,
+        "stops": 230,
+        "trips": 5813
+      },
+      "valid_from": "2026-06-30",
+      "valid_until_exclusive": "2026-07-07"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260707_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260707_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260707_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "46ff4809ca275b57217db20204f6bf7adcd7ae9bfab3c277d6c1622f34a7c04e",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-07-07",
+      "rows": {
+        "stop_times": 107974,
+        "routes": 27,
+        "stops": 230,
+        "trips": 5966
+      },
+      "valid_from": "2026-07-07",
+      "valid_until_exclusive": "2026-07-14"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260714_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260714_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260714_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "83a1f519b832844a75cf7aa12c53658c4bdca2302da8800e9325efb52f0e0e18",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-07-14",
+      "rows": {
+        "stop_times": 111204,
+        "routes": 27,
+        "stops": 230,
+        "trips": 6112
+      },
+      "valid_from": "2026-07-14",
+      "valid_until_exclusive": "2026-07-21"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260721_060015_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260721_060015_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260721_060015_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "cb25a14df742cc027fb990f0f9ac9ad2955acd0c859bc901b010689b9e48c6fe",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-07-21",
+      "rows": {
+        "stop_times": 98924,
+        "routes": 27,
+        "stops": 230,
+        "trips": 5394
+      },
+      "valid_from": "2026-07-21",
+      "valid_until_exclusive": "2026-07-28"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260728_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260728_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260728_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "17a3f215a1a7582af8758909b054af59d6ee34f071de3c701372e3ade8fa16ba",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-07-28",
+      "rows": {
+        "stop_times": 94786,
+        "routes": 27,
+        "stops": 230,
+        "trips": 5176
+      },
+      "valid_from": "2026-07-28",
+      "valid_until_exclusive": "2026-08-04"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260804_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260804_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260804_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "cb25a14df742cc027fb990f0f9ac9ad2955acd0c859bc901b010689b9e48c6fe",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-08-04",
+      "rows": {
+        "stop_times": 98924,
+        "routes": 27,
+        "stops": 230,
+        "trips": 5394
+      },
+      "valid_from": "2026-08-04",
+      "valid_until_exclusive": "2026-08-09"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260809_060007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260809_060007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260809_060007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "b89840af37595761bbda43ea0f65132562dc1ec9770dd874fdeb6c3a4a99a11d",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-08-09",
+      "rows": {
+        "stop_times": 118970,
+        "routes": 27,
+        "stops": 230,
+        "trips": 6485
+      },
+      "valid_from": "2026-08-09",
+      "valid_until_exclusive": "2026-08-12"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260812_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260812_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260812_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "32ce200b33a671dd24fc8a50a5f2b491a62b54ed9f17e5884d09570b0eeb23ce",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-08-12",
+      "rows": {
+        "stop_times": 114555,
+        "routes": 27,
+        "stops": 230,
+        "trips": 6277
+      },
+      "valid_from": "2026-08-12",
+      "valid_until_exclusive": "2026-08-20"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260820_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260820_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260820_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "fe8bb570750cb1bd9501e9c7153152d346d33f192236ce90a85d8fc643179e7a",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-08-20",
+      "rows": {
+        "stop_times": 108984,
+        "routes": 33,
+        "stops": 233,
+        "trips": 5970
+      },
+      "valid_from": "2026-08-20",
+      "valid_until_exclusive": "2026-09-02"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260902_060006_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260902_060006_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260902_060006_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "b88e362bf2eea8574d2bb1dcbb0b5d3464736785fc4bcb39ad68d67520347d76",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-09-02",
+      "rows": {
+        "stop_times": 89334,
+        "routes": 28,
+        "stops": 230,
+        "trips": 4860
+      },
+      "valid_from": "2026-09-02",
+      "valid_until_exclusive": "2026-09-09"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260909_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260909_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260909_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "d44144fdda874d53e8c1091dceaa771738ee40863d6d54777d68e3dec04664f7",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-09-09",
+      "rows": {
+        "stop_times": 79102,
+        "routes": 28,
+        "stops": 230,
+        "trips": 4310
+      },
+      "valid_from": "2026-09-09",
+      "valid_until_exclusive": "2026-09-16"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260916_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260916_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260916_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "bd1cbae19669f0b19c3f1d32c25eb4ce872334621d7b747e29c8d4c4749a26c9",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-09-16",
+      "rows": {
+        "stop_times": 70495,
+        "routes": 28,
+        "stops": 230,
+        "trips": 3852
+      },
+      "valid_from": "2026-09-16",
+      "valid_until_exclusive": "2026-09-23"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260923_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260923_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260923_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "a9dfeb77e14e0df39be36a2511e897ee574af20f793030de4afbf394ea4bbbe8",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-09-23",
+      "rows": {
+        "stop_times": 70495,
+        "routes": 28,
+        "stops": 230,
+        "trips": 3852
+      },
+      "valid_from": "2026-09-23",
+      "valid_until_exclusive": "2026-09-29"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260929_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20260929_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20260929_060004_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "75e21768d7266c1e90c999d3305e788c147b99513cdff0ef4d22cdb93c5ecbbf",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-09-29",
+      "rows": {
+        "stop_times": 19624,
+        "routes": 24,
+        "stops": 227,
+        "trips": 1080
+      },
+      "valid_from": "2026-09-29",
+      "valid_until_exclusive": "2026-10-13"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20261013_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus (1).zip",
+      "relative_path": "20261013_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus (1).zip",
+      "filename": "20261013_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus (1).zip",
+      "valid": true,
+      "error": null,
+      "sha256": "e1999c67ea17fc759190d5aa0835e52e71685936be6626c4a0b2cfe131bfd33a",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-10-13",
+      "rows": {
+        "stop_times": 85991,
+        "routes": 25,
+        "stops": 229,
+        "trips": 4563
+      },
+      "valid_from": "2026-10-13",
+      "valid_until_exclusive": null
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20261013_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "relative_path": "20261013_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "filename": "20261013_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "e1999c67ea17fc759190d5aa0835e52e71685936be6626c4a0b2cfe131bfd33a",
+      "operator": "ekialdebus",
+      "snapshot_date": "2026-10-13",
+      "rows": {
+        "stop_times": 85991,
+        "routes": 25,
+        "stops": 229,
+        "trips": 4563
+      },
+      "duplicate_of": "20261013_060005_Euskadi_ATTG_Lurraldebus_Ekialdebus (1).zip",
+      "duplicate_snapshot": true
+    }
+  ],
+  "status": "imported_with_errors",
+  "db": "C:\\Users\\OierMartinez\\Documents\\Codex\\2026-10-19\\referenced-chatgpt-conversation-this-is-an-2\\outputs\\Observatorio_Movilidad_real_v0.1_GTFS\\data\\real\\observatorio_real.sqlite3",
+  "backup": "C:\\Users\\OierMartinez\\Documents\\Codex\\2026-10-19\\referenced-chatgpt-conversation-this-is-an-2\\outputs\\Observatorio_Movilidad_real_v0.1_GTFS\\data\\real\\observatorio_real.sqlite3.before_bulk_20261019_181625.bak",
+  "imported": [
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250211_090152_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250211_090152_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250211_090152_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "16ab1be2191e2cc70ded51a674eace55b22635ce4e1de161534f16b592c7632f",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-02-11",
+        "rows": {
+          "stop_times": 64028,
+          "routes": 25,
+          "stops": 219,
+          "trips": 3472
+        },
+        "valid_from": "2025-02-11",
+        "valid_until_exclusive": "2025-02-18"
+      },
+      "result": {
+        "feed_id": 82,
+        "sha256": "16ab1be2191e2cc70ded51a674eace55b22635ce4e1de161534f16b592c7632f",
+        "operator": "ekialdebus",
+        "min_date": "2011-02-01",
+        "max_date": "2025-12-31",
+        "routes": 25,
+        "stops": 219,
+        "trips": 3472,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250218_090143_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250218_090143_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250218_090143_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "efe506b3585dbec97eed0dbbde7b095722c6e956bf6449db265dbef7921eb53f",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-02-18",
+        "rows": {
+          "stop_times": 64028,
+          "routes": 25,
+          "stops": 219,
+          "trips": 3472
+        },
+        "valid_from": "2025-02-18",
+        "valid_until_exclusive": "2025-02-25"
+      },
+      "result": {
+        "feed_id": 83,
+        "sha256": "efe506b3585dbec97eed0dbbde7b095722c6e956bf6449db265dbef7921eb53f",
+        "operator": "ekialdebus",
+        "min_date": "2011-02-01",
+        "max_date": "2025-12-31",
+        "routes": 25,
+        "stops": 219,
+        "trips": 3472,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250225_090128_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250225_090128_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250225_090128_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "38ca05afc90ad666f4d80411234920a0e599e43132547ffb8b57236f4f146907",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-02-25",
+        "rows": {
+          "stop_times": 64028,
+          "routes": 25,
+          "stops": 219,
+          "trips": 3472
+        },
+        "valid_from": "2025-02-25",
+        "valid_until_exclusive": "2025-03-04"
+      },
+      "result": {
+        "feed_id": 84,
+        "sha256": "38ca05afc90ad666f4d80411234920a0e599e43132547ffb8b57236f4f146907",
+        "operator": "ekialdebus",
+        "min_date": "2011-02-01",
+        "max_date": "2025-12-31",
+        "routes": 25,
+        "stops": 219,
+        "trips": 3472,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250304_090018_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250304_090018_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250304_090018_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "55bf0136955c5455bca81abe88a6e2c30364f218521fdb557585cbece57de179",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-03-04",
+        "rows": {
+          "stop_times": 64028,
+          "routes": 25,
+          "stops": 219,
+          "trips": 3472
+        },
+        "valid_from": "2025-03-04",
+        "valid_until_exclusive": "2025-03-12"
+      },
+      "result": {
+        "feed_id": 85,
+        "sha256": "55bf0136955c5455bca81abe88a6e2c30364f218521fdb557585cbece57de179",
+        "operator": "ekialdebus",
+        "min_date": "2011-02-01",
+        "max_date": "2025-12-31",
+        "routes": 25,
+        "stops": 219,
+        "trips": 3472,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250312_090020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250312_090020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250312_090020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "6c0b6f3b85ef21c76fa7c5efcb43c3ef8a35ef65d46add6c25c828eb51eae966",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-03-12",
+        "rows": {
+          "stop_times": 64024,
+          "routes": 25,
+          "stops": 218,
+          "trips": 3472
+        },
+        "valid_from": "2025-03-12",
+        "valid_until_exclusive": "2025-03-18"
+      },
+      "result": {
+        "feed_id": 86,
+        "sha256": "6c0b6f3b85ef21c76fa7c5efcb43c3ef8a35ef65d46add6c25c828eb51eae966",
+        "operator": "ekialdebus",
+        "min_date": "2011-02-01",
+        "max_date": "2025-12-31",
+        "routes": 25,
+        "stops": 218,
+        "trips": 3472,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250318_090035_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250318_090035_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250318_090035_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "a5f5e069e7399e91a57d1e9a9ec8fa53f92fb358307788df88c4d77d5bf7dee8",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-03-18",
+        "rows": {
+          "stop_times": 3472,
+          "routes": 25,
+          "stops": 23,
+          "trips": 3472
+        },
+        "valid_from": "2025-03-18",
+        "valid_until_exclusive": "2025-03-26"
+      },
+      "result": {
+        "feed_id": 87,
+        "sha256": "a5f5e069e7399e91a57d1e9a9ec8fa53f92fb358307788df88c4d77d5bf7dee8",
+        "operator": "ekialdebus",
+        "min_date": "2011-02-01",
+        "max_date": "2025-12-31",
+        "routes": 25,
+        "stops": 23,
+        "trips": 3472,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250326_090023_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250326_090023_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250326_090023_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "9bd85cb2c75f11991b4e7425cee490f89877a6fc1cc2ad7f3283689ae97ada9b",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-03-26",
+        "rows": {
+          "stop_times": 64536,
+          "routes": 25,
+          "stops": 222,
+          "trips": 3472
+        },
+        "valid_from": "2025-03-26",
+        "valid_until_exclusive": "2025-03-28"
+      },
+      "result": {
+        "feed_id": 88,
+        "sha256": "9bd85cb2c75f11991b4e7425cee490f89877a6fc1cc2ad7f3283689ae97ada9b",
+        "operator": "ekialdebus",
+        "min_date": "2011-02-01",
+        "max_date": "2025-12-31",
+        "routes": 25,
+        "stops": 222,
+        "trips": 3472,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250328_090021_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250328_090021_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250328_090021_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "106ee8b4c31be1837de8247cd2f3bbaff1ebc08c58f438c49cfe337d650a9a2b",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-03-28",
+        "rows": {
+          "stop_times": 64536,
+          "routes": 25,
+          "stops": 222,
+          "trips": 3472
+        },
+        "valid_from": "2025-03-28",
+        "valid_until_exclusive": "2025-05-19"
+      },
+      "result": {
+        "feed_id": 89,
+        "sha256": "106ee8b4c31be1837de8247cd2f3bbaff1ebc08c58f438c49cfe337d650a9a2b",
+        "operator": "ekialdebus",
+        "min_date": "2011-02-01",
+        "max_date": "2025-12-31",
+        "routes": 25,
+        "stops": 222,
+        "trips": 3472,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250519_060220_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250519_060220_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250519_060220_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "30e90534fe4eef3fbc034b8f5984f87e3515e4d064f13566e0b35efc0e46175f",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-05-19",
+        "rows": {
+          "stop_times": 410153,
+          "routes": 25,
+          "stops": 222,
+          "trips": 22034
+        },
+        "valid_from": "2025-05-19",
+        "valid_until_exclusive": "2025-05-26"
+      },
+      "result": {
+        "feed_id": 90,
+        "sha256": "30e90534fe4eef3fbc034b8f5984f87e3515e4d064f13566e0b35efc0e46175f",
+        "operator": "ekialdebus",
+        "min_date": "2011-02-01",
+        "max_date": "2025-12-31",
+        "routes": 25,
+        "stops": 222,
+        "trips": 22034,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250526_060020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250526_060020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250526_060020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "0145e7254685a36a027957463eac29b4a4ca69a94f2be0683052d612dfa56a20",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-05-26",
+        "rows": {
+          "stop_times": 410153,
+          "routes": 25,
+          "stops": 222,
+          "trips": 22034
+        },
+        "valid_from": "2025-05-26",
+        "valid_until_exclusive": "2025-06-02"
+      },
+      "result": {
+        "feed_id": 91,
+        "sha256": "0145e7254685a36a027957463eac29b4a4ca69a94f2be0683052d612dfa56a20",
+        "operator": "ekialdebus",
+        "min_date": "2011-02-01",
+        "max_date": "2025-12-31",
+        "routes": 25,
+        "stops": 222,
+        "trips": 22034,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250602_060007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250602_060007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250602_060007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "1dcf3ac9e34ace02ddffc1bf06752734085d332bb256de478ac0b6571241244a",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-06-02",
+        "rows": {
+          "stop_times": 410151,
+          "routes": 25,
+          "stops": 222,
+          "trips": 22034
+        },
+        "valid_from": "2025-06-02",
+        "valid_until_exclusive": "2025-06-10"
+      },
+      "result": {
+        "feed_id": 92,
+        "sha256": "1dcf3ac9e34ace02ddffc1bf06752734085d332bb256de478ac0b6571241244a",
+        "operator": "ekialdebus",
+        "min_date": "2011-02-01",
+        "max_date": "2025-12-31",
+        "routes": 25,
+        "stops": 222,
+        "trips": 22034,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250610_060133_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250610_060133_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250610_060133_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "29da3567cd8ad3fb64416fb835aa59c4c44dbedf4d5c07790162e75d98b34152",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-06-10",
+        "rows": {
+          "stop_times": 410153,
+          "routes": 25,
+          "stops": 222,
+          "trips": 22034
+        },
+        "valid_from": "2025-06-10",
+        "valid_until_exclusive": "2025-06-17"
+      },
+      "result": {
+        "feed_id": 93,
+        "sha256": "29da3567cd8ad3fb64416fb835aa59c4c44dbedf4d5c07790162e75d98b34152",
+        "operator": "ekialdebus",
+        "min_date": "2011-02-01",
+        "max_date": "2025-12-31",
+        "routes": 25,
+        "stops": 222,
+        "trips": 22034,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250617_060013_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250617_060013_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250617_060013_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "17e4e8c53cac30e579c9ffafa6d6f75e35fd573be1d69ef73871e64698457043",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-06-17",
+        "rows": {
+          "stop_times": 412505,
+          "routes": 25,
+          "stops": 224,
+          "trips": 22034
+        },
+        "valid_from": "2025-06-17",
+        "valid_until_exclusive": "2025-07-04"
+      },
+      "result": {
+        "feed_id": 94,
+        "sha256": "17e4e8c53cac30e579c9ffafa6d6f75e35fd573be1d69ef73871e64698457043",
+        "operator": "ekialdebus",
+        "min_date": "2011-02-01",
+        "max_date": "2025-12-31",
+        "routes": 25,
+        "stops": 224,
+        "trips": 22034,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250704_060010_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250704_060010_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250704_060010_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "daf793e08b8c0faf1726221ca629458e5919fdd97e42ed422be56b3114110f57",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-07-04",
+        "rows": {
+          "stop_times": 413985,
+          "routes": 27,
+          "stops": 230,
+          "trips": 22306
+        },
+        "valid_from": "2025-07-04",
+        "valid_until_exclusive": "2025-07-10"
+      },
+      "result": {
+        "feed_id": 95,
+        "sha256": "daf793e08b8c0faf1726221ca629458e5919fdd97e42ed422be56b3114110f57",
+        "operator": "ekialdebus",
+        "min_date": "2011-02-01",
+        "max_date": "2025-12-31",
+        "routes": 27,
+        "stops": 230,
+        "trips": 22306,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250710_060043_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250710_060043_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250710_060043_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "5992996f372b4180f0230c3fadfc3c13c1f017b52cdf6a1eaa43d7d3ab868dbb",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-07-10",
+        "rows": {
+          "stop_times": 413985,
+          "routes": 27,
+          "stops": 230,
+          "trips": 22306
+        },
+        "valid_from": "2025-07-10",
+        "valid_until_exclusive": "2025-07-23"
+      },
+      "result": {
+        "feed_id": 96,
+        "sha256": "5992996f372b4180f0230c3fadfc3c13c1f017b52cdf6a1eaa43d7d3ab868dbb",
+        "operator": "ekialdebus",
+        "min_date": "2011-02-01",
+        "max_date": "2025-12-31",
+        "routes": 27,
+        "stops": 230,
+        "trips": 22306,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250723_060115_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250723_060115_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250723_060115_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "453b33b45bf6009d5197ac21cb992f44911823f27a6a6d56558e009926574488",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-07-23",
+        "rows": {
+          "stop_times": 206808,
+          "routes": 27,
+          "stops": 230,
+          "trips": 11216
+        },
+        "valid_from": "2025-07-23",
+        "valid_until_exclusive": "2025-07-30"
+      },
+      "result": {
+        "feed_id": 97,
+        "sha256": "453b33b45bf6009d5197ac21cb992f44911823f27a6a6d56558e009926574488",
+        "operator": "ekialdebus",
+        "min_date": "2025-07-21",
+        "max_date": "2025-10-19",
+        "routes": 27,
+        "stops": 230,
+        "trips": 11216,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250730_060024_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250730_060024_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250730_060024_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "0c73090a7e449225586d4e4453fe2c050274b56ad52039466cfe28cc58a14332",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-07-30",
+        "rows": {
+          "stop_times": 258505,
+          "routes": 27,
+          "stops": 230,
+          "trips": 14066
+        },
+        "valid_from": "2025-07-30",
+        "valid_until_exclusive": "2025-08-13"
+      },
+      "result": {
+        "feed_id": 98,
+        "sha256": "0c73090a7e449225586d4e4453fe2c050274b56ad52039466cfe28cc58a14332",
+        "operator": "ekialdebus",
+        "min_date": "2025-07-28",
+        "max_date": "2025-10-26",
+        "routes": 27,
+        "stops": 230,
+        "trips": 14066,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250813_060100_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250813_060100_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250813_060100_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "8e24a7563003ee1fb6133b7a96356ee39f24af343725f3b6bd085923933b085d",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-08-13",
+        "rows": {
+          "stop_times": 257979,
+          "routes": 27,
+          "stops": 230,
+          "trips": 14124
+        },
+        "valid_from": "2025-08-13",
+        "valid_until_exclusive": "2025-08-27"
+      },
+      "result": {
+        "feed_id": 99,
+        "sha256": "8e24a7563003ee1fb6133b7a96356ee39f24af343725f3b6bd085923933b085d",
+        "operator": "ekialdebus",
+        "min_date": "2025-08-11",
+        "max_date": "2025-11-09",
+        "routes": 27,
+        "stops": 230,
+        "trips": 14124,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250827_060035_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250827_060035_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250827_060035_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "d635dc086c108644c068203099dc9d69eeb2b93c392bc6c1fda07b58c7437a3f",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-08-27",
+        "rows": {
+          "stop_times": 230149,
+          "routes": 27,
+          "stops": 230,
+          "trips": 12570
+        },
+        "valid_from": "2025-08-27",
+        "valid_until_exclusive": "2025-09-02"
+      },
+      "result": {
+        "feed_id": 100,
+        "sha256": "d635dc086c108644c068203099dc9d69eeb2b93c392bc6c1fda07b58c7437a3f",
+        "operator": "ekialdebus",
+        "min_date": "2025-08-25",
+        "max_date": "2025-11-23",
+        "routes": 27,
+        "stops": 230,
+        "trips": 12570,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250902_060159_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250902_060159_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250902_060159_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "6bb8d57ac6979c784d0b9a51c1cb5cdc44cda24ab01f09ec1562303ab315704d",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-09-02",
+        "rows": {
+          "stop_times": 163664,
+          "routes": 27,
+          "stops": 230,
+          "trips": 8906
+        },
+        "valid_from": "2025-09-02",
+        "valid_until_exclusive": "2025-09-10"
+      },
+      "result": {
+        "feed_id": 101,
+        "sha256": "6bb8d57ac6979c784d0b9a51c1cb5cdc44cda24ab01f09ec1562303ab315704d",
+        "operator": "ekialdebus",
+        "min_date": "2025-09-01",
+        "max_date": "2025-11-30",
+        "routes": 27,
+        "stops": 230,
+        "trips": 8906,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250910_060020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250910_060020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250910_060020_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "514da8c73678f98766a9da1e5d678c6803a605ef49d25e44bfcc2f28451f4ceb",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-09-10",
+        "rows": {
+          "stop_times": 193997,
+          "routes": 27,
+          "stops": 230,
+          "trips": 10522
+        },
+        "valid_from": "2025-09-10",
+        "valid_until_exclusive": "2025-09-23"
+      },
+      "result": {
+        "feed_id": 102,
+        "sha256": "514da8c73678f98766a9da1e5d678c6803a605ef49d25e44bfcc2f28451f4ceb",
+        "operator": "ekialdebus",
+        "min_date": "2025-09-08",
+        "max_date": "2025-12-07",
+        "routes": 27,
+        "stops": 230,
+        "trips": 10522,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250923_060236_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250923_060236_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250923_060236_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "11a6db213c830e7e8d5947c655b62efcd3d658d4fa1568ee85e9e671fa803dbc",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-09-23",
+        "rows": {
+          "stop_times": 206269,
+          "routes": 27,
+          "stops": 230,
+          "trips": 11162
+        },
+        "valid_from": "2025-09-23",
+        "valid_until_exclusive": "2025-09-24"
+      },
+      "result": {
+        "feed_id": 103,
+        "sha256": "11a6db213c830e7e8d5947c655b62efcd3d658d4fa1568ee85e9e671fa803dbc",
+        "operator": "ekialdebus",
+        "min_date": "2025-09-22",
+        "max_date": "2025-12-21",
+        "routes": 27,
+        "stops": 230,
+        "trips": 11162,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20250924_060124_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20250924_060124_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20250924_060124_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "53d3fb257d5e3f6762e38ca4f34014c182391b23a2ce7088b7916e1104635d81",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-09-24",
+        "rows": {
+          "stop_times": 206269,
+          "routes": 27,
+          "stops": 230,
+          "trips": 11162
+        },
+        "valid_from": "2025-09-24",
+        "valid_until_exclusive": "2025-10-01"
+      },
+      "result": {
+        "feed_id": 104,
+        "sha256": "53d3fb257d5e3f6762e38ca4f34014c182391b23a2ce7088b7916e1104635d81",
+        "operator": "ekialdebus",
+        "min_date": "2025-09-23",
+        "max_date": "2025-12-22",
+        "routes": 27,
+        "stops": 230,
+        "trips": 11162,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251001_060007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20251001_060007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20251001_060007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "d9e3cd42c4e7bd969b2b519ab528ba17c8e4c299f1c69ee51ac0d140efd61409",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-10-01",
+        "rows": {
+          "stop_times": 84551,
+          "routes": 27,
+          "stops": 230,
+          "trips": 4606
+        },
+        "valid_from": "2025-10-01",
+        "valid_until_exclusive": "2025-10-08"
+      },
+      "result": {
+        "feed_id": 105,
+        "sha256": "d9e3cd42c4e7bd969b2b519ab528ba17c8e4c299f1c69ee51ac0d140efd61409",
+        "operator": "ekialdebus",
+        "min_date": "2025-09-29",
+        "max_date": "2025-12-28",
+        "routes": 27,
+        "stops": 230,
+        "trips": 4606,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251008_060107_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20251008_060107_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20251008_060107_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "0b63bf421387eb9afb953334a16e5308cee603fa325f594dd5b6d1eb150643b2",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-10-08",
+        "rows": {
+          "stop_times": 179843,
+          "routes": 26,
+          "stops": 229,
+          "trips": 9658
+        },
+        "valid_from": "2025-10-08",
+        "valid_until_exclusive": "2025-10-15"
+      },
+      "result": {
+        "feed_id": 106,
+        "sha256": "0b63bf421387eb9afb953334a16e5308cee603fa325f594dd5b6d1eb150643b2",
+        "operator": "ekialdebus",
+        "min_date": "2025-10-06",
+        "max_date": "2025-12-31",
+        "routes": 26,
+        "stops": 229,
+        "trips": 9658,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251015_060051_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20251015_060051_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20251015_060051_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "a1c84859650a056ebe9da5e0e7de8351deaf73325450c5eba6016766e03df64b",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-10-15",
+        "rows": {
+          "stop_times": 179843,
+          "routes": 26,
+          "stops": 229,
+          "trips": 9658
+        },
+        "valid_from": "2025-10-15",
+        "valid_until_exclusive": "2025-10-22"
+      },
+      "result": {
+        "feed_id": 107,
+        "sha256": "a1c84859650a056ebe9da5e0e7de8351deaf73325450c5eba6016766e03df64b",
+        "operator": "ekialdebus",
+        "min_date": "2025-10-13",
+        "max_date": "2025-12-31",
+        "routes": 26,
+        "stops": 229,
+        "trips": 9658,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251022_060009_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20251022_060009_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20251022_060009_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "81c6670fa47b5ca9469d2f677fc9d5cbd51abf254be61fd34670a85f3e4bdcaf",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-10-22",
+        "rows": {
+          "stop_times": 179843,
+          "routes": 26,
+          "stops": 229,
+          "trips": 9658
+        },
+        "valid_from": "2025-10-22",
+        "valid_until_exclusive": "2025-10-28"
+      },
+      "result": {
+        "feed_id": 108,
+        "sha256": "81c6670fa47b5ca9469d2f677fc9d5cbd51abf254be61fd34670a85f3e4bdcaf",
+        "operator": "ekialdebus",
+        "min_date": "2025-10-20",
+        "max_date": "2025-12-31",
+        "routes": 26,
+        "stops": 229,
+        "trips": 9658,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251028_070043_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20251028_070043_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20251028_070043_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "681c3f570f1acf75231a406d75696eceda7ed6c10acde5aac221417737e5eac0",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-10-28",
+        "rows": {
+          "stop_times": 179843,
+          "routes": 26,
+          "stops": 229,
+          "trips": 9658
+        },
+        "valid_from": "2025-10-28",
+        "valid_until_exclusive": "2025-11-04"
+      },
+      "result": {
+        "feed_id": 109,
+        "sha256": "681c3f570f1acf75231a406d75696eceda7ed6c10acde5aac221417737e5eac0",
+        "operator": "ekialdebus",
+        "min_date": "2025-10-27",
+        "max_date": "2025-12-31",
+        "routes": 26,
+        "stops": 229,
+        "trips": 9658,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251104_070057_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20251104_070057_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20251104_070057_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "b031e9cbf340854cad8e459506187a9c773afed5142c2b100daec131ef462119",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-11-04",
+        "rows": {
+          "stop_times": 149423,
+          "routes": 26,
+          "stops": 229,
+          "trips": 8038
+        },
+        "valid_from": "2025-11-04",
+        "valid_until_exclusive": "2025-11-11"
+      },
+      "result": {
+        "feed_id": 110,
+        "sha256": "b031e9cbf340854cad8e459506187a9c773afed5142c2b100daec131ef462119",
+        "operator": "ekialdebus",
+        "min_date": "2025-11-03",
+        "max_date": "2025-12-31",
+        "routes": 26,
+        "stops": 229,
+        "trips": 8038,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251111_070014_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20251111_070014_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20251111_070014_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "b23fb1ad9dc8d4085fdaa23cf28d3152e5d7df86dc851a8c6783836ffa705697",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-11-11",
+        "rows": {
+          "stop_times": 149423,
+          "routes": 26,
+          "stops": 229,
+          "trips": 8038
+        },
+        "valid_from": "2025-11-11",
+        "valid_until_exclusive": "2025-11-18"
+      },
+      "result": {
+        "feed_id": 111,
+        "sha256": "b23fb1ad9dc8d4085fdaa23cf28d3152e5d7df86dc851a8c6783836ffa705697",
+        "operator": "ekialdebus",
+        "min_date": "2025-11-10",
+        "max_date": "2025-12-31",
+        "routes": 26,
+        "stops": 229,
+        "trips": 8038,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251118_070106_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20251118_070106_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20251118_070106_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "79a1017e211bb91e9754bfb266924f7dcf988b119bf80ebd1fe0d2b7303c080f",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-11-18",
+        "rows": {
+          "stop_times": 149423,
+          "routes": 26,
+          "stops": 229,
+          "trips": 8038
+        },
+        "valid_from": "2025-11-18",
+        "valid_until_exclusive": "2025-11-21"
+      },
+      "result": {
+        "feed_id": 112,
+        "sha256": "79a1017e211bb91e9754bfb266924f7dcf988b119bf80ebd1fe0d2b7303c080f",
+        "operator": "ekialdebus",
+        "min_date": "2025-11-17",
+        "max_date": "2025-12-31",
+        "routes": 26,
+        "stops": 229,
+        "trips": 8038,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251121_070016_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20251121_070016_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20251121_070016_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "b4e6a980cb26411a5b496373348c3612f5698a18343d2c9df3b065f2993c18dc",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-11-21",
+        "rows": {
+          "stop_times": 149423,
+          "routes": 26,
+          "stops": 229,
+          "trips": 8038
+        },
+        "valid_from": "2025-11-21",
+        "valid_until_exclusive": "2025-11-26"
+      },
+      "result": {
+        "feed_id": 113,
+        "sha256": "b4e6a980cb26411a5b496373348c3612f5698a18343d2c9df3b065f2993c18dc",
+        "operator": "ekialdebus",
+        "min_date": "2025-11-19",
+        "max_date": "2025-12-31",
+        "routes": 26,
+        "stops": 229,
+        "trips": 8038,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251126_070021_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20251126_070021_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20251126_070021_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "584848348a18e75e993f740b59e70484281f143122f4e87aafdbb13c018ba3dd",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-11-26",
+        "rows": {
+          "stop_times": 149423,
+          "routes": 26,
+          "stops": 229,
+          "trips": 8038
+        },
+        "valid_from": "2025-11-26",
+        "valid_until_exclusive": "2025-12-02"
+      },
+      "result": {
+        "feed_id": 114,
+        "sha256": "584848348a18e75e993f740b59e70484281f143122f4e87aafdbb13c018ba3dd",
+        "operator": "ekialdebus",
+        "min_date": "2025-11-24",
+        "max_date": "2025-12-31",
+        "routes": 26,
+        "stops": 229,
+        "trips": 8038,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251202_070007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20251202_070007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20251202_070007_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "ad6a9c36c2cd812e2f993a89d2615a579f9e2ebe2862962e04a2f09113a2ebc6",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-12-02",
+        "rows": {
+          "stop_times": 149423,
+          "routes": 26,
+          "stops": 229,
+          "trips": 8038
+        },
+        "valid_from": "2025-12-02",
+        "valid_until_exclusive": "2025-12-09"
+      },
+      "result": {
+        "feed_id": 115,
+        "sha256": "ad6a9c36c2cd812e2f993a89d2615a579f9e2ebe2862962e04a2f09113a2ebc6",
+        "operator": "ekialdebus",
+        "min_date": "2025-12-01",
+        "max_date": "2025-12-31",
+        "routes": 26,
+        "stops": 229,
+        "trips": 8038,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251209_070057_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20251209_070057_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20251209_070057_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "5f01cdf1ae999a99803a675d965fe94e854cf0e76cd2ccbccdf8b4cfeff68bc8",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-12-09",
+        "rows": {
+          "stop_times": 106705,
+          "routes": 26,
+          "stops": 229,
+          "trips": 5778
+        },
+        "valid_from": "2025-12-09",
+        "valid_until_exclusive": "2025-12-16"
+      },
+      "result": {
+        "feed_id": 116,
+        "sha256": "5f01cdf1ae999a99803a675d965fe94e854cf0e76cd2ccbccdf8b4cfeff68bc8",
+        "operator": "ekialdebus",
+        "min_date": "2025-12-08",
+        "max_date": "2025-12-31",
+        "routes": 26,
+        "stops": 229,
+        "trips": 5778,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251216_070150_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20251216_070150_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20251216_070150_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "40e8e061de7f37ba9936a377364c56aed8fda29ea411eb610c6889868c2df187",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-12-16",
+        "rows": {
+          "stop_times": 106705,
+          "routes": 26,
+          "stops": 229,
+          "trips": 5778
+        },
+        "valid_from": "2025-12-16",
+        "valid_until_exclusive": "2025-12-23"
+      },
+      "result": {
+        "feed_id": 117,
+        "sha256": "40e8e061de7f37ba9936a377364c56aed8fda29ea411eb610c6889868c2df187",
+        "operator": "ekialdebus",
+        "min_date": "2025-12-15",
+        "max_date": "2025-12-31",
+        "routes": 26,
+        "stops": 229,
+        "trips": 5778,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251223_070219_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20251223_070219_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20251223_070219_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "97a2b42111fba04faa5c5e6d32d17f022221032a875dc3092bc60e7f23226cf7",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-12-23",
+        "rows": {
+          "stop_times": 106705,
+          "routes": 26,
+          "stops": 229,
+          "trips": 5778
+        },
+        "valid_from": "2025-12-23",
+        "valid_until_exclusive": "2025-12-30"
+      },
+      "result": {
+        "feed_id": 118,
+        "sha256": "97a2b42111fba04faa5c5e6d32d17f022221032a875dc3092bc60e7f23226cf7",
+        "operator": "ekialdebus",
+        "min_date": "2025-12-22",
+        "max_date": "2025-12-31",
+        "routes": 26,
+        "stops": 229,
+        "trips": 5778,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20251230_070030_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20251230_070030_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20251230_070030_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "105aa08b8b9b3879d25a0f9456980731b82da57461518c1a04b8ea53f043ee78",
+        "operator": "ekialdebus",
+        "snapshot_date": "2025-12-30",
+        "rows": {
+          "stop_times": 18642,
+          "routes": 21,
+          "stops": 226,
+          "trips": 1006
+        },
+        "valid_from": "2025-12-30",
+        "valid_until_exclusive": "2026-01-05"
+      },
+      "result": {
+        "feed_id": 119,
+        "sha256": "105aa08b8b9b3879d25a0f9456980731b82da57461518c1a04b8ea53f043ee78",
+        "operator": "ekialdebus",
+        "min_date": "2025-12-29",
+        "max_date": "2025-12-31",
+        "routes": 21,
+        "stops": 226,
+        "trips": 1006,
+        "already_imported": false
+      }
+    }
+  ],
+  "already_imported": [],
+  "failed_imports": [
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Ekialdebus\\20260105_070051_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "relative_path": "20260105_070051_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "filename": "20260105_070051_Euskadi_ATTG_Lurraldebus_Ekialdebus.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "815295bab64de2767e9b45432cdbf0f26b1db6f6201b373b7c111817e52f6438",
+        "operator": "ekialdebus",
+        "snapshot_date": "2026-01-05",
+        "rows": {
+          "stop_times": 0,
+          "routes": 0,
+          "stops": 0,
+          "trips": 0
+        },
+        "valid_from": "2026-01-05",
+        "valid_until_exclusive": "2026-01-13"
+      },
+      "error": "El feed no tiene calendario ni excepciones de servicio"
+    }
+  ],
+  "finished_at": "2026-10-19T16:19:41.942981+00:00"
+}

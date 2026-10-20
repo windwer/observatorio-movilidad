@@ -1,0 +1,3951 @@
+{
+  "schema": "observatorio.bulk_gtfs_import.v1",
+  "started_at": "2026-10-19T16:07:07.022306+00:00",
+  "input_root": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus",
+  "app_root": "C:\\Users\\OierMartinez\\Documents\\Codex\\2026-10-19\\referenced-chatgpt-conversation-this-is-an-2\\outputs\\Observatorio_Movilidad_real_v0.1_GTFS",
+  "operator_argument": "auto",
+  "recursive": true,
+  "dry_run": false,
+  "discovered": 81,
+  "valid": 81,
+  "unique_to_import": 80,
+  "duplicates": 1,
+  "errors": [],
+  "records": [
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20241217_130156_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20241217_130156_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20241217_130156_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "d6853b5549eec43a0a3a5a79b702c258c3071158f3e6f42ddc2c5c8a0a6a9c44",
+      "operator": "irunbus",
+      "snapshot_date": "2024-12-17",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 959,
+        "stop_times": 14288
+      },
+      "valid_from": "2024-12-17",
+      "valid_until_exclusive": "2025-01-15"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250115_130126_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250115_130126_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250115_130126_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "a4d36aac74250d7b859b9776b2d815eb1d720d13740b20a4b881fcfe23c235ca",
+      "operator": "irunbus",
+      "snapshot_date": "2025-01-15",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "stop_times": 14398
+      },
+      "valid_from": "2025-01-15",
+      "valid_until_exclusive": "2025-01-21"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250121_130130_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250121_130130_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250121_130130_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "3e80a590b3522de22daadfa27024552b8498fa16ea6e69b4c74105278b30d7e2",
+      "operator": "irunbus",
+      "snapshot_date": "2025-01-21",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "stop_times": 14398
+      },
+      "valid_from": "2025-01-21",
+      "valid_until_exclusive": "2025-01-28"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250128_130142_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250128_130142_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250128_130142_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "07c90db1018a31fe5caec277e7456556d1437bca27403a380039b24ff3b4d5ef",
+      "operator": "irunbus",
+      "snapshot_date": "2025-01-28",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "stop_times": 14398
+      },
+      "valid_from": "2025-01-28",
+      "valid_until_exclusive": "2025-02-04"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250204_091323_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250204_091323_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250204_091323_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "e1a2256167ca75e8f40d591ce64447f9fc9df3bba5db313bb79bb10f6b51b6bc",
+      "operator": "irunbus",
+      "snapshot_date": "2025-02-04",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "stop_times": 14398
+      },
+      "valid_from": "2025-02-04",
+      "valid_until_exclusive": "2025-02-11"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250211_090013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250211_090013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250211_090013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "717a1314b69bf243b7c21de8c3583479181935eee8505bbb2ef1d07215d69a21",
+      "operator": "irunbus",
+      "snapshot_date": "2025-02-11",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "stop_times": 14398
+      },
+      "valid_from": "2025-02-11",
+      "valid_until_exclusive": "2025-02-25"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250225_090109_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250225_090109_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250225_090109_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "d5ea516be83c1bf46b0df34a5f05d2b980d839c62a4336eafefad9b30f6d8c2c",
+      "operator": "irunbus",
+      "snapshot_date": "2025-02-25",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "stop_times": 14398
+      },
+      "valid_from": "2025-02-25",
+      "valid_until_exclusive": "2025-03-04"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250304_090125_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250304_090125_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250304_090125_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "080e39d8e0d4ef956c0be9ea31b87ea5a558244168f3aa83298ccf9f3ae4c73d",
+      "operator": "irunbus",
+      "snapshot_date": "2025-03-04",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "stop_times": 14398
+      },
+      "valid_from": "2025-03-04",
+      "valid_until_exclusive": "2025-03-17"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250317_090525_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250317_090525_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250317_090525_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "6dbe5c3095e63ebbe70f1d7191fc86406dd3e27b6230387be5dcd3553d556c8b",
+      "operator": "irunbus",
+      "snapshot_date": "2025-03-17",
+      "rows": {
+        "routes": 5,
+        "stops": 5,
+        "trips": 964,
+        "stop_times": 964
+      },
+      "valid_from": "2025-03-17",
+      "valid_until_exclusive": "2025-03-25"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250325_090127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250325_090127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250325_090127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "3d3bd0f1a181714fe3edc60780c75396863d183a3c76bb85ba114e941ae96dda",
+      "operator": "irunbus",
+      "snapshot_date": "2025-03-25",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "stop_times": 14398
+      },
+      "valid_from": "2025-03-25",
+      "valid_until_exclusive": "2025-03-27"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250327_090006_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250327_090006_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250327_090006_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "4ff4f4cbcff53fde9cd34b3865099007fa7e2949a7501ac032d2392a37dd511f",
+      "operator": "irunbus",
+      "snapshot_date": "2025-03-27",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "stop_times": 14398
+      },
+      "valid_from": "2025-03-27",
+      "valid_until_exclusive": "2025-04-03"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250403_074753_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250403_074753_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250403_074753_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "573dd0a3089d679b9338fab3950a55da9bbf7a2a19814935642b4236bfce99d4",
+      "operator": "irunbus",
+      "snapshot_date": "2025-04-03",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "stop_times": 14398
+      },
+      "valid_from": "2025-04-03",
+      "valid_until_exclusive": "2025-04-23"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250423_080010_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250423_080010_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250423_080010_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "20d1eb15fcb41d4af8e0eb4d2240602f839e83425f7fa42083f74b0fea03bdad",
+      "operator": "irunbus",
+      "snapshot_date": "2025-04-23",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "stop_times": 14398
+      },
+      "valid_from": "2025-04-23",
+      "valid_until_exclusive": "2025-04-30"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250430_060011_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250430_060011_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250430_060011_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "568bca0cfecdd8f45e1f9b53d811f540408ae9278af1e27a0c48db2a6aad400a",
+      "operator": "irunbus",
+      "snapshot_date": "2025-04-30",
+      "rows": {
+        "routes": 5,
+        "stops": 75,
+        "trips": 1166,
+        "stop_times": 17340
+      },
+      "valid_from": "2025-04-30",
+      "valid_until_exclusive": "2025-05-06"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250506_060008_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250506_060008_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250506_060008_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "2e07248411ce5a1f6462c73c66c5569c775cb4c64b57d6c6357944e46887c9d2",
+      "operator": "irunbus",
+      "snapshot_date": "2025-05-06",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 1012,
+        "stop_times": 15012
+      },
+      "valid_from": "2025-05-06",
+      "valid_until_exclusive": "2025-05-20"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250520_060019_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250520_060019_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250520_060019_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "01179766056ed518f6af3c802f5b03039f57fae536d75ce7649cf91f0986777e",
+      "operator": "irunbus",
+      "snapshot_date": "2025-05-20",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 1012,
+        "stop_times": 15012
+      },
+      "valid_from": "2025-05-20",
+      "valid_until_exclusive": "2025-05-27"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250527_060011_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250527_060011_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250527_060011_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "b432410f3c34098aeafc2ef10abd8fa6ef0362e8e6b680ceee24d690b1e25bc6",
+      "operator": "irunbus",
+      "snapshot_date": "2025-05-27",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 1012,
+        "stop_times": 15012
+      },
+      "valid_from": "2025-05-27",
+      "valid_until_exclusive": "2025-06-03"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250603_060127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250603_060127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250603_060127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "66290822c69a38d92d861af54e90cf2fc09ea526aeb43421b0e98caef4cef1b6",
+      "operator": "irunbus",
+      "snapshot_date": "2025-06-03",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 1012,
+        "stop_times": 15012
+      },
+      "valid_from": "2025-06-03",
+      "valid_until_exclusive": "2025-06-11"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250611_060101_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250611_060101_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250611_060101_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "f25b89242b0b3ed175579de2cae8853b806edc02f30402585480606392a9a38a",
+      "operator": "irunbus",
+      "snapshot_date": "2025-06-11",
+      "rows": {
+        "routes": 5,
+        "stops": 76,
+        "trips": 1012,
+        "stop_times": 15012
+      },
+      "valid_from": "2025-06-11",
+      "valid_until_exclusive": "2025-07-01"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250701_060134_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250701_060134_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250701_060134_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "0efcc6ea5805526774943e1a093a861e3c6cb293eca9fa8addb57d624ab24cfe",
+      "operator": "irunbus",
+      "snapshot_date": "2025-07-01",
+      "rows": {
+        "routes": 6,
+        "stops": 83,
+        "trips": 1076,
+        "stop_times": 16470
+      },
+      "valid_from": "2025-07-01",
+      "valid_until_exclusive": "2025-07-07"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250707_060149_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250707_060149_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250707_060149_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "807bc399eb39df949c062c21fd381f2055298a9037cbe3a66d9bdfc4af8ba9ab",
+      "operator": "irunbus",
+      "snapshot_date": "2025-07-07",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1166,
+        "stop_times": 17364
+      },
+      "valid_from": "2025-07-07",
+      "valid_until_exclusive": "2025-07-18"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250718_060150_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250718_060150_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250718_060150_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "169146fa553b35b6211d431fa59b5af4afca052296e52007d05cc0aa3d245a9f",
+      "operator": "irunbus",
+      "snapshot_date": "2025-07-18",
+      "rows": {
+        "routes": 4,
+        "stops": 70,
+        "trips": 154,
+        "stop_times": 2334
+      },
+      "valid_from": "2025-07-18",
+      "valid_until_exclusive": "2025-07-21"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250721_060239_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250721_060239_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250721_060239_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "aa99bd202602ff6b48e5b014dc5ac7810d6745cb50609e4d1edd4e321acf3214",
+      "operator": "irunbus",
+      "snapshot_date": "2025-07-21",
+      "rows": {
+        "routes": 4,
+        "stops": 70,
+        "trips": 154,
+        "stop_times": 2334
+      },
+      "valid_from": "2025-07-21",
+      "valid_until_exclusive": "2025-07-22"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250722_060203_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250722_060203_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250722_060203_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "1d5cda8e8edd9db9e8399ac97931ffa120853905947a59c7dd879f51281bc5cc",
+      "operator": "irunbus",
+      "snapshot_date": "2025-07-22",
+      "rows": {
+        "routes": 4,
+        "stops": 70,
+        "trips": 154,
+        "stop_times": 2334
+      },
+      "valid_from": "2025-07-22",
+      "valid_until_exclusive": "2025-07-23"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250723_060249_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250723_060249_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250723_060249_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "5bb0001eb6b64725eda2b98a889c146170a6e963a59c13e540f884e54e6e3962",
+      "operator": "irunbus",
+      "snapshot_date": "2025-07-23",
+      "rows": {
+        "routes": 4,
+        "stops": 70,
+        "trips": 154,
+        "stop_times": 2334
+      },
+      "valid_from": "2025-07-23",
+      "valid_until_exclusive": "2025-07-29"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250729_060318_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250729_060318_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250729_060318_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "19ef7ea7ff18ae3fa319b98fe381dbae3d7bb0cd8e2f95cce8e2bbf9769c21ee",
+      "operator": "irunbus",
+      "snapshot_date": "2025-07-29",
+      "rows": {
+        "routes": 4,
+        "stops": 70,
+        "trips": 154,
+        "stop_times": 2334
+      },
+      "valid_from": "2025-07-29",
+      "valid_until_exclusive": "2025-08-06"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250806_060151_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250806_060151_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250806_060151_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "bcd065afa4895860f0a7652e60b2cd15fc6f45947f572736a2d430798965817e",
+      "operator": "irunbus",
+      "snapshot_date": "2025-08-06",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 170,
+        "stop_times": 2710
+      },
+      "valid_from": "2025-08-06",
+      "valid_until_exclusive": "2025-08-27"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250827_060144_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250827_060144_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250827_060144_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "34b42f1ee63151aacc8b8e016f58f9c71ff8de0e21ffb61d84c95a8ae715ba5f",
+      "operator": "irunbus",
+      "snapshot_date": "2025-08-27",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1012,
+        "stop_times": 15030
+      },
+      "valid_from": "2025-08-27",
+      "valid_until_exclusive": "2025-09-02"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250902_060233_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250902_060233_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250902_060233_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "5bab66378ce5ac5b526b2251917d2db3f70d110c24cb3f8c009799382b3db5a8",
+      "operator": "irunbus",
+      "snapshot_date": "2025-09-02",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1012,
+        "stop_times": 15030
+      },
+      "valid_from": "2025-09-02",
+      "valid_until_exclusive": "2025-09-08"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250908_060222_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250908_060222_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250908_060222_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "943dd0c043a197b263b94bcbc007b10d3e2c3b46069b96ecbc95f42a48bae1e6",
+      "operator": "irunbus",
+      "snapshot_date": "2025-09-08",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1012,
+        "stop_times": 15030
+      },
+      "valid_from": "2025-09-08",
+      "valid_until_exclusive": "2025-09-30"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250930_060132_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20250930_060132_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20250930_060132_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "72ddec317adedbc7e00b584fd64396e767410fc54eb3eba3926abb4ae97e75ed",
+      "operator": "irunbus",
+      "snapshot_date": "2025-09-30",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1012,
+        "stop_times": 15030
+      },
+      "valid_from": "2025-09-30",
+      "valid_until_exclusive": "2025-10-06"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251006_060056_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20251006_060056_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20251006_060056_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "9be066df93f88c9e23c88a900be9abdd2d961dcb73f749d4235e7994c41dd783",
+      "operator": "irunbus",
+      "snapshot_date": "2025-10-06",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "stop_times": 2663
+      },
+      "valid_from": "2025-10-06",
+      "valid_until_exclusive": "2025-10-13"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251013_060234_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20251013_060234_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20251013_060234_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "06cec9a69ef5028b3bbd6b91890d22bf157901b662a12873060faaa008cf8a10",
+      "operator": "irunbus",
+      "snapshot_date": "2025-10-13",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "stop_times": 2663
+      },
+      "valid_from": "2025-10-13",
+      "valid_until_exclusive": "2025-11-11"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251111_070055_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20251111_070055_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20251111_070055_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "80db72c45493eea06bc3bc346197a6d9bf3c115189f2bcbde6440cc43e32293a",
+      "operator": "irunbus",
+      "snapshot_date": "2025-11-11",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "stop_times": 2663
+      },
+      "valid_from": "2025-11-11",
+      "valid_until_exclusive": "2025-11-18"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251118_070111_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20251118_070111_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20251118_070111_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "2b22b14027f2df45749bcdca136a534d00a95c1526423f63f94959bb9b1abe07",
+      "operator": "irunbus",
+      "snapshot_date": "2025-11-18",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 338,
+        "stop_times": 5373
+      },
+      "valid_from": "2025-11-18",
+      "valid_until_exclusive": "2025-11-25"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251125_070102_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20251125_070102_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20251125_070102_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "be8a7182b445b085bd45e174c30495ef332f24bf59147bff3c6d08ecda4361fd",
+      "operator": "irunbus",
+      "snapshot_date": "2025-11-25",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "stop_times": 2663
+      },
+      "valid_from": "2025-11-25",
+      "valid_until_exclusive": "2025-12-02"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251202_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20251202_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20251202_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "a7bfce576bef284d6bbb5561d83cc94f49dd41cebddd8be8c11f2a277857bc0c",
+      "operator": "irunbus",
+      "snapshot_date": "2025-12-02",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "stop_times": 2663
+      },
+      "valid_from": "2025-12-02",
+      "valid_until_exclusive": "2025-12-09"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251209_070126_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20251209_070126_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20251209_070126_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "54f14afd752ca558cb3789ae0204e6ce486765d6ce304c08a473344adc3e9905",
+      "operator": "irunbus",
+      "snapshot_date": "2025-12-09",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "stop_times": 2663
+      },
+      "valid_from": "2025-12-09",
+      "valid_until_exclusive": "2025-12-16"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251216_070127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20251216_070127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20251216_070127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "bb2cce781dde9f1839aa99e59aaec4183d6fddf75bc1e5f9a8156c34f43e34c3",
+      "operator": "irunbus",
+      "snapshot_date": "2025-12-16",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "stop_times": 2663
+      },
+      "valid_from": "2025-12-16",
+      "valid_until_exclusive": "2025-12-23"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251223_070218_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20251223_070218_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20251223_070218_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "7cc9b4edb72b77859e1e982af7213d4a2f53ffbeeedb93624825592c3ee7ffd2",
+      "operator": "irunbus",
+      "snapshot_date": "2025-12-23",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "stop_times": 2663
+      },
+      "valid_from": "2025-12-23",
+      "valid_until_exclusive": "2025-12-30"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251230_070014_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20251230_070014_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20251230_070014_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "7be13cc2ef355a03e294582eafcde2f0240b7a1bd7cf31599320ab0c2c074bd9",
+      "operator": "irunbus",
+      "snapshot_date": "2025-12-30",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "stop_times": 2663
+      },
+      "valid_from": "2025-12-30",
+      "valid_until_exclusive": "2026-01-05"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260105_070006_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260105_070006_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260105_070006_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "14de2b15664184c625a850f9ec5136fa6ddf37b33716e9805aaaa6f4ed4008b4",
+      "operator": "irunbus",
+      "snapshot_date": "2026-01-05",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "stop_times": 2663
+      },
+      "valid_from": "2026-01-05",
+      "valid_until_exclusive": "2026-01-13"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260113_070045_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260113_070045_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260113_070045_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "cbde2b8aa2a89e348b30da967de5c5cca74aba55cb7159f8f5e8e227365f932a",
+      "operator": "irunbus",
+      "snapshot_date": "2026-01-13",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-01-13",
+      "valid_until_exclusive": "2026-01-20"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260120_070013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260120_070013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260120_070013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "b178cf5b230dcd22a38667d21db63dbc132229ca7f0379f5075c0264164c3749",
+      "operator": "irunbus",
+      "snapshot_date": "2026-01-20",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-01-20",
+      "valid_until_exclusive": "2026-02-03"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260203_070032_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260203_070032_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260203_070032_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "9cb372fbda3671016491fda325d44dd858558c1707970319e92471c1c0bb8b07",
+      "operator": "irunbus",
+      "snapshot_date": "2026-02-03",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-02-03",
+      "valid_until_exclusive": "2026-02-10"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260210_070046_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260210_070046_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260210_070046_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "186baab18cd928216180e02772f1f7c519aba52ff2f9c96681df611cc1ff62e7",
+      "operator": "irunbus",
+      "snapshot_date": "2026-02-10",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-02-10",
+      "valid_until_exclusive": "2026-02-17"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260217_070002_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260217_070002_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260217_070002_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "c12048b826b8c388d896fe4c54b922ab838f839f1757bd755cf1f61965d9ad9b",
+      "operator": "irunbus",
+      "snapshot_date": "2026-02-17",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-02-17",
+      "valid_until_exclusive": "2026-03-03"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260303_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260303_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260303_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "8525c7868d8348340437da1c8661a35bca60b0c8f3c4065e329e53eae1d0c7d0",
+      "operator": "irunbus",
+      "snapshot_date": "2026-03-03",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "stop_times": 2663
+      },
+      "valid_from": "2026-03-03",
+      "valid_until_exclusive": "2026-03-10"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260310_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260310_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260310_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "fac02833d2aa15da3dd98a715f17f0e7af3f631e326bc56fdc803edc70d47a8f",
+      "operator": "irunbus",
+      "snapshot_date": "2026-03-10",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "stop_times": 2663
+      },
+      "valid_from": "2026-03-10",
+      "valid_until_exclusive": "2026-03-17"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260317_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260317_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260317_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "36b71f5feeda0f79239debfa2c3e45458b8ba677946c093d4f7785309294ba6e",
+      "operator": "irunbus",
+      "snapshot_date": "2026-03-17",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "stop_times": 2663
+      },
+      "valid_from": "2026-03-17",
+      "valid_until_exclusive": "2026-03-31"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260331_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260331_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260331_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "6bf82f73cee401a0e776fcd142d3b36ffd1d17ec58712dfda9c37d05c1641856",
+      "operator": "irunbus",
+      "snapshot_date": "2026-03-31",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "stop_times": 2663
+      },
+      "valid_from": "2026-03-31",
+      "valid_until_exclusive": "2026-04-07"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260407_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260407_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260407_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "c7c19ef417d724569f66f34acdd31818c7d0b4d298f22cd91da2e272594f5f96",
+      "operator": "irunbus",
+      "snapshot_date": "2026-04-07",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "stop_times": 2663
+      },
+      "valid_from": "2026-04-07",
+      "valid_until_exclusive": "2026-04-14"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260414_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260414_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260414_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "96e2af638778f6e74e4ac99f6f6502274d9cfd50abc73efbf077a30e44d12875",
+      "operator": "irunbus",
+      "snapshot_date": "2026-04-14",
+      "rows": {
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "stop_times": 2663
+      },
+      "valid_from": "2026-04-14",
+      "valid_until_exclusive": "2026-04-16"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260416_053406_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260416_053406_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260416_053406_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "a556fdd13550b6ce2313859ecde67a4270558452307e3f5eadf0e5a91ddc53cd",
+      "operator": "irunbus",
+      "snapshot_date": "2026-04-16",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-04-16",
+      "valid_until_exclusive": "2026-04-18"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260418_060053_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260418_060053_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260418_060053_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "ad4c50433ad2a40a4657d8a7d05dbc0a63b42de33964322576132101c7008d54",
+      "operator": "irunbus",
+      "snapshot_date": "2026-04-18",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-04-18",
+      "valid_until_exclusive": "2026-04-21"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260421_080119_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260421_080119_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260421_080119_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "bc55e58ece6f355f1a6f4fcdc53aae4ca07d96f1acad6d6877766fdc25b7b387",
+      "operator": "irunbus",
+      "snapshot_date": "2026-04-21",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-04-21",
+      "valid_until_exclusive": "2026-04-28"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260428_060015_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260428_060015_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260428_060015_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "f853d433e69724566b357b8097ecd99e817beadb74225a5c7d9f397e550494b0",
+      "operator": "irunbus",
+      "snapshot_date": "2026-04-28",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-04-28",
+      "valid_until_exclusive": "2026-05-05"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260505_060109_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260505_060109_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260505_060109_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "74041421e1820a2931422a39ac123730f7dd7a4fe951b0f08947d3f82931f2df",
+      "operator": "irunbus",
+      "snapshot_date": "2026-05-05",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-05-05",
+      "valid_until_exclusive": "2026-05-19"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260519_060013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260519_060013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260519_060013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "0e957f476cd3ac6d20fcf85b32382019c2d276c069c8f9f7fcfb3480b52c2b91",
+      "operator": "irunbus",
+      "snapshot_date": "2026-05-19",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-05-19",
+      "valid_until_exclusive": "2026-05-27"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260527_060059_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260527_060059_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260527_060059_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "0e5d257eba5343d5c3d0d4dfa3354d7629a182d306739d51f264d3a8f802ad71",
+      "operator": "irunbus",
+      "snapshot_date": "2026-05-27",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-05-27",
+      "valid_until_exclusive": "2026-06-02"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260602_060237_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260602_060237_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260602_060237_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "c579d5e0eecea0f6cc6981cbbea7c111d49dc6880fce8ea99a9998603047f694",
+      "operator": "irunbus",
+      "snapshot_date": "2026-06-02",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-06-02",
+      "valid_until_exclusive": "2026-06-16"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260616_060055_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260616_060055_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260616_060055_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "2365be9cc0ebbba4fed5f81ae40393915b2b896c61e2ffc68d2ce783ca199d42",
+      "operator": "irunbus",
+      "snapshot_date": "2026-06-16",
+      "rows": {
+        "routes": 6,
+        "stops": 83,
+        "trips": 1026,
+        "stop_times": 15343
+      },
+      "valid_from": "2026-06-16",
+      "valid_until_exclusive": "2026-06-23"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260623_060107_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260623_060107_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260623_060107_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "08cffcb5e728521baf2f18dbb07e091c9c655a2e08b90f162859314e30bbabb2",
+      "operator": "irunbus",
+      "snapshot_date": "2026-06-23",
+      "rows": {
+        "routes": 6,
+        "stops": 83,
+        "trips": 1026,
+        "stop_times": 15343
+      },
+      "valid_from": "2026-06-23",
+      "valid_until_exclusive": "2026-06-30"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260630_060157_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260630_060157_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260630_060157_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "001bde1f2887134b79aeb8129cf3bf4fb5cd5eaffd3a035e3ed4e8588ed548d4",
+      "operator": "irunbus",
+      "snapshot_date": "2026-06-30",
+      "rows": {
+        "routes": 6,
+        "stops": 83,
+        "trips": 1026,
+        "stop_times": 15343
+      },
+      "valid_from": "2026-06-30",
+      "valid_until_exclusive": "2026-07-07"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260707_060058_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260707_060058_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260707_060058_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "65c6fd25170807297e1848a8c5a71747bccc9861db116ccc500ce640ba618101",
+      "operator": "irunbus",
+      "snapshot_date": "2026-07-07",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-07-07",
+      "valid_until_exclusive": "2026-07-14"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260714_060158_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260714_060158_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260714_060158_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "d0962a2bc47e5bafead5f81fa5bef16e7028a2ecbd7ef80b2410d0c446879f57",
+      "operator": "irunbus",
+      "snapshot_date": "2026-07-14",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 944,
+        "stop_times": 14001
+      },
+      "valid_from": "2026-07-14",
+      "valid_until_exclusive": "2026-07-21"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260721_060122_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260721_060122_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260721_060122_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "0aa6bbf8ff49a6d6fd1f97b739f724dbcc8753e92ca9a17e7ce93da9dd766aca",
+      "operator": "irunbus",
+      "snapshot_date": "2026-07-21",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 944,
+        "stop_times": 14001
+      },
+      "valid_from": "2026-07-21",
+      "valid_until_exclusive": "2026-07-28"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260728_060104_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260728_060104_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260728_060104_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "8442d26d2f107bf2f364cf44244719e5a63e948171d9848a6fb8094d77c404fc",
+      "operator": "irunbus",
+      "snapshot_date": "2026-07-28",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 944,
+        "stop_times": 14001
+      },
+      "valid_from": "2026-07-28",
+      "valid_until_exclusive": "2026-08-04"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260804_060022_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260804_060022_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260804_060022_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "0aa6bbf8ff49a6d6fd1f97b739f724dbcc8753e92ca9a17e7ce93da9dd766aca",
+      "operator": "irunbus",
+      "snapshot_date": "2026-08-04",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 944,
+        "stop_times": 14001
+      },
+      "valid_from": "2026-08-04",
+      "valid_until_exclusive": "2026-08-07"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260807_060144_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260807_060144_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260807_060144_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "b6a576fc314070166360182ada17c9f8bd6640da519f12f752903ea3d35669f0",
+      "operator": "irunbus",
+      "snapshot_date": "2026-08-07",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 944,
+        "stop_times": 14001
+      },
+      "valid_from": "2026-08-07",
+      "valid_until_exclusive": "2026-08-11"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260811_060105_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260811_060105_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260811_060105_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "005fc6e3fc11a631c484e36f8bd10f9cd40c1d70dec73f121545812547b6b4cb",
+      "operator": "irunbus",
+      "snapshot_date": "2026-08-11",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 944,
+        "stop_times": 14001
+      },
+      "valid_from": "2026-08-11",
+      "valid_until_exclusive": "2026-08-18"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260818_060017_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260818_060017_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260818_060017_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "09d4505f15654e7f62778aa781c87d4de59dce153eb95462bf2365e116cb7088",
+      "operator": "irunbus",
+      "snapshot_date": "2026-08-18",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 944,
+        "stop_times": 14001
+      },
+      "valid_from": "2026-08-18",
+      "valid_until_exclusive": "2026-09-01"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260901_060053_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260901_060053_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260901_060053_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "d235d67c32289218b569d21770b15d22180e4bd400e7061fb3b834f09bc82e56",
+      "operator": "irunbus",
+      "snapshot_date": "2026-09-01",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1040,
+        "stop_times": 15461
+      },
+      "valid_from": "2026-09-01",
+      "valid_until_exclusive": "2026-09-08"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260908_060757_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260908_060757_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260908_060757_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "d09d72624c531a6ca05d839e3ff626cd74a1563911a1bb67456cde3b3e2f63ba",
+      "operator": "irunbus",
+      "snapshot_date": "2026-09-08",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1040,
+        "stop_times": 15461
+      },
+      "valid_from": "2026-09-08",
+      "valid_until_exclusive": "2026-09-15"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260915_060020_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260915_060020_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260915_060020_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "96c535916703ea842a7c5c431cdaee88017ffa24ae662d5f2c2845b97ea7053c",
+      "operator": "irunbus",
+      "snapshot_date": "2026-09-15",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14976
+      },
+      "valid_from": "2026-09-15",
+      "valid_until_exclusive": "2026-09-22"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260922_060057_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260922_060057_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260922_060057_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "529353c09d4f88d48c4f9f5ed81d96d833fd2c31bb7749183a649d61c7bd1bba",
+      "operator": "irunbus",
+      "snapshot_date": "2026-09-22",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-09-22",
+      "valid_until_exclusive": "2026-09-28"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260928_060131_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20260928_060131_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20260928_060131_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "be2d29db8be47634bc29ff6750ca8a9f34d5ccc2e913f727a6a85dc9528b8538",
+      "operator": "irunbus",
+      "snapshot_date": "2026-09-28",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-09-28",
+      "valid_until_exclusive": "2026-10-05"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20261005_060043_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20261005_060043_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20261005_060043_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "315ab4c00704208ca3e2153f39d3f61318c4acdb15305013638e8e8f8dfe4043",
+      "operator": "irunbus",
+      "snapshot_date": "2026-10-05",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-10-05",
+      "valid_until_exclusive": "2026-10-12"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20261012_060229_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20261012_060229_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20261012_060229_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "b493173aa1f718394a87adb5f0fadc6ac82f3cc5d72eb2b63044ec0c78bb0f3f",
+      "operator": "irunbus",
+      "snapshot_date": "2026-10-12",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "stop_times": 14983
+      },
+      "valid_from": "2026-10-12",
+      "valid_until_exclusive": "2026-10-19"
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20261019_060137_Euskadi_ATTG_Lurraldebus_Auif_urb (2).zip",
+      "relative_path": "20261019_060137_Euskadi_ATTG_Lurraldebus_Auif_urb (2).zip",
+      "filename": "20261019_060137_Euskadi_ATTG_Lurraldebus_Auif_urb (2).zip",
+      "valid": true,
+      "error": null,
+      "sha256": "8f8fe40cab6156d33cabe91114745d1b09df28bc666f138045253d650afb2d29",
+      "operator": "irunbus",
+      "snapshot_date": "2026-10-19",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1012,
+        "stop_times": 15030
+      },
+      "valid_from": "2026-10-19",
+      "valid_until_exclusive": null
+    },
+    {
+      "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20261019_060137_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "relative_path": "20261019_060137_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "filename": "20261019_060137_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+      "valid": true,
+      "error": null,
+      "sha256": "8f8fe40cab6156d33cabe91114745d1b09df28bc666f138045253d650afb2d29",
+      "operator": "irunbus",
+      "snapshot_date": "2026-10-19",
+      "rows": {
+        "routes": 5,
+        "stops": 77,
+        "trips": 1012,
+        "stop_times": 15030
+      },
+      "duplicate_of": "20261019_060137_Euskadi_ATTG_Lurraldebus_Auif_urb (2).zip",
+      "duplicate_snapshot": true
+    }
+  ],
+  "status": "imported",
+  "db": "C:\\Users\\OierMartinez\\Documents\\Codex\\2026-10-19\\referenced-chatgpt-conversation-this-is-an-2\\outputs\\Observatorio_Movilidad_real_v0.1_GTFS\\data\\real\\observatorio_real.sqlite3",
+  "backup": "C:\\Users\\OierMartinez\\Documents\\Codex\\2026-10-19\\referenced-chatgpt-conversation-this-is-an-2\\outputs\\Observatorio_Movilidad_real_v0.1_GTFS\\data\\real\\observatorio_real.sqlite3.before_bulk_20261019_180709.bak",
+  "imported": [
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20241217_130156_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20241217_130156_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20241217_130156_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "d6853b5549eec43a0a3a5a79b702c258c3071158f3e6f42ddc2c5c8a0a6a9c44",
+        "operator": "irunbus",
+        "snapshot_date": "2024-12-17",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 959,
+          "stop_times": 14288
+        },
+        "valid_from": "2024-12-17",
+        "valid_until_exclusive": "2025-01-15"
+      },
+      "result": {
+        "feed_id": 3,
+        "sha256": "d6853b5549eec43a0a3a5a79b702c258c3071158f3e6f42ddc2c5c8a0a6a9c44",
+        "operator": "irunbus",
+        "min_date": "2024-01-01",
+        "max_date": "2024-12-31",
+        "routes": 5,
+        "stops": 76,
+        "trips": 959,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250115_130126_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250115_130126_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250115_130126_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "a4d36aac74250d7b859b9776b2d815eb1d720d13740b20a4b881fcfe23c235ca",
+        "operator": "irunbus",
+        "snapshot_date": "2025-01-15",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 964,
+          "stop_times": 14398
+        },
+        "valid_from": "2025-01-15",
+        "valid_until_exclusive": "2025-01-21"
+      },
+      "result": {
+        "feed_id": 4,
+        "sha256": "a4d36aac74250d7b859b9776b2d815eb1d720d13740b20a4b881fcfe23c235ca",
+        "operator": "irunbus",
+        "min_date": "2025-01-01",
+        "max_date": "2025-12-31",
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250121_130130_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250121_130130_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250121_130130_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "3e80a590b3522de22daadfa27024552b8498fa16ea6e69b4c74105278b30d7e2",
+        "operator": "irunbus",
+        "snapshot_date": "2025-01-21",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 964,
+          "stop_times": 14398
+        },
+        "valid_from": "2025-01-21",
+        "valid_until_exclusive": "2025-01-28"
+      },
+      "result": {
+        "feed_id": 5,
+        "sha256": "3e80a590b3522de22daadfa27024552b8498fa16ea6e69b4c74105278b30d7e2",
+        "operator": "irunbus",
+        "min_date": "2025-01-01",
+        "max_date": "2025-12-31",
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250128_130142_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250128_130142_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250128_130142_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "07c90db1018a31fe5caec277e7456556d1437bca27403a380039b24ff3b4d5ef",
+        "operator": "irunbus",
+        "snapshot_date": "2025-01-28",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 964,
+          "stop_times": 14398
+        },
+        "valid_from": "2025-01-28",
+        "valid_until_exclusive": "2025-02-04"
+      },
+      "result": {
+        "feed_id": 6,
+        "sha256": "07c90db1018a31fe5caec277e7456556d1437bca27403a380039b24ff3b4d5ef",
+        "operator": "irunbus",
+        "min_date": "2025-01-01",
+        "max_date": "2025-12-31",
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250204_091323_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250204_091323_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250204_091323_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "e1a2256167ca75e8f40d591ce64447f9fc9df3bba5db313bb79bb10f6b51b6bc",
+        "operator": "irunbus",
+        "snapshot_date": "2025-02-04",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 964,
+          "stop_times": 14398
+        },
+        "valid_from": "2025-02-04",
+        "valid_until_exclusive": "2025-02-11"
+      },
+      "result": {
+        "feed_id": 7,
+        "sha256": "e1a2256167ca75e8f40d591ce64447f9fc9df3bba5db313bb79bb10f6b51b6bc",
+        "operator": "irunbus",
+        "min_date": "2025-01-01",
+        "max_date": "2025-12-31",
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250211_090013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250211_090013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250211_090013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "717a1314b69bf243b7c21de8c3583479181935eee8505bbb2ef1d07215d69a21",
+        "operator": "irunbus",
+        "snapshot_date": "2025-02-11",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 964,
+          "stop_times": 14398
+        },
+        "valid_from": "2025-02-11",
+        "valid_until_exclusive": "2025-02-25"
+      },
+      "result": {
+        "feed_id": 8,
+        "sha256": "717a1314b69bf243b7c21de8c3583479181935eee8505bbb2ef1d07215d69a21",
+        "operator": "irunbus",
+        "min_date": "2025-01-01",
+        "max_date": "2025-12-31",
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250225_090109_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250225_090109_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250225_090109_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "d5ea516be83c1bf46b0df34a5f05d2b980d839c62a4336eafefad9b30f6d8c2c",
+        "operator": "irunbus",
+        "snapshot_date": "2025-02-25",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 964,
+          "stop_times": 14398
+        },
+        "valid_from": "2025-02-25",
+        "valid_until_exclusive": "2025-03-04"
+      },
+      "result": {
+        "feed_id": 9,
+        "sha256": "d5ea516be83c1bf46b0df34a5f05d2b980d839c62a4336eafefad9b30f6d8c2c",
+        "operator": "irunbus",
+        "min_date": "2025-01-01",
+        "max_date": "2025-12-31",
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250304_090125_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250304_090125_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250304_090125_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "080e39d8e0d4ef956c0be9ea31b87ea5a558244168f3aa83298ccf9f3ae4c73d",
+        "operator": "irunbus",
+        "snapshot_date": "2025-03-04",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 964,
+          "stop_times": 14398
+        },
+        "valid_from": "2025-03-04",
+        "valid_until_exclusive": "2025-03-17"
+      },
+      "result": {
+        "feed_id": 10,
+        "sha256": "080e39d8e0d4ef956c0be9ea31b87ea5a558244168f3aa83298ccf9f3ae4c73d",
+        "operator": "irunbus",
+        "min_date": "2025-01-01",
+        "max_date": "2025-12-31",
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250317_090525_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250317_090525_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250317_090525_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "6dbe5c3095e63ebbe70f1d7191fc86406dd3e27b6230387be5dcd3553d556c8b",
+        "operator": "irunbus",
+        "snapshot_date": "2025-03-17",
+        "rows": {
+          "routes": 5,
+          "stops": 5,
+          "trips": 964,
+          "stop_times": 964
+        },
+        "valid_from": "2025-03-17",
+        "valid_until_exclusive": "2025-03-25"
+      },
+      "result": {
+        "feed_id": 11,
+        "sha256": "6dbe5c3095e63ebbe70f1d7191fc86406dd3e27b6230387be5dcd3553d556c8b",
+        "operator": "irunbus",
+        "min_date": "2025-01-01",
+        "max_date": "2025-12-31",
+        "routes": 5,
+        "stops": 5,
+        "trips": 964,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250325_090127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250325_090127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250325_090127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "3d3bd0f1a181714fe3edc60780c75396863d183a3c76bb85ba114e941ae96dda",
+        "operator": "irunbus",
+        "snapshot_date": "2025-03-25",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 964,
+          "stop_times": 14398
+        },
+        "valid_from": "2025-03-25",
+        "valid_until_exclusive": "2025-03-27"
+      },
+      "result": {
+        "feed_id": 12,
+        "sha256": "3d3bd0f1a181714fe3edc60780c75396863d183a3c76bb85ba114e941ae96dda",
+        "operator": "irunbus",
+        "min_date": "2025-01-01",
+        "max_date": "2025-12-31",
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250327_090006_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250327_090006_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250327_090006_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "4ff4f4cbcff53fde9cd34b3865099007fa7e2949a7501ac032d2392a37dd511f",
+        "operator": "irunbus",
+        "snapshot_date": "2025-03-27",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 964,
+          "stop_times": 14398
+        },
+        "valid_from": "2025-03-27",
+        "valid_until_exclusive": "2025-04-03"
+      },
+      "result": {
+        "feed_id": 13,
+        "sha256": "4ff4f4cbcff53fde9cd34b3865099007fa7e2949a7501ac032d2392a37dd511f",
+        "operator": "irunbus",
+        "min_date": "2025-01-01",
+        "max_date": "2025-12-31",
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250403_074753_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250403_074753_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250403_074753_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "573dd0a3089d679b9338fab3950a55da9bbf7a2a19814935642b4236bfce99d4",
+        "operator": "irunbus",
+        "snapshot_date": "2025-04-03",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 964,
+          "stop_times": 14398
+        },
+        "valid_from": "2025-04-03",
+        "valid_until_exclusive": "2025-04-23"
+      },
+      "result": {
+        "feed_id": 14,
+        "sha256": "573dd0a3089d679b9338fab3950a55da9bbf7a2a19814935642b4236bfce99d4",
+        "operator": "irunbus",
+        "min_date": "2025-01-01",
+        "max_date": "2025-12-31",
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250423_080010_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250423_080010_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250423_080010_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "20d1eb15fcb41d4af8e0eb4d2240602f839e83425f7fa42083f74b0fea03bdad",
+        "operator": "irunbus",
+        "snapshot_date": "2025-04-23",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 964,
+          "stop_times": 14398
+        },
+        "valid_from": "2025-04-23",
+        "valid_until_exclusive": "2025-04-30"
+      },
+      "result": {
+        "feed_id": 15,
+        "sha256": "20d1eb15fcb41d4af8e0eb4d2240602f839e83425f7fa42083f74b0fea03bdad",
+        "operator": "irunbus",
+        "min_date": "2025-01-01",
+        "max_date": "2025-12-31",
+        "routes": 5,
+        "stops": 76,
+        "trips": 964,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250430_060011_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250430_060011_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250430_060011_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "568bca0cfecdd8f45e1f9b53d811f540408ae9278af1e27a0c48db2a6aad400a",
+        "operator": "irunbus",
+        "snapshot_date": "2025-04-30",
+        "rows": {
+          "routes": 5,
+          "stops": 75,
+          "trips": 1166,
+          "stop_times": 17340
+        },
+        "valid_from": "2025-04-30",
+        "valid_until_exclusive": "2025-05-06"
+      },
+      "result": {
+        "feed_id": 16,
+        "sha256": "568bca0cfecdd8f45e1f9b53d811f540408ae9278af1e27a0c48db2a6aad400a",
+        "operator": "irunbus",
+        "min_date": "2020-01-04",
+        "max_date": "2031-12-28",
+        "routes": 5,
+        "stops": 75,
+        "trips": 1166,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250506_060008_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250506_060008_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250506_060008_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "2e07248411ce5a1f6462c73c66c5569c775cb4c64b57d6c6357944e46887c9d2",
+        "operator": "irunbus",
+        "snapshot_date": "2025-05-06",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 1012,
+          "stop_times": 15012
+        },
+        "valid_from": "2025-05-06",
+        "valid_until_exclusive": "2025-05-20"
+      },
+      "result": {
+        "feed_id": 17,
+        "sha256": "2e07248411ce5a1f6462c73c66c5569c775cb4c64b57d6c6357944e46887c9d2",
+        "operator": "irunbus",
+        "min_date": "2020-01-04",
+        "max_date": "2031-12-28",
+        "routes": 5,
+        "stops": 76,
+        "trips": 1012,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250520_060019_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250520_060019_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250520_060019_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "01179766056ed518f6af3c802f5b03039f57fae536d75ce7649cf91f0986777e",
+        "operator": "irunbus",
+        "snapshot_date": "2025-05-20",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 1012,
+          "stop_times": 15012
+        },
+        "valid_from": "2025-05-20",
+        "valid_until_exclusive": "2025-05-27"
+      },
+      "result": {
+        "feed_id": 18,
+        "sha256": "01179766056ed518f6af3c802f5b03039f57fae536d75ce7649cf91f0986777e",
+        "operator": "irunbus",
+        "min_date": "2020-01-04",
+        "max_date": "2031-12-28",
+        "routes": 5,
+        "stops": 76,
+        "trips": 1012,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250527_060011_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250527_060011_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250527_060011_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "b432410f3c34098aeafc2ef10abd8fa6ef0362e8e6b680ceee24d690b1e25bc6",
+        "operator": "irunbus",
+        "snapshot_date": "2025-05-27",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 1012,
+          "stop_times": 15012
+        },
+        "valid_from": "2025-05-27",
+        "valid_until_exclusive": "2025-06-03"
+      },
+      "result": {
+        "feed_id": 19,
+        "sha256": "b432410f3c34098aeafc2ef10abd8fa6ef0362e8e6b680ceee24d690b1e25bc6",
+        "operator": "irunbus",
+        "min_date": "2020-01-04",
+        "max_date": "2031-12-28",
+        "routes": 5,
+        "stops": 76,
+        "trips": 1012,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250603_060127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250603_060127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250603_060127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "66290822c69a38d92d861af54e90cf2fc09ea526aeb43421b0e98caef4cef1b6",
+        "operator": "irunbus",
+        "snapshot_date": "2025-06-03",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 1012,
+          "stop_times": 15012
+        },
+        "valid_from": "2025-06-03",
+        "valid_until_exclusive": "2025-06-11"
+      },
+      "result": {
+        "feed_id": 20,
+        "sha256": "66290822c69a38d92d861af54e90cf2fc09ea526aeb43421b0e98caef4cef1b6",
+        "operator": "irunbus",
+        "min_date": "2020-01-04",
+        "max_date": "2031-12-28",
+        "routes": 5,
+        "stops": 76,
+        "trips": 1012,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250611_060101_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250611_060101_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250611_060101_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "f25b89242b0b3ed175579de2cae8853b806edc02f30402585480606392a9a38a",
+        "operator": "irunbus",
+        "snapshot_date": "2025-06-11",
+        "rows": {
+          "routes": 5,
+          "stops": 76,
+          "trips": 1012,
+          "stop_times": 15012
+        },
+        "valid_from": "2025-06-11",
+        "valid_until_exclusive": "2025-07-01"
+      },
+      "result": {
+        "feed_id": 21,
+        "sha256": "f25b89242b0b3ed175579de2cae8853b806edc02f30402585480606392a9a38a",
+        "operator": "irunbus",
+        "min_date": "2020-01-04",
+        "max_date": "2031-12-28",
+        "routes": 5,
+        "stops": 76,
+        "trips": 1012,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250701_060134_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250701_060134_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250701_060134_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "0efcc6ea5805526774943e1a093a861e3c6cb293eca9fa8addb57d624ab24cfe",
+        "operator": "irunbus",
+        "snapshot_date": "2025-07-01",
+        "rows": {
+          "routes": 6,
+          "stops": 83,
+          "trips": 1076,
+          "stop_times": 16470
+        },
+        "valid_from": "2025-07-01",
+        "valid_until_exclusive": "2025-07-07"
+      },
+      "result": {
+        "feed_id": 22,
+        "sha256": "0efcc6ea5805526774943e1a093a861e3c6cb293eca9fa8addb57d624ab24cfe",
+        "operator": "irunbus",
+        "min_date": "2020-01-04",
+        "max_date": "2031-12-28",
+        "routes": 6,
+        "stops": 83,
+        "trips": 1076,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250707_060149_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250707_060149_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250707_060149_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "807bc399eb39df949c062c21fd381f2055298a9037cbe3a66d9bdfc4af8ba9ab",
+        "operator": "irunbus",
+        "snapshot_date": "2025-07-07",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1166,
+          "stop_times": 17364
+        },
+        "valid_from": "2025-07-07",
+        "valid_until_exclusive": "2025-07-18"
+      },
+      "result": {
+        "feed_id": 23,
+        "sha256": "807bc399eb39df949c062c21fd381f2055298a9037cbe3a66d9bdfc4af8ba9ab",
+        "operator": "irunbus",
+        "min_date": "2020-01-04",
+        "max_date": "2031-12-28",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1166,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250718_060150_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250718_060150_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250718_060150_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "169146fa553b35b6211d431fa59b5af4afca052296e52007d05cc0aa3d245a9f",
+        "operator": "irunbus",
+        "snapshot_date": "2025-07-18",
+        "rows": {
+          "routes": 4,
+          "stops": 70,
+          "trips": 154,
+          "stop_times": 2334
+        },
+        "valid_from": "2025-07-18",
+        "valid_until_exclusive": "2025-07-21"
+      },
+      "result": {
+        "feed_id": 24,
+        "sha256": "169146fa553b35b6211d431fa59b5af4afca052296e52007d05cc0aa3d245a9f",
+        "operator": "irunbus",
+        "min_date": "2025-07-17",
+        "max_date": "2025-10-15",
+        "routes": 4,
+        "stops": 70,
+        "trips": 154,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250721_060239_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250721_060239_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250721_060239_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "aa99bd202602ff6b48e5b014dc5ac7810d6745cb50609e4d1edd4e321acf3214",
+        "operator": "irunbus",
+        "snapshot_date": "2025-07-21",
+        "rows": {
+          "routes": 4,
+          "stops": 70,
+          "trips": 154,
+          "stop_times": 2334
+        },
+        "valid_from": "2025-07-21",
+        "valid_until_exclusive": "2025-07-22"
+      },
+      "result": {
+        "feed_id": 25,
+        "sha256": "aa99bd202602ff6b48e5b014dc5ac7810d6745cb50609e4d1edd4e321acf3214",
+        "operator": "irunbus",
+        "min_date": "2025-07-21",
+        "max_date": "2025-10-19",
+        "routes": 4,
+        "stops": 70,
+        "trips": 154,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250722_060203_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250722_060203_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250722_060203_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "1d5cda8e8edd9db9e8399ac97931ffa120853905947a59c7dd879f51281bc5cc",
+        "operator": "irunbus",
+        "snapshot_date": "2025-07-22",
+        "rows": {
+          "routes": 4,
+          "stops": 70,
+          "trips": 154,
+          "stop_times": 2334
+        },
+        "valid_from": "2025-07-22",
+        "valid_until_exclusive": "2025-07-23"
+      },
+      "result": {
+        "feed_id": 26,
+        "sha256": "1d5cda8e8edd9db9e8399ac97931ffa120853905947a59c7dd879f51281bc5cc",
+        "operator": "irunbus",
+        "min_date": "2025-07-21",
+        "max_date": "2025-10-19",
+        "routes": 4,
+        "stops": 70,
+        "trips": 154,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250723_060249_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250723_060249_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250723_060249_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "5bb0001eb6b64725eda2b98a889c146170a6e963a59c13e540f884e54e6e3962",
+        "operator": "irunbus",
+        "snapshot_date": "2025-07-23",
+        "rows": {
+          "routes": 4,
+          "stops": 70,
+          "trips": 154,
+          "stop_times": 2334
+        },
+        "valid_from": "2025-07-23",
+        "valid_until_exclusive": "2025-07-29"
+      },
+      "result": {
+        "feed_id": 27,
+        "sha256": "5bb0001eb6b64725eda2b98a889c146170a6e963a59c13e540f884e54e6e3962",
+        "operator": "irunbus",
+        "min_date": "2025-07-22",
+        "max_date": "2025-10-20",
+        "routes": 4,
+        "stops": 70,
+        "trips": 154,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250729_060318_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250729_060318_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250729_060318_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "19ef7ea7ff18ae3fa319b98fe381dbae3d7bb0cd8e2f95cce8e2bbf9769c21ee",
+        "operator": "irunbus",
+        "snapshot_date": "2025-07-29",
+        "rows": {
+          "routes": 4,
+          "stops": 70,
+          "trips": 154,
+          "stop_times": 2334
+        },
+        "valid_from": "2025-07-29",
+        "valid_until_exclusive": "2025-08-06"
+      },
+      "result": {
+        "feed_id": 28,
+        "sha256": "19ef7ea7ff18ae3fa319b98fe381dbae3d7bb0cd8e2f95cce8e2bbf9769c21ee",
+        "operator": "irunbus",
+        "min_date": "2025-07-28",
+        "max_date": "2025-10-26",
+        "routes": 4,
+        "stops": 70,
+        "trips": 154,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250806_060151_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250806_060151_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250806_060151_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "bcd065afa4895860f0a7652e60b2cd15fc6f45947f572736a2d430798965817e",
+        "operator": "irunbus",
+        "snapshot_date": "2025-08-06",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 170,
+          "stop_times": 2710
+        },
+        "valid_from": "2025-08-06",
+        "valid_until_exclusive": "2025-08-27"
+      },
+      "result": {
+        "feed_id": 29,
+        "sha256": "bcd065afa4895860f0a7652e60b2cd15fc6f45947f572736a2d430798965817e",
+        "operator": "irunbus",
+        "min_date": "2025-08-05",
+        "max_date": "2025-11-03",
+        "routes": 5,
+        "stops": 72,
+        "trips": 170,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250827_060144_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250827_060144_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250827_060144_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "34b42f1ee63151aacc8b8e016f58f9c71ff8de0e21ffb61d84c95a8ae715ba5f",
+        "operator": "irunbus",
+        "snapshot_date": "2025-08-27",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1012,
+          "stop_times": 15030
+        },
+        "valid_from": "2025-08-27",
+        "valid_until_exclusive": "2025-09-02"
+      },
+      "result": {
+        "feed_id": 30,
+        "sha256": "34b42f1ee63151aacc8b8e016f58f9c71ff8de0e21ffb61d84c95a8ae715ba5f",
+        "operator": "irunbus",
+        "min_date": "2025-08-26",
+        "max_date": "2025-11-24",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1012,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250902_060233_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250902_060233_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250902_060233_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "5bab66378ce5ac5b526b2251917d2db3f70d110c24cb3f8c009799382b3db5a8",
+        "operator": "irunbus",
+        "snapshot_date": "2025-09-02",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1012,
+          "stop_times": 15030
+        },
+        "valid_from": "2025-09-02",
+        "valid_until_exclusive": "2025-09-08"
+      },
+      "result": {
+        "feed_id": 31,
+        "sha256": "5bab66378ce5ac5b526b2251917d2db3f70d110c24cb3f8c009799382b3db5a8",
+        "operator": "irunbus",
+        "min_date": "2025-09-01",
+        "max_date": "2025-11-30",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1012,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250908_060222_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250908_060222_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250908_060222_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "943dd0c043a197b263b94bcbc007b10d3e2c3b46069b96ecbc95f42a48bae1e6",
+        "operator": "irunbus",
+        "snapshot_date": "2025-09-08",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1012,
+          "stop_times": 15030
+        },
+        "valid_from": "2025-09-08",
+        "valid_until_exclusive": "2025-09-30"
+      },
+      "result": {
+        "feed_id": 32,
+        "sha256": "943dd0c043a197b263b94bcbc007b10d3e2c3b46069b96ecbc95f42a48bae1e6",
+        "operator": "irunbus",
+        "min_date": "2025-09-08",
+        "max_date": "2025-12-07",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1012,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20250930_060132_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20250930_060132_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20250930_060132_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "72ddec317adedbc7e00b584fd64396e767410fc54eb3eba3926abb4ae97e75ed",
+        "operator": "irunbus",
+        "snapshot_date": "2025-09-30",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1012,
+          "stop_times": 15030
+        },
+        "valid_from": "2025-09-30",
+        "valid_until_exclusive": "2025-10-06"
+      },
+      "result": {
+        "feed_id": 33,
+        "sha256": "72ddec317adedbc7e00b584fd64396e767410fc54eb3eba3926abb4ae97e75ed",
+        "operator": "irunbus",
+        "min_date": "2025-09-29",
+        "max_date": "2025-12-28",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1012,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251006_060056_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20251006_060056_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20251006_060056_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "9be066df93f88c9e23c88a900be9abdd2d961dcb73f749d4235e7994c41dd783",
+        "operator": "irunbus",
+        "snapshot_date": "2025-10-06",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 168,
+          "stop_times": 2663
+        },
+        "valid_from": "2025-10-06",
+        "valid_until_exclusive": "2025-10-13"
+      },
+      "result": {
+        "feed_id": 34,
+        "sha256": "9be066df93f88c9e23c88a900be9abdd2d961dcb73f749d4235e7994c41dd783",
+        "operator": "irunbus",
+        "min_date": "2025-10-06",
+        "max_date": "2026-01-04",
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251013_060234_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20251013_060234_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20251013_060234_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "06cec9a69ef5028b3bbd6b91890d22bf157901b662a12873060faaa008cf8a10",
+        "operator": "irunbus",
+        "snapshot_date": "2025-10-13",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 168,
+          "stop_times": 2663
+        },
+        "valid_from": "2025-10-13",
+        "valid_until_exclusive": "2025-11-11"
+      },
+      "result": {
+        "feed_id": 35,
+        "sha256": "06cec9a69ef5028b3bbd6b91890d22bf157901b662a12873060faaa008cf8a10",
+        "operator": "irunbus",
+        "min_date": "2025-10-13",
+        "max_date": "2026-01-11",
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251111_070055_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20251111_070055_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20251111_070055_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "80db72c45493eea06bc3bc346197a6d9bf3c115189f2bcbde6440cc43e32293a",
+        "operator": "irunbus",
+        "snapshot_date": "2025-11-11",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 168,
+          "stop_times": 2663
+        },
+        "valid_from": "2025-11-11",
+        "valid_until_exclusive": "2025-11-18"
+      },
+      "result": {
+        "feed_id": 36,
+        "sha256": "80db72c45493eea06bc3bc346197a6d9bf3c115189f2bcbde6440cc43e32293a",
+        "operator": "irunbus",
+        "min_date": "2025-11-10",
+        "max_date": "2026-02-08",
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251118_070111_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20251118_070111_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20251118_070111_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "2b22b14027f2df45749bcdca136a534d00a95c1526423f63f94959bb9b1abe07",
+        "operator": "irunbus",
+        "snapshot_date": "2025-11-18",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 338,
+          "stop_times": 5373
+        },
+        "valid_from": "2025-11-18",
+        "valid_until_exclusive": "2025-11-25"
+      },
+      "result": {
+        "feed_id": 37,
+        "sha256": "2b22b14027f2df45749bcdca136a534d00a95c1526423f63f94959bb9b1abe07",
+        "operator": "irunbus",
+        "min_date": "2025-11-17",
+        "max_date": "2026-02-15",
+        "routes": 5,
+        "stops": 72,
+        "trips": 338,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251125_070102_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20251125_070102_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20251125_070102_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "be8a7182b445b085bd45e174c30495ef332f24bf59147bff3c6d08ecda4361fd",
+        "operator": "irunbus",
+        "snapshot_date": "2025-11-25",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 168,
+          "stop_times": 2663
+        },
+        "valid_from": "2025-11-25",
+        "valid_until_exclusive": "2025-12-02"
+      },
+      "result": {
+        "feed_id": 38,
+        "sha256": "be8a7182b445b085bd45e174c30495ef332f24bf59147bff3c6d08ecda4361fd",
+        "operator": "irunbus",
+        "min_date": "2025-11-24",
+        "max_date": "2026-02-22",
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251202_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20251202_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20251202_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "a7bfce576bef284d6bbb5561d83cc94f49dd41cebddd8be8c11f2a277857bc0c",
+        "operator": "irunbus",
+        "snapshot_date": "2025-12-02",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 168,
+          "stop_times": 2663
+        },
+        "valid_from": "2025-12-02",
+        "valid_until_exclusive": "2025-12-09"
+      },
+      "result": {
+        "feed_id": 39,
+        "sha256": "a7bfce576bef284d6bbb5561d83cc94f49dd41cebddd8be8c11f2a277857bc0c",
+        "operator": "irunbus",
+        "min_date": "2025-12-01",
+        "max_date": "2026-03-01",
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251209_070126_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20251209_070126_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20251209_070126_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "54f14afd752ca558cb3789ae0204e6ce486765d6ce304c08a473344adc3e9905",
+        "operator": "irunbus",
+        "snapshot_date": "2025-12-09",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 168,
+          "stop_times": 2663
+        },
+        "valid_from": "2025-12-09",
+        "valid_until_exclusive": "2025-12-16"
+      },
+      "result": {
+        "feed_id": 40,
+        "sha256": "54f14afd752ca558cb3789ae0204e6ce486765d6ce304c08a473344adc3e9905",
+        "operator": "irunbus",
+        "min_date": "2025-12-08",
+        "max_date": "2026-03-08",
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251216_070127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20251216_070127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20251216_070127_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "bb2cce781dde9f1839aa99e59aaec4183d6fddf75bc1e5f9a8156c34f43e34c3",
+        "operator": "irunbus",
+        "snapshot_date": "2025-12-16",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 168,
+          "stop_times": 2663
+        },
+        "valid_from": "2025-12-16",
+        "valid_until_exclusive": "2025-12-23"
+      },
+      "result": {
+        "feed_id": 41,
+        "sha256": "bb2cce781dde9f1839aa99e59aaec4183d6fddf75bc1e5f9a8156c34f43e34c3",
+        "operator": "irunbus",
+        "min_date": "2025-12-15",
+        "max_date": "2026-03-15",
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251223_070218_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20251223_070218_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20251223_070218_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "7cc9b4edb72b77859e1e982af7213d4a2f53ffbeeedb93624825592c3ee7ffd2",
+        "operator": "irunbus",
+        "snapshot_date": "2025-12-23",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 168,
+          "stop_times": 2663
+        },
+        "valid_from": "2025-12-23",
+        "valid_until_exclusive": "2025-12-30"
+      },
+      "result": {
+        "feed_id": 42,
+        "sha256": "7cc9b4edb72b77859e1e982af7213d4a2f53ffbeeedb93624825592c3ee7ffd2",
+        "operator": "irunbus",
+        "min_date": "2025-12-22",
+        "max_date": "2026-03-22",
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20251230_070014_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20251230_070014_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20251230_070014_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "7be13cc2ef355a03e294582eafcde2f0240b7a1bd7cf31599320ab0c2c074bd9",
+        "operator": "irunbus",
+        "snapshot_date": "2025-12-30",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 168,
+          "stop_times": 2663
+        },
+        "valid_from": "2025-12-30",
+        "valid_until_exclusive": "2026-01-05"
+      },
+      "result": {
+        "feed_id": 43,
+        "sha256": "7be13cc2ef355a03e294582eafcde2f0240b7a1bd7cf31599320ab0c2c074bd9",
+        "operator": "irunbus",
+        "min_date": "2025-12-29",
+        "max_date": "2026-03-29",
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260105_070006_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260105_070006_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260105_070006_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "14de2b15664184c625a850f9ec5136fa6ddf37b33716e9805aaaa6f4ed4008b4",
+        "operator": "irunbus",
+        "snapshot_date": "2026-01-05",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 168,
+          "stop_times": 2663
+        },
+        "valid_from": "2026-01-05",
+        "valid_until_exclusive": "2026-01-13"
+      },
+      "result": {
+        "feed_id": 44,
+        "sha256": "14de2b15664184c625a850f9ec5136fa6ddf37b33716e9805aaaa6f4ed4008b4",
+        "operator": "irunbus",
+        "min_date": "2026-01-05",
+        "max_date": "2026-04-05",
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260113_070045_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260113_070045_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260113_070045_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "cbde2b8aa2a89e348b30da967de5c5cca74aba55cb7159f8f5e8e227365f932a",
+        "operator": "irunbus",
+        "snapshot_date": "2026-01-13",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-01-13",
+        "valid_until_exclusive": "2026-01-20"
+      },
+      "result": {
+        "feed_id": 45,
+        "sha256": "cbde2b8aa2a89e348b30da967de5c5cca74aba55cb7159f8f5e8e227365f932a",
+        "operator": "irunbus",
+        "min_date": "2026-01-12",
+        "max_date": "2026-04-12",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260120_070013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260120_070013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260120_070013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "b178cf5b230dcd22a38667d21db63dbc132229ca7f0379f5075c0264164c3749",
+        "operator": "irunbus",
+        "snapshot_date": "2026-01-20",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-01-20",
+        "valid_until_exclusive": "2026-02-03"
+      },
+      "result": {
+        "feed_id": 46,
+        "sha256": "b178cf5b230dcd22a38667d21db63dbc132229ca7f0379f5075c0264164c3749",
+        "operator": "irunbus",
+        "min_date": "2026-01-19",
+        "max_date": "2026-04-19",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260203_070032_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260203_070032_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260203_070032_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "9cb372fbda3671016491fda325d44dd858558c1707970319e92471c1c0bb8b07",
+        "operator": "irunbus",
+        "snapshot_date": "2026-02-03",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-02-03",
+        "valid_until_exclusive": "2026-02-10"
+      },
+      "result": {
+        "feed_id": 47,
+        "sha256": "9cb372fbda3671016491fda325d44dd858558c1707970319e92471c1c0bb8b07",
+        "operator": "irunbus",
+        "min_date": "2026-02-02",
+        "max_date": "2026-05-03",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260210_070046_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260210_070046_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260210_070046_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "186baab18cd928216180e02772f1f7c519aba52ff2f9c96681df611cc1ff62e7",
+        "operator": "irunbus",
+        "snapshot_date": "2026-02-10",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-02-10",
+        "valid_until_exclusive": "2026-02-17"
+      },
+      "result": {
+        "feed_id": 48,
+        "sha256": "186baab18cd928216180e02772f1f7c519aba52ff2f9c96681df611cc1ff62e7",
+        "operator": "irunbus",
+        "min_date": "2026-02-09",
+        "max_date": "2026-05-10",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260217_070002_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260217_070002_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260217_070002_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "c12048b826b8c388d896fe4c54b922ab838f839f1757bd755cf1f61965d9ad9b",
+        "operator": "irunbus",
+        "snapshot_date": "2026-02-17",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-02-17",
+        "valid_until_exclusive": "2026-03-03"
+      },
+      "result": {
+        "feed_id": 49,
+        "sha256": "c12048b826b8c388d896fe4c54b922ab838f839f1757bd755cf1f61965d9ad9b",
+        "operator": "irunbus",
+        "min_date": "2026-02-16",
+        "max_date": "2026-05-17",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260303_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260303_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260303_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "8525c7868d8348340437da1c8661a35bca60b0c8f3c4065e329e53eae1d0c7d0",
+        "operator": "irunbus",
+        "snapshot_date": "2026-03-03",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 168,
+          "stop_times": 2663
+        },
+        "valid_from": "2026-03-03",
+        "valid_until_exclusive": "2026-03-10"
+      },
+      "result": {
+        "feed_id": 50,
+        "sha256": "8525c7868d8348340437da1c8661a35bca60b0c8f3c4065e329e53eae1d0c7d0",
+        "operator": "irunbus",
+        "min_date": "2026-03-02",
+        "max_date": "2026-05-31",
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260310_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260310_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260310_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "fac02833d2aa15da3dd98a715f17f0e7af3f631e326bc56fdc803edc70d47a8f",
+        "operator": "irunbus",
+        "snapshot_date": "2026-03-10",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 168,
+          "stop_times": 2663
+        },
+        "valid_from": "2026-03-10",
+        "valid_until_exclusive": "2026-03-17"
+      },
+      "result": {
+        "feed_id": 51,
+        "sha256": "fac02833d2aa15da3dd98a715f17f0e7af3f631e326bc56fdc803edc70d47a8f",
+        "operator": "irunbus",
+        "min_date": "2026-03-09",
+        "max_date": "2026-06-07",
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260317_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260317_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260317_070003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "36b71f5feeda0f79239debfa2c3e45458b8ba677946c093d4f7785309294ba6e",
+        "operator": "irunbus",
+        "snapshot_date": "2026-03-17",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 168,
+          "stop_times": 2663
+        },
+        "valid_from": "2026-03-17",
+        "valid_until_exclusive": "2026-03-31"
+      },
+      "result": {
+        "feed_id": 52,
+        "sha256": "36b71f5feeda0f79239debfa2c3e45458b8ba677946c093d4f7785309294ba6e",
+        "operator": "irunbus",
+        "min_date": "2026-03-16",
+        "max_date": "2026-06-14",
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260331_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260331_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260331_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "6bf82f73cee401a0e776fcd142d3b36ffd1d17ec58712dfda9c37d05c1641856",
+        "operator": "irunbus",
+        "snapshot_date": "2026-03-31",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 168,
+          "stop_times": 2663
+        },
+        "valid_from": "2026-03-31",
+        "valid_until_exclusive": "2026-04-07"
+      },
+      "result": {
+        "feed_id": 53,
+        "sha256": "6bf82f73cee401a0e776fcd142d3b36ffd1d17ec58712dfda9c37d05c1641856",
+        "operator": "irunbus",
+        "min_date": "2026-03-30",
+        "max_date": "2026-06-28",
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260407_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260407_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260407_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "c7c19ef417d724569f66f34acdd31818c7d0b4d298f22cd91da2e272594f5f96",
+        "operator": "irunbus",
+        "snapshot_date": "2026-04-07",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 168,
+          "stop_times": 2663
+        },
+        "valid_from": "2026-04-07",
+        "valid_until_exclusive": "2026-04-14"
+      },
+      "result": {
+        "feed_id": 54,
+        "sha256": "c7c19ef417d724569f66f34acdd31818c7d0b4d298f22cd91da2e272594f5f96",
+        "operator": "irunbus",
+        "min_date": "2026-04-06",
+        "max_date": "2026-07-05",
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260414_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260414_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260414_060003_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "96e2af638778f6e74e4ac99f6f6502274d9cfd50abc73efbf077a30e44d12875",
+        "operator": "irunbus",
+        "snapshot_date": "2026-04-14",
+        "rows": {
+          "routes": 5,
+          "stops": 72,
+          "trips": 168,
+          "stop_times": 2663
+        },
+        "valid_from": "2026-04-14",
+        "valid_until_exclusive": "2026-04-16"
+      },
+      "result": {
+        "feed_id": 55,
+        "sha256": "96e2af638778f6e74e4ac99f6f6502274d9cfd50abc73efbf077a30e44d12875",
+        "operator": "irunbus",
+        "min_date": "2026-04-13",
+        "max_date": "2026-07-12",
+        "routes": 5,
+        "stops": 72,
+        "trips": 168,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260416_053406_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260416_053406_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260416_053406_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "a556fdd13550b6ce2313859ecde67a4270558452307e3f5eadf0e5a91ddc53cd",
+        "operator": "irunbus",
+        "snapshot_date": "2026-04-16",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-04-16",
+        "valid_until_exclusive": "2026-04-18"
+      },
+      "result": {
+        "feed_id": 56,
+        "sha256": "a556fdd13550b6ce2313859ecde67a4270558452307e3f5eadf0e5a91ddc53cd",
+        "operator": "irunbus",
+        "min_date": "2026-04-15",
+        "max_date": "2026-07-14",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260418_060053_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260418_060053_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260418_060053_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "ad4c50433ad2a40a4657d8a7d05dbc0a63b42de33964322576132101c7008d54",
+        "operator": "irunbus",
+        "snapshot_date": "2026-04-18",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-04-18",
+        "valid_until_exclusive": "2026-04-21"
+      },
+      "result": {
+        "feed_id": 57,
+        "sha256": "ad4c50433ad2a40a4657d8a7d05dbc0a63b42de33964322576132101c7008d54",
+        "operator": "irunbus",
+        "min_date": "2026-04-17",
+        "max_date": "2026-07-16",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260421_080119_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260421_080119_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260421_080119_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "bc55e58ece6f355f1a6f4fcdc53aae4ca07d96f1acad6d6877766fdc25b7b387",
+        "operator": "irunbus",
+        "snapshot_date": "2026-04-21",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-04-21",
+        "valid_until_exclusive": "2026-04-28"
+      },
+      "result": {
+        "feed_id": 58,
+        "sha256": "bc55e58ece6f355f1a6f4fcdc53aae4ca07d96f1acad6d6877766fdc25b7b387",
+        "operator": "irunbus",
+        "min_date": "2026-04-20",
+        "max_date": "2026-07-19",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260428_060015_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260428_060015_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260428_060015_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "f853d433e69724566b357b8097ecd99e817beadb74225a5c7d9f397e550494b0",
+        "operator": "irunbus",
+        "snapshot_date": "2026-04-28",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-04-28",
+        "valid_until_exclusive": "2026-05-05"
+      },
+      "result": {
+        "feed_id": 59,
+        "sha256": "f853d433e69724566b357b8097ecd99e817beadb74225a5c7d9f397e550494b0",
+        "operator": "irunbus",
+        "min_date": "2026-04-27",
+        "max_date": "2026-07-26",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260505_060109_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260505_060109_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260505_060109_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "74041421e1820a2931422a39ac123730f7dd7a4fe951b0f08947d3f82931f2df",
+        "operator": "irunbus",
+        "snapshot_date": "2026-05-05",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-05-05",
+        "valid_until_exclusive": "2026-05-19"
+      },
+      "result": {
+        "feed_id": 60,
+        "sha256": "74041421e1820a2931422a39ac123730f7dd7a4fe951b0f08947d3f82931f2df",
+        "operator": "irunbus",
+        "min_date": "2026-05-04",
+        "max_date": "2026-08-02",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260519_060013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260519_060013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260519_060013_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "0e957f476cd3ac6d20fcf85b32382019c2d276c069c8f9f7fcfb3480b52c2b91",
+        "operator": "irunbus",
+        "snapshot_date": "2026-05-19",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-05-19",
+        "valid_until_exclusive": "2026-05-27"
+      },
+      "result": {
+        "feed_id": 61,
+        "sha256": "0e957f476cd3ac6d20fcf85b32382019c2d276c069c8f9f7fcfb3480b52c2b91",
+        "operator": "irunbus",
+        "min_date": "2026-05-18",
+        "max_date": "2026-08-16",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260527_060059_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260527_060059_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260527_060059_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "0e5d257eba5343d5c3d0d4dfa3354d7629a182d306739d51f264d3a8f802ad71",
+        "operator": "irunbus",
+        "snapshot_date": "2026-05-27",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-05-27",
+        "valid_until_exclusive": "2026-06-02"
+      },
+      "result": {
+        "feed_id": 62,
+        "sha256": "0e5d257eba5343d5c3d0d4dfa3354d7629a182d306739d51f264d3a8f802ad71",
+        "operator": "irunbus",
+        "min_date": "2026-05-25",
+        "max_date": "2026-08-23",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260602_060237_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260602_060237_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260602_060237_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "c579d5e0eecea0f6cc6981cbbea7c111d49dc6880fce8ea99a9998603047f694",
+        "operator": "irunbus",
+        "snapshot_date": "2026-06-02",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-06-02",
+        "valid_until_exclusive": "2026-06-16"
+      },
+      "result": {
+        "feed_id": 63,
+        "sha256": "c579d5e0eecea0f6cc6981cbbea7c111d49dc6880fce8ea99a9998603047f694",
+        "operator": "irunbus",
+        "min_date": "2026-06-01",
+        "max_date": "2026-08-30",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260616_060055_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260616_060055_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260616_060055_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "2365be9cc0ebbba4fed5f81ae40393915b2b896c61e2ffc68d2ce783ca199d42",
+        "operator": "irunbus",
+        "snapshot_date": "2026-06-16",
+        "rows": {
+          "routes": 6,
+          "stops": 83,
+          "trips": 1026,
+          "stop_times": 15343
+        },
+        "valid_from": "2026-06-16",
+        "valid_until_exclusive": "2026-06-23"
+      },
+      "result": {
+        "feed_id": 64,
+        "sha256": "2365be9cc0ebbba4fed5f81ae40393915b2b896c61e2ffc68d2ce783ca199d42",
+        "operator": "irunbus",
+        "min_date": "2026-06-15",
+        "max_date": "2026-09-13",
+        "routes": 6,
+        "stops": 83,
+        "trips": 1026,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260623_060107_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260623_060107_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260623_060107_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "08cffcb5e728521baf2f18dbb07e091c9c655a2e08b90f162859314e30bbabb2",
+        "operator": "irunbus",
+        "snapshot_date": "2026-06-23",
+        "rows": {
+          "routes": 6,
+          "stops": 83,
+          "trips": 1026,
+          "stop_times": 15343
+        },
+        "valid_from": "2026-06-23",
+        "valid_until_exclusive": "2026-06-30"
+      },
+      "result": {
+        "feed_id": 65,
+        "sha256": "08cffcb5e728521baf2f18dbb07e091c9c655a2e08b90f162859314e30bbabb2",
+        "operator": "irunbus",
+        "min_date": "2026-06-22",
+        "max_date": "2026-09-20",
+        "routes": 6,
+        "stops": 83,
+        "trips": 1026,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260630_060157_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260630_060157_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260630_060157_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "001bde1f2887134b79aeb8129cf3bf4fb5cd5eaffd3a035e3ed4e8588ed548d4",
+        "operator": "irunbus",
+        "snapshot_date": "2026-06-30",
+        "rows": {
+          "routes": 6,
+          "stops": 83,
+          "trips": 1026,
+          "stop_times": 15343
+        },
+        "valid_from": "2026-06-30",
+        "valid_until_exclusive": "2026-07-07"
+      },
+      "result": {
+        "feed_id": 66,
+        "sha256": "001bde1f2887134b79aeb8129cf3bf4fb5cd5eaffd3a035e3ed4e8588ed548d4",
+        "operator": "irunbus",
+        "min_date": "2026-06-29",
+        "max_date": "2026-09-27",
+        "routes": 6,
+        "stops": 83,
+        "trips": 1026,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260707_060058_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260707_060058_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260707_060058_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "65c6fd25170807297e1848a8c5a71747bccc9861db116ccc500ce640ba618101",
+        "operator": "irunbus",
+        "snapshot_date": "2026-07-07",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-07-07",
+        "valid_until_exclusive": "2026-07-14"
+      },
+      "result": {
+        "feed_id": 67,
+        "sha256": "65c6fd25170807297e1848a8c5a71747bccc9861db116ccc500ce640ba618101",
+        "operator": "irunbus",
+        "min_date": "2026-07-06",
+        "max_date": "2026-10-04",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260714_060158_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260714_060158_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260714_060158_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "d0962a2bc47e5bafead5f81fa5bef16e7028a2ecbd7ef80b2410d0c446879f57",
+        "operator": "irunbus",
+        "snapshot_date": "2026-07-14",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 944,
+          "stop_times": 14001
+        },
+        "valid_from": "2026-07-14",
+        "valid_until_exclusive": "2026-07-21"
+      },
+      "result": {
+        "feed_id": 68,
+        "sha256": "d0962a2bc47e5bafead5f81fa5bef16e7028a2ecbd7ef80b2410d0c446879f57",
+        "operator": "irunbus",
+        "min_date": "2026-07-13",
+        "max_date": "2026-10-11",
+        "routes": 5,
+        "stops": 77,
+        "trips": 944,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260721_060122_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260721_060122_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260721_060122_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "0aa6bbf8ff49a6d6fd1f97b739f724dbcc8753e92ca9a17e7ce93da9dd766aca",
+        "operator": "irunbus",
+        "snapshot_date": "2026-07-21",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 944,
+          "stop_times": 14001
+        },
+        "valid_from": "2026-07-21",
+        "valid_until_exclusive": "2026-07-28"
+      },
+      "result": {
+        "feed_id": 69,
+        "sha256": "0aa6bbf8ff49a6d6fd1f97b739f724dbcc8753e92ca9a17e7ce93da9dd766aca",
+        "operator": "irunbus",
+        "min_date": "2026-07-20",
+        "max_date": "2026-10-18",
+        "routes": 5,
+        "stops": 77,
+        "trips": 944,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260728_060104_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260728_060104_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260728_060104_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "8442d26d2f107bf2f364cf44244719e5a63e948171d9848a6fb8094d77c404fc",
+        "operator": "irunbus",
+        "snapshot_date": "2026-07-28",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 944,
+          "stop_times": 14001
+        },
+        "valid_from": "2026-07-28",
+        "valid_until_exclusive": "2026-08-04"
+      },
+      "result": {
+        "feed_id": 70,
+        "sha256": "8442d26d2f107bf2f364cf44244719e5a63e948171d9848a6fb8094d77c404fc",
+        "operator": "irunbus",
+        "min_date": "2026-07-27",
+        "max_date": "2026-10-25",
+        "routes": 5,
+        "stops": 77,
+        "trips": 944,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260807_060144_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260807_060144_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260807_060144_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "b6a576fc314070166360182ada17c9f8bd6640da519f12f752903ea3d35669f0",
+        "operator": "irunbus",
+        "snapshot_date": "2026-08-07",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 944,
+          "stop_times": 14001
+        },
+        "valid_from": "2026-08-07",
+        "valid_until_exclusive": "2026-08-11"
+      },
+      "result": {
+        "feed_id": 71,
+        "sha256": "b6a576fc314070166360182ada17c9f8bd6640da519f12f752903ea3d35669f0",
+        "operator": "irunbus",
+        "min_date": "2026-08-06",
+        "max_date": "2026-11-04",
+        "routes": 5,
+        "stops": 77,
+        "trips": 944,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260811_060105_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260811_060105_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260811_060105_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "005fc6e3fc11a631c484e36f8bd10f9cd40c1d70dec73f121545812547b6b4cb",
+        "operator": "irunbus",
+        "snapshot_date": "2026-08-11",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 944,
+          "stop_times": 14001
+        },
+        "valid_from": "2026-08-11",
+        "valid_until_exclusive": "2026-08-18"
+      },
+      "result": {
+        "feed_id": 72,
+        "sha256": "005fc6e3fc11a631c484e36f8bd10f9cd40c1d70dec73f121545812547b6b4cb",
+        "operator": "irunbus",
+        "min_date": "2026-08-10",
+        "max_date": "2026-11-08",
+        "routes": 5,
+        "stops": 77,
+        "trips": 944,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260818_060017_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260818_060017_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260818_060017_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "09d4505f15654e7f62778aa781c87d4de59dce153eb95462bf2365e116cb7088",
+        "operator": "irunbus",
+        "snapshot_date": "2026-08-18",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 944,
+          "stop_times": 14001
+        },
+        "valid_from": "2026-08-18",
+        "valid_until_exclusive": "2026-09-01"
+      },
+      "result": {
+        "feed_id": 73,
+        "sha256": "09d4505f15654e7f62778aa781c87d4de59dce153eb95462bf2365e116cb7088",
+        "operator": "irunbus",
+        "min_date": "2026-08-17",
+        "max_date": "2026-11-15",
+        "routes": 5,
+        "stops": 77,
+        "trips": 944,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260901_060053_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260901_060053_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260901_060053_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "d235d67c32289218b569d21770b15d22180e4bd400e7061fb3b834f09bc82e56",
+        "operator": "irunbus",
+        "snapshot_date": "2026-09-01",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1040,
+          "stop_times": 15461
+        },
+        "valid_from": "2026-09-01",
+        "valid_until_exclusive": "2026-09-08"
+      },
+      "result": {
+        "feed_id": 74,
+        "sha256": "d235d67c32289218b569d21770b15d22180e4bd400e7061fb3b834f09bc82e56",
+        "operator": "irunbus",
+        "min_date": "2026-08-31",
+        "max_date": "2026-11-29",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1040,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260908_060757_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260908_060757_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260908_060757_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "d09d72624c531a6ca05d839e3ff626cd74a1563911a1bb67456cde3b3e2f63ba",
+        "operator": "irunbus",
+        "snapshot_date": "2026-09-08",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1040,
+          "stop_times": 15461
+        },
+        "valid_from": "2026-09-08",
+        "valid_until_exclusive": "2026-09-15"
+      },
+      "result": {
+        "feed_id": 75,
+        "sha256": "d09d72624c531a6ca05d839e3ff626cd74a1563911a1bb67456cde3b3e2f63ba",
+        "operator": "irunbus",
+        "min_date": "2026-09-07",
+        "max_date": "2026-12-06",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1040,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260915_060020_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260915_060020_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260915_060020_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "96c535916703ea842a7c5c431cdaee88017ffa24ae662d5f2c2845b97ea7053c",
+        "operator": "irunbus",
+        "snapshot_date": "2026-09-15",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14976
+        },
+        "valid_from": "2026-09-15",
+        "valid_until_exclusive": "2026-09-22"
+      },
+      "result": {
+        "feed_id": 76,
+        "sha256": "96c535916703ea842a7c5c431cdaee88017ffa24ae662d5f2c2845b97ea7053c",
+        "operator": "irunbus",
+        "min_date": "2026-09-14",
+        "max_date": "2026-12-13",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260922_060057_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260922_060057_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260922_060057_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "529353c09d4f88d48c4f9f5ed81d96d833fd2c31bb7749183a649d61c7bd1bba",
+        "operator": "irunbus",
+        "snapshot_date": "2026-09-22",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-09-22",
+        "valid_until_exclusive": "2026-09-28"
+      },
+      "result": {
+        "feed_id": 77,
+        "sha256": "529353c09d4f88d48c4f9f5ed81d96d833fd2c31bb7749183a649d61c7bd1bba",
+        "operator": "irunbus",
+        "min_date": "2026-09-21",
+        "max_date": "2026-12-20",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260928_060131_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260928_060131_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260928_060131_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "be2d29db8be47634bc29ff6750ca8a9f34d5ccc2e913f727a6a85dc9528b8538",
+        "operator": "irunbus",
+        "snapshot_date": "2026-09-28",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-09-28",
+        "valid_until_exclusive": "2026-10-05"
+      },
+      "result": {
+        "feed_id": 78,
+        "sha256": "be2d29db8be47634bc29ff6750ca8a9f34d5ccc2e913f727a6a85dc9528b8538",
+        "operator": "irunbus",
+        "min_date": "2026-09-28",
+        "max_date": "2026-12-27",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20261005_060043_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20261005_060043_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20261005_060043_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "315ab4c00704208ca3e2153f39d3f61318c4acdb15305013638e8e8f8dfe4043",
+        "operator": "irunbus",
+        "snapshot_date": "2026-10-05",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-10-05",
+        "valid_until_exclusive": "2026-10-12"
+      },
+      "result": {
+        "feed_id": 79,
+        "sha256": "315ab4c00704208ca3e2153f39d3f61318c4acdb15305013638e8e8f8dfe4043",
+        "operator": "irunbus",
+        "min_date": "2026-10-05",
+        "max_date": "2027-01-03",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20261012_060229_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20261012_060229_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20261012_060229_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "b493173aa1f718394a87adb5f0fadc6ac82f3cc5d72eb2b63044ec0c78bb0f3f",
+        "operator": "irunbus",
+        "snapshot_date": "2026-10-12",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1010,
+          "stop_times": 14983
+        },
+        "valid_from": "2026-10-12",
+        "valid_until_exclusive": "2026-10-19"
+      },
+      "result": {
+        "feed_id": 80,
+        "sha256": "b493173aa1f718394a87adb5f0fadc6ac82f3cc5d72eb2b63044ec0c78bb0f3f",
+        "operator": "irunbus",
+        "min_date": "2026-10-12",
+        "max_date": "2027-01-10",
+        "routes": 5,
+        "stops": 77,
+        "trips": 1010,
+        "already_imported": false
+      }
+    }
+  ],
+  "already_imported": [
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20260804_060022_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "relative_path": "20260804_060022_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "filename": "20260804_060022_Euskadi_ATTG_Lurraldebus_Auif_urb.zip",
+        "valid": true,
+        "error": null,
+        "sha256": "0aa6bbf8ff49a6d6fd1f97b739f724dbcc8753e92ca9a17e7ce93da9dd766aca",
+        "operator": "irunbus",
+        "snapshot_date": "2026-08-04",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 944,
+          "stop_times": 14001
+        },
+        "valid_from": "2026-08-04",
+        "valid_until_exclusive": "2026-08-07"
+      },
+      "result": {
+        "already_imported": true,
+        "feed_id": 69,
+        "sha256": "0aa6bbf8ff49a6d6fd1f97b739f724dbcc8753e92ca9a17e7ce93da9dd766aca"
+      }
+    },
+    {
+      "record": {
+        "path": "C:\\Users\\OierMartinez\\Downloads\\Descargas_planificación_Irunbus\\20261019_060137_Euskadi_ATTG_Lurraldebus_Auif_urb (2).zip",
+        "relative_path": "20261019_060137_Euskadi_ATTG_Lurraldebus_Auif_urb (2).zip",
+        "filename": "20261019_060137_Euskadi_ATTG_Lurraldebus_Auif_urb (2).zip",
+        "valid": true,
+        "error": null,
+        "sha256": "8f8fe40cab6156d33cabe91114745d1b09df28bc666f138045253d650afb2d29",
+        "operator": "irunbus",
+        "snapshot_date": "2026-10-19",
+        "rows": {
+          "routes": 5,
+          "stops": 77,
+          "trips": 1012,
+          "stop_times": 15030
+        },
+        "valid_from": "2026-10-19",
+        "valid_until_exclusive": null
+      },
+      "result": {
+        "already_imported": true,
+        "feed_id": 2,
+        "sha256": "8f8fe40cab6156d33cabe91114745d1b09df28bc666f138045253d650afb2d29"
+      }
+    }
+  ],
+  "failed_imports": [],
+  "finished_at": "2026-10-19T16:08:02.244444+00:00"
+}

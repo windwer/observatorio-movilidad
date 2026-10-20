@@ -1,0 +1,42 @@
+{
+  "loaded": true,
+  "reference_date": "2025-01-01",
+  "source_url": "https://es.eustat.eus/elementos/xls0011434_c.csv",
+  "source_name": "eustat_2025_original.csv",
+  "sha256": "600a0b87b7b5feb85c548c7c23bc0f517941f83b80ffafcf8a79d7d5482997f1",
+  "sections": 109,
+  "districts": 12,
+  "total_population": 150832,
+  "municipalities": {
+    "Errenteria": {
+      "sections": 31,
+      "population": 39779
+    },
+    "Hondarribia": {
+      "sections": 12,
+      "population": 16960
+    },
+    "Irun": {
+      "sections": 42,
+      "population": 60665
+    },
+    "Lezo": {
+      "sections": 4,
+      "population": 6188
+    },
+    "Oiartzun": {
+      "sections": 7,
+      "population": 10473
+    },
+    "Pasaia": {
+      "sections": 13,
+      "population": 16767
+    }
+  },
+  "by_region": {
+    "Bidasoaldea": 77625,
+    "Oarsoaldea": 73207
+  },
+  "geometry_joined": false,
+  "spatial_coverage_ready": false
+}

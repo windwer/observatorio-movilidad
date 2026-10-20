@@ -1,0 +1,37 @@
+{
+  "package": "Observatorio de Movilidad",
+  "package_version": "v1",
+  "demo_version": "0.6.5",
+  "package_kind": "historical-real-data",
+  "generated_on": "2026-10-20",
+  "database": "data/real/observatorio_real.sqlite3",
+  "feeds": {
+    "total": 160,
+    "irunbus": 80,
+    "ekialdebus": 80
+  },
+  "population": {
+    "source": "Eustat",
+    "reference_date": "2025-01-01",
+    "sections": 109,
+    "districts": 12,
+    "total_population": 150832,
+    "bidasoaldea": 77625,
+    "oarsoaldea": 73207,
+    "source_csv": "data/references/eustat_2025_original.csv",
+    "normalized_csv": "data/references/eustat_sections_2025_normalized.csv",
+    "validation": "data/references/EUSTAT_2025_VALIDATION.json",
+    "summary": "data/references/POBLACION_EUSTAT_2025_v1.json",
+    "spatial_coverage_ready": false,
+    "method_note": "La población base oficial está cargada; la cobertura de isócrona requiere una unión espacial residencial verificable y no se inventa."
+  },
+  "includes": [
+    "SQLite with consolidated historical GTFS data",
+    "original GTFS archives in data/real/originals",
+    "OSM pedestrian network in data/real/geography",
+    "Eustat original and normalized population tables",
+    "population validation and v1 manifest",
+    "application source, tests and launchers"
+  ],
+  "transitland_api": false
+}

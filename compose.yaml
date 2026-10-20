@@ -1,0 +1,35 @@
+# Deployment stays private: Caddy handles HTTPS, the app requires HTTP Basic.
+# Set OBS_DOMAIN, OBS_USERNAME and a strong OBS_PASSWORD in .env, then configure DNS.
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      OBS_HOST: 0.0.0.0
+      OBS_PORT: 8000
+      OBS_USERNAME: ${OBS_USERNAME:?Define OBS_USERNAME}
+      OBS_PASSWORD: ${OBS_PASSWORD:?Define OBS_PASSWORD}
+      OBS_DB: /srv/observatorio/data/observatorio.sqlite3
+    volumes:
+      - observatorio_data:/srv/observatorio/data
+    networks: [private]
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      OBS_DOMAIN: ${OBS_DOMAIN:?Define OBS_DOMAIN}
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [app]
+    networks: [private]
+volumes:
+  observatorio_data:
+  caddy_data:
+  caddy_config:
+networks:
+  private: {}

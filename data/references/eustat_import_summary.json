@@ -1,0 +1,22 @@
+{
+  "municipalities": [
+    "Errenteria",
+    "Hondarribia",
+    "Irun",
+    "Lezo",
+    "Oiartzun",
+    "Pasaia"
+  ],
+  "missing_municipalities": [],
+  "populations_by_municipality": {
+    "Errenteria": 39779,
+    "Hondarribia": 16960,
+    "Irun": 60665,
+    "Lezo": 6188,
+    "Oiartzun": 10473,
+    "Pasaia": 16767
+  },
+  "note": "Valores de población censal por sección, no habitantes dentro de isócronas.",
+  "sections": 109,
+  "output": "data/references/eustat_sections_2025_normalized.csv"
+}
