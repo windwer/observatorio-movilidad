@@ -54,4 +54,15 @@ class TerritoryTests(unittest.TestCase):
     self.assertFalse(only.status()['ready'])
     self.assertEqual(len(only.residents),0)
 
+  def test_section_area_interpolation_is_available_without_buildings(self):
+    only=territory.TerritoryStore(Path(self.d.name)/'area')
+    only.ingest('census',collection([feat({'type':'Polygon','coordinates':[square(0,0,500)]},municipality='Irun',population=100,section_id='a')]))
+    w=feat({'type':'LineString','coordinates':[coord(x,0) for x in [0,150,300,450,600,750,900,1100]]},highway='footway')
+    only.ingest('walkways',collection([w]))
+    result=only.stop(*reversed(coord(0,0)))
+    self.assertTrue(only.status()['area_interpolation_ready'])
+    self.assertFalse(only.status()['ready'])
+    self.assertGreater(result['population'],0)
+    self.assertEqual(result['population_method'],'census_section_area_interpolation')
+
 if __name__=='__main__':unittest.main()

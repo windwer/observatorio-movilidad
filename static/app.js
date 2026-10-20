@@ -243,12 +243,19 @@ async function loadGeoStatus(){
    setText('geo-walkways',s.walk_segments?`${fmt(s.walk_segments)} tramos`:'Sin red importada');
    setText('geo-census',s.census_sections?`${fmt(s.census_sections)} secciones`:'Sin geometrías · Eustat tabular');
    setText('geo-buildings',s.residential_buildings?`${fmt(s.residential_buildings)} edificios`:'Sin edificios residenciales');
+   const areaReady=!!s.area_interpolation_ready;
+   const title=document.querySelector('#territorial-panel .panel-head h3');
+   if(title)title.textContent=areaReady?'Accesibilidad peatonal · población estimada':'Accesibilidad peatonal · capas reales pendientes';
    setText('geo-method',s.ready
      ? `${fmt(s.resident_units)} unidades residenciales · ${fmt(s.unallocated_population)} personas sin asignación residencial · estimación no certificada.`
-     : 'La red peatonal puede estar disponible, pero falta la unión de población censal y edificios residenciales. No se mostrarán habitantes cubiertos inventados.');
-   if(!s.ready){
+     : areaReady
+       ? `${fmt(s.census_sections)} secciones Eustat con geometría oficial · interpolación proporcional de área · estimación no certificada.`
+       : 'La red peatonal puede estar disponible, pero falta la unión de población censal y edificios residenciales. No se mostrarán habitantes cubiertos inventados.');
+   if(!s.ready && !areaReady){
      setText('geo-result',`Cobertura del recorrido pendiente · ${populationReferenceLabel()}`);
      setText('geo-stop-result',`Seleccione una parada · ${populationReferenceLabel()}`);
+   } else if(areaReady){
+     setText('geo-stop-result','Seleccione una parada para ver su población objetivo a 5 y 10 minutos.');
    }
  }catch(e){setText('geo-method','No se pudo consultar la base geográfica: '+e.message)}
 }
@@ -303,13 +310,16 @@ async function showIsochrone(stop,{auto=false}={}){
     setText('geo-method','La isócrona solo es calculable cuando la parada se conecta a la red peatonal y la población está asignada a edificios residenciales dentro de secciones censales.');
     return;
   }
-  const formatPopulation=p=>typeof p==='number'?fmt(p)+' hab.':'no calculable · faltan capas censales/residenciales';
-  setText('geo-stop-result',`${stop.name} · 5 min: ${formatPopulation(iso5.population)} · 10 min: ${formatPopulation(iso10.population)} · estimación`);
+  const formatPopulation=p=>typeof p==='number'?fmt(p)+' hab.':'no calculable';
+  const method=iso10.population_method==='census_section_area_interpolation'
+    ? 'interpolación de sección censal'
+    : 'asignación residencial';
+  setText('geo-stop-result',`${stop.name} · 5 min: ${formatPopulation(iso5.population)} · 10 min: ${formatPopulation(iso10.population)} · ${method}`);
   if(!auto){const kpiLabel=$('kpi-population')?.closest('.kpi')?.querySelector('.name');if(kpiLabel)kpiLabel.textContent=iso10.population===null?'Población base · seis municipios':'Población cubierta · parada';setText('kpi-population',iso10.population===null?'—':fmt(iso10.population));
     setText('kpi-population-note',iso10.population===null
       ? `Parada: ${stop.name} · ${populationReferenceLabel()} · falta unión espacial`
-      : `Parada: ${stop.name} · 10 min andando · estimación, no demanda`);}
-  setText('geo-method',`Recorrido: cobertura única deduplicada. Parada: Dijkstra sobre red peatonal OSM real; naranja 5 min y azul 10 min. La cobertura poblacional solo se muestra con capas censales y residenciales verificables; resultado no certificado.`);
+      : `Parada: ${stop.name} · 10 min andando · ${method} · no demanda`);}
+  setText('geo-method',`Parada: Dijkstra sobre red peatonal OSM real; naranja 5 min y azul 10 min. Población estimada por ${method}; no equivale a demanda ni está certificada.`);
  }catch(e){if(requestId===isoRequestId)setText('geo-stop-result','Error al calcular las isócronas: '+e.message)}
 }
 document.addEventListener('DOMContentLoaded',()=>{
@@ -332,19 +342,20 @@ async function computeNetworkPopulation({silent=false}={}){
  if(data.population===null){
    setText('geo-result',data.status==='missing_gtfs'
      ? 'Falta GTFS de al menos un operador; no se puede asociar el recorrido a paradas.'
-     : `Cobertura del recorrido no calculable · ${populationReferenceLabel()} · faltan geometrías censales y edificios residenciales.`);
+     : `Cobertura del recorrido no calculable · ${populationReferenceLabel()} · faltan geometrías censales y red peatonal.`);
    setText('kpi-population',populationReference.loaded?fmt(populationReference.total_population):'—');
    const kpiLabel=$('kpi-population')?.closest('.kpi')?.querySelector('.name');if(kpiLabel)kpiLabel.textContent='Población base · seis municipios';
    setText('kpi-population-note',`${populationReferenceLabel()} · no equivale a cobertura del recorrido`);
-   setText('geo-method','La suma de paradas no se usa: la población debe deduplicarse espacialmente sobre edificios residenciales y la red peatonal. Importa las capas censales y residenciales verificables para activar la estimación.');
+   setText('geo-method','La suma de paradas no se usa: importa la geometría oficial de secciones Eustat y la red peatonal, o edificios residenciales para una estimación dasimétrica más precisa.');
    return;
  }
  const scope=data.route_id?`recorrido ${data.route_id}`:`toda la red de ${state.operator}`;
  setText('geo-result',`${fmt(data.population)} habitantes únicos estimados · ${scope} · 10 min`);
  const kpiLabel=$('kpi-population')?.closest('.kpi')?.querySelector('.name');if(kpiLabel)kpiLabel.textContent='Población cubierta · recorrido';
  setText('kpi-population',fmt(data.population));
- setText('kpi-population-note',`${scope} · ${data.stops_connected}/${data.stops} paradas · 10 min · cobertura única`);
- setText('geo-method',`${data.stops_connected} paradas conectadas de ${data.stops}; población deduplicada entre paradas. ${fmt(data.unallocated_population)} habitantes sin asignación residencial. Estimación no certificada.`);
+ const method=data.population_method==='census_section_area_interpolation'?'interpolación proporcional de secciones Eustat':'asignación a edificios residenciales';
+ setText('kpi-population-note',`${scope} · ${data.stops_connected}/${data.stops} paradas · 10 min · cobertura única · ${method}`);
+ setText('geo-method',`${data.stops_connected} paradas conectadas de ${data.stops}; población deduplicada entre isócronas mediante ${method}. ${fmt(data.unallocated_population||0)} habitantes sin asignación residencial. Estimación no certificada.`);
  }catch(e){if(requestId===networkRequestId)setText('geo-result','No calculable: '+e.message)}finally{button.disabled=false}
 }
 
@@ -452,7 +463,7 @@ function renderEustatQuickReference(x){
   const total=fmt(x.total_population),sections=fmt(x.sections),bidasoa=fmt(x.by_region?.Bidasoaldea),oarso=fmt(x.by_region?.Oarsoaldea);
   const spatial=x.spatial_coverage_ready
     ? 'La unión espacial está disponible.'
-    : 'La base poblacional está incluida; la cifra de recorrido queda separada hasta disponer de polígonos censales y edificios residenciales verificables.';
+    : 'La base poblacional y la geometría oficial de secciones permiten una estimación por intersección de área; los edificios residenciales mejoran la precisión.';
   card.innerHTML=`<b style="color:#176958">Eustat 2025 cargado</b> · ${total} habitantes de referencia en ${sections} secciones · Bidasoaldea ${bidasoa} · Oarsoaldea ${oarso}. <span>${spatial}</span>`;
 }
 async function loadEustatPopulation(){
@@ -476,7 +487,7 @@ async function loadEustatPopulation(){
     $('eustat-municipality-rows').innerHTML=order.map(name=>{
       const d=x.municipalities[name];return `<tr><td>${escapeHTML(name)}</td><td>${fmt(d.population)}</td><td>${fmt(d.sections)}</td></tr>`;
     }).join('');
-    setText('eustat-note',`CSV original conservado y verificado (SHA256: ${x.sha256.slice(0,12)}…). La población base está cargada en esta entrega; la cobertura de isócrona solo se informa cuando hay una unión espacial residencial verificable.`);
+    setText('eustat-note',`CSV original conservado y verificado (SHA256: ${x.sha256.slice(0,12)}…). La población objetivo de las isócronas se estima cruzando la geometría oficial de secciones con la red peatonal; los edificios residenciales permiten una asignación más precisa.`);
     renderEustatQuickReference(x);
     const stopText=$('geo-stop-result')?.textContent||'';
     if(stopText.includes('referencia poblacional Eustat no cargada'))setText('geo-stop-result',stopText.replace('referencia poblacional Eustat no cargada',populationReferenceLabel()));
@@ -493,7 +504,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
     const cfg=await res.json();
     if(!cfg.demo){
       const banner=document.querySelector('.review-banner');
-      if(banner)banner.innerHTML='<strong>DATOS REALES · GTFS IMPORTADO</strong> <span class="soft">— Instantáneas entregadas por el usuario. Horarios programados: no equivalen a servicio prestado. La base poblacional Eustat 2025 está incluida; la cobertura de recorrido se mantiene separada hasta verificar la unión espacial.</span>';
+      if(banner)banner.innerHTML='<strong>DATOS REALES · GTFS IMPORTADO</strong> <span class="soft">— Instantáneas entregadas por el usuario. Horarios programados: no equivalen a servicio prestado. Eustat 2025 y las secciones oficiales permiten estimar la población dentro de las isócronas; los edificios residenciales mejoran la precisión.</span>';
       const head=document.querySelector('header .brand p');if(head)head.textContent=`Bidasoaldea + Oarsoaldea · DATOS REALES v${cfg.version||window.OBSERVATORIO_VERSION||'?' } · GTFS oficial`;
       const tag=document.querySelector('header .tag');if(tag)tag.textContent='DATOS REALES · GTFS';
       const mapTitle=document.querySelector('.map-frame')?.closest('.panel')?.querySelector('.panel-head h3');if(mapTitle)mapTitle.textContent='Mapa geográfico real · Líneas GTFS';

@@ -289,8 +289,8 @@ def refresh_reference(name:str,_:bool=Depends(guard)):
 def data_requirements(_:bool=Depends(guard)):
     return {'cutoff':engine.CUTOFF.isoformat(),'operators':list(engine.OPERATORS),
        'municipalities':list(territory.MUNICIPALITIES),
-       'geography_required':{'census':'GeoJSON Polygon with section_id, municipality, population; Eustat 2025',
-        'buildings':'GeoJSON Polygon with building=residential/house/apartments etc; floor count optional',
+       'geography_required':{'census':'GeoJSON Polygon with section_id, municipality, population; Eustat 2025 (required for target population)',
+        'buildings':'Optional GeoJSON Polygon with building=residential/house/apartments etc; enables a more precise dasymetric allocation',
         'walkways':'GeoJSON LineString with highway, foot and access tags; from OpenStreetMap'},
        'verified_historical_dates':False,
        'source_urls':{'ekialdebus':'https://gtfs-source-feeds.transit.land/es-nap-1201.zip',
@@ -413,7 +413,7 @@ def demo_status(_:bool=Depends(guard)):
     demo=os.environ.get('OBS_DEMO','0')=='1'
     note=('Oferta, recorridos y paradas son DEMO; la red peatonal incluida es OSM real y la accesibilidad sigue pendiente de Product Review.'
           if demo else
-          'GTFS reales importados desde las dos instantáneas entregadas por el usuario. La oferta es programada, no prueba servicio prestado; la población cubierta requiere capas censales y residenciales verificables.')
+          'GTFS reales importados desde las dos instantáneas entregadas por el usuario. La oferta es programada, no prueba servicio prestado; la población cubierta se estima con geometría oficial de secciones Eustat y red peatonal, y mejora con edificios residenciales.')
     return {'demo':demo,'version':APP_VERSION,'note':note}
 
 @app.get('/api/demo/catalog')

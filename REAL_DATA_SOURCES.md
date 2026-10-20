@@ -18,11 +18,11 @@ Los ZIP originales y las copias canónicas identificadas por hash se conservan e
 - La línea seleccionada puede mostrar longitud de `shape`, tiempo cabecera–última parada, velocidad comercial estimada y frecuencia por tipo de día.
 - La línea seleccionada muestra también la primera y última salida, la amplitud de servicio y las expediciones con hora válida. Se pueden comparar dos fechas para distinguir más/menos horario de más/menos frecuencias.
 - La red peatonal OSM se conserva para dibujar isócronas de red, no como un radio circular.
-- **Eustat 2025:** la tabla oficial se conserva en `data/references/eustat_2025_original.csv`, está precargada en SQLite y se muestra como referencia visible en el visor: 109 secciones y 150.832 habitantes (Bidasoaldea 77.625; Oarsoaldea 73.207). Este total no se presenta como habitantes cubiertos por una isócrona.
+- **Eustat 2025:** la tabla oficial se conserva en `data/references/eustat_2025_original.csv`, está precargada en SQLite y se muestra como referencia visible en el visor: 109 secciones y 150.832 habitantes (Bidasoaldea 77.625; Oarsoaldea 73.207). La geometría oficial de esas secciones se conserva en `data/real/geography/census.geojson` y permite estimar la población objetivo dentro de cada isócrona.
 
 ## Qué queda bloqueado en esta fase
 
-No se han incorporado polígonos censales ni edificios residenciales reales al paquete. Por tanto, la población cubierta por recorrido o por parada aparece como no calculable hasta cargar esas capas verificables. El CSV tabular Eustat 2025 sí está cargado como referencia oficial, pero no se utiliza para inventar población dentro de una isócrona.
+La estimación base utiliza intersección proporcional entre la isócrona de red y las secciones Eustat 2025, deduplicando la población entre paradas para la línea. Los edificios residenciales no están incluidos todavía; si se cargan, sustituyen la interpolación de sección por una asignación dasimétrica más precisa. El resultado se etiqueta siempre como estimación y no como demanda observada.
 
 ## Arranque en Windows
 

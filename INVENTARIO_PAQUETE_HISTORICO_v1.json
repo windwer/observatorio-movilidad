@@ -20,10 +20,12 @@
     "oarsoaldea": 73207,
     "source_csv": "data/references/eustat_2025_original.csv",
     "normalized_csv": "data/references/eustat_sections_2025_normalized.csv",
+    "geometry": "data/real/geography/census.geojson",
     "validation": "data/references/EUSTAT_2025_VALIDATION.json",
     "summary": "data/references/POBLACION_EUSTAT_2025_v1.json",
     "spatial_coverage_ready": false,
-    "method_note": "La población base oficial está cargada; la cobertura de isócrona requiere una unión espacial residencial verificable y no se inventa."
+    "area_interpolation_ready": true,
+    "method_note": "La población base oficial y la geometría de secciones están cargadas; la cobertura de isócrona se estima por intersección proporcional de área. Los edificios residenciales permiten una asignación más precisa."
   },
   "includes": [
     "SQLite with consolidated historical GTFS data",

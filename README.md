@@ -38,10 +38,11 @@ se instalan las dependencias y se abre el visor en el puerto 8870.
 
 ## Población y cobertura
 
-La población Eustat incluida es una referencia territorial validada. No debe
-confundirse con “población cubierta por una línea”: esa cifra requiere una unión
-espacial residencial verificada con la isócrona. El visor mantiene esa
-distinción y no inventa cobertura cuando faltan esas capas.
+La población Eustat incluida es una referencia territorial validada. El visor
+la cruza con la geometría oficial de secciones y la isócrona de red para
+mostrar una estimación de población objetivo, deduplicada entre paradas. La
+asignación a edificios residenciales sigue siendo una mejora opcional; el
+resultado se etiqueta como estimación y no como demanda observada.
 
 ## Alcance y límites
 

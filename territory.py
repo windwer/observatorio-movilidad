@@ -231,6 +231,37 @@ def calculate_population(iso, residents, network=None, municipalities=MUNICIPALI
     return {'population':round(sum(by_town.values())), 'municipalities':{k:round(v) for k,v in by_town.items()},'units_reached':len(seen)}
 
 
+def calculate_population_by_census_area(iso, census, municipalities=MUNICIPALITIES):
+    """Estimate population by areal interpolation when buildings are absent.
+
+    The official Eustat count belongs to a census section, not to a point.  If
+    residential building footprints are unavailable, intersecting the
+    reachable polygon with official section polygons is the least-assumptive
+    fallback: each section contributes its population in proportion to the
+    reachable area.  It is explicitly an estimate and is never certified as
+    observed demand.
+    """
+    poly=iso.get('polygon')
+    if poly is None or not census:
+        return {'population':None,'municipalities':{},'sections_reached':0,
+                'population_method':'unavailable'}
+    by_town=defaultdict(float);sections=0
+    for section in census:
+        if section['municipality'] not in municipalities:continue
+        area=float(section['geometry'].area)
+        if area<=0:continue
+        intersection=poly.intersection(section['geometry'])
+        if intersection.is_empty:continue
+        share=min(1.0,max(0.0,float(intersection.area)/area))
+        if share<=0:continue
+        by_town[section['municipality']]+=float(section['population'])*share
+        sections+=1
+    return {'population':round(sum(by_town.values())),
+            'municipalities':{k:round(v) for k,v in by_town.items()},
+            'sections_reached':sections,
+            'population_method':'census_section_area_interpolation'}
+
+
 class TerritoryStore:
     """In-memory analysed layers, backed by original GeoJSON files for local persistence."""
     def __init__(self, directory):
@@ -275,9 +306,11 @@ class TerritoryStore:
           'municipalities':sorted({c['municipality'] for c in self.census}),
           'census_population':round(sum(c['population'] for c in self.census)),
           'ready':bool(self.census and self.buildings and self.network and self.residents),
-          'method':'Residential building area × floors weighted within census sections',
+          'area_interpolation_ready':bool(self.census and self.network),
+          'population_method':'residential_building_allocation' if self.residents else ('census_section_area_interpolation' if self.census and self.network else 'unavailable'),
+          'method':'Residential building area × floors weighted within census sections; section-area interpolation fallback when buildings are absent',
           'walk_method':'Dijkstra on walkable OSM graph; population by graph distance; concave reached-node display envelope',
-          'attribution':'Geographies uploaded by project user; verify source licences'}
+          'attribution':'Geometry: GeoEuskadi Secciones; counts: Eustat 2025; verify source licences'}
 
     def stops_near_study_area(self,stops,max_distance_m=900):
         """Filter out distant route stops outside the census footprint + walking reach.
@@ -298,10 +331,11 @@ class TerritoryStore:
     def network_coverage(self,stops,minutes=10):
         """Population unique across all active stops; never sum stop populations."""
         if minutes not in (5,10):raise ValueError('Minutos fuera de rango')
-        if not self.network or not self.residents:
+        if not self.network or not (self.residents or self.census):
             return {'status':'incomplete_geography','population':None,'stops':len(stops)}
         if len(stops)>2500:raise ValueError('Demasiadas paradas en una consulta')
         seen=set();snapped=0;outside=0;statuses={}
+        polygons=[]
         for stop in stops:
             point=(round(float(stop['lat']),6),round(float(stop['lon']),6))
             cache_key=(*point,minutes)
@@ -310,21 +344,30 @@ class TerritoryStore:
             iso=self._iso_cache[cache_key]
             if iso['polygon'] is None:
                 outside+=1;continue
-            snapped+=1;poly=iso['polygon']
+            snapped+=1;poly=iso['polygon'];polygons.append(poly)
             distances=iso.get('_node_distances',{})
             limit=iso.get('_limit_m',0)
             for i,resident in enumerate(self.residents):
                 if i in seen or resident['municipality'] not in MUNICIPALITIES:continue
                 if self.network.walk_distance_to(resident['point'],distances)<=limit:
                     seen.add(i)
-        by_municipality=defaultdict(float)
-        for i in seen:
-            r=self.residents[i];by_municipality[r['municipality']]+=r['population']
+        if self.residents:
+            by_municipality=defaultdict(float)
+            for i in seen:
+                r=self.residents[i];by_municipality[r['municipality']]+=r['population']
+            return {'status':'estimated','stops':len(stops),'stops_connected':snapped,'stops_unconnected':outside,
+                    'population':round(sum(by_municipality.values())),
+                    'municipalities':{k:round(v) for k,v in by_municipality.items()},
+                    'unallocated_population':round(sum(c['population'] for c in self.unallocated)),
+                    'population_method':'residential_building_allocation',
+                    'method':f'unique residential-building census allocation + {minutes}-min network access',
+                    'certified':False}
+        union=unary_union(polygons) if polygons else None
+        interpolated=calculate_population_by_census_area({'polygon':union},self.census)
         return {'status':'estimated','stops':len(stops),'stops_connected':snapped,'stops_unconnected':outside,
-                'population':round(sum(by_municipality.values())),
-                'municipalities':{k:round(v) for k,v in by_municipality.items()},
-                'unallocated_population':round(sum(c['population'] for c in self.unallocated)),
-                'method':f'unique residential-building census allocation + {minutes}-min network access',
+                **interpolated,
+                'unallocated_population':0,
+                'method':f'unique section-area interpolation + {minutes}-min network access',
                 'certified':False}
 
     def stop(self,lat,lon,geometry=True,minutes=10):
@@ -333,11 +376,14 @@ class TerritoryStore:
         key=(round(float(lat),6),round(float(lon),6),int(minutes))
         if key not in self._iso_cache:self._iso_cache[key]=self.network.isochrone(lat,lon,minutes=minutes)
         result=self._iso_cache[key]
-        if not self.residents:
-            pop={'population':None,'units_reached':0,'municipalities':{}}
-        else:pop=calculate_population(result,self.residents,self.network)
+        if self.residents:
+            pop={**calculate_population(result,self.residents,self.network),'population_method':'residential'}
+        elif self.census:
+            pop=calculate_population_by_census_area(result,self.census)
+        else:
+            pop={'population':None,'units_reached':0,'municipalities':{},'population_method':'unavailable'}
         display=result.get('display_polygon',result.get('polygon'))
         geom=mapping(transform(TO_WGS,display)) if geometry and display is not None else None
         return {**{k:v for k,v in result.items() if k not in ('polygon','display_polygon','_node_distances','_limit_m')},**pop,
-                'geometry':geom,'minutes':minutes,'population_method':'residential' if self.residents else 'unavailable',
+                'geometry':geom,'minutes':minutes,
                 'population_certified':False}
