@@ -1,7 +1,7 @@
 {
   "package": "Observatorio de Movilidad",
   "package_version": "v1",
-  "demo_version": "0.6.5",
+  "demo_version": "0.6.6",
   "package_kind": "historical-real-data",
   "generated_on": "2026-10-20",
   "database": "data/real/observatorio_real.sqlite3",

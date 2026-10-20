@@ -374,6 +374,41 @@ def month_analysis(conn, operator,year,month,day_type,hour_start=0,hour_end=2880
          "daily": [{"date":d['date'],"trips":len(d['trips']) if d['source']!='missing' else None,"status":d['snapshot_quality'],"exception":bool(d.get('explicit_exception')),"feed_id":d['source']} for d in items]})
     return result
 
+def route_catalog(conn, operator, year=2026, month=10):
+    """List line identifiers available in the selected period.
+
+    This catalogue is deliberately independent from ``month_analysis``. The
+    latter is filtered by weekday, hour and selected route, so rebuilding the
+    UI select from its response can make every other line disappear. A route
+    remains selectable even when it has no service on the current day type;
+    the UI marks that state instead of dropping the option.
+    """
+    if operator not in OPERATORS or not 2025 <= int(year) <= 2026 or not 1 <= int(month) <= 12:
+        raise ValueError('Filtros no válidos')
+    first=f'{int(year):04d}-{int(month):02d}-01'
+    last=f'{int(year):04d}-{int(month):02d}-{cal.monthrange(int(year),int(month))[1]:02d}'
+    rows=conn.execute('''SELECT r.route_id,r.short_name,r.long_name,f.snapshot_date,f.id
+        FROM routes r JOIN feeds f ON f.id=r.feed_id
+        WHERE f.operator=? AND f.max_date>=? AND f.min_date<=?
+        ORDER BY f.snapshot_date DESC,f.id DESC,r.short_name,r.route_id''',(operator,first,last)).fetchall()
+    # Empty planning feeds may not have routes. If no period-overlapping feed
+    # has rows, expose the historical catalogue rather than a blank selector.
+    if not rows:
+        rows=conn.execute('''SELECT r.route_id,r.short_name,r.long_name,f.snapshot_date,f.id
+            FROM routes r JOIN feeds f ON f.id=r.feed_id WHERE f.operator=?
+            ORDER BY f.snapshot_date DESC,f.id DESC,r.short_name,r.route_id''',(operator,)).fetchall()
+    seen=set();routes=[]
+    for row in rows:
+        route_id=str(row['route_id'] or '').strip()
+        if not route_id or route_id in seen:continue
+        seen.add(route_id)
+        routes.append({'route_id':route_id,'name':row['short_name'] or route_id,
+                       'long_name':row['long_name'] or '',
+                       'snapshot_date':row['snapshot_date']})
+    routes.sort(key=lambda x:(str(x['name']).casefold(),x['route_id']))
+    return {'operator':operator,'year':int(year),'month':int(month),'routes':routes,
+            'source':'historical_catalog','complete':bool(routes)}
+
 def map_data(conn, operator,day,route_filter=''):
     if operator not in OPERATORS: raise ValueError('Operador no válido')
     day=clean_date(day)

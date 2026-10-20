@@ -4,6 +4,8 @@ const months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto',
 const state={operator:'ekialdebus',year:2026,month:10,dayType:'LJ',hourFrom:0,hourTo:1440,calendarFilter:'all',route:'',exactDate:'',activeMapDate:null};
 const palette=['#237f75','#427d9f','#d17f4d','#8d79bd','#59a074','#ba7194','#c29a53','#6994bc'];
 let map=null,layers=[],fallback=$('fallback-map');
+let populationReference={loaded:false,total_population:null,sections:null};
+const routeCatalogCache=new Map();
 function ensureRouteScheduleUI(){
  const panel=$('route-insights');if(!panel||$('route-service-window'))return;
  const metrics=panel.querySelector('.route-metrics');
@@ -85,21 +87,32 @@ function renderMain(res,cov,other){let primary=selectMainSegment(res);const hasD
  setText('kpi-days',hasData?`${primary.days_available}/${primary.days_total}`:'—');
  setText('kpi-trips-note',hasData?`${segmentState(primary)} · media por jornada`:'Sin información cargada');
  setText('kpi-days-note',hasData?`${primary.days_missing} sin fuente · ${primary.days_retrospective} retrospectivos · ${primary.days_explicit_exception||0} con excepción`:'Sin cobertura certificada');
- const periodSegments=res.segments.map(s=>`${segmentState(s)}: ${s.from} a ${s.to} (${s.days_available}/${s.days_total} fechas con fuente)`).join(' · ');
- $('quality-content').innerHTML=`<div class="notice ${hasData&&primary.days_missing?'warn':''}">${hasData?'Se encontraron expediciones programadas. La disponibilidad de una versión GTFS <b>no equivale a horario validado ni servicio prestado</b>.':'No hay datos importados para esta selección. El sistema no mostrará cero expediciones sin evidencia de calendario válido.'}</div>
- <div class="metric-row"><div><div class="label">Cobertura mensual</div><div class="detail">Calendario y versiones</div></div><strong>${hasData?`${fmt(primary.days_available)}/${fmt(primary.days_total)}`:'—'}</strong></div>
- <div class="metric-row"><div><div class="label">Fechas retrospectivas</div><div class="detail">Fuente capturada después del servicio</div></div><strong>${hasData?fmt(primary.days_retrospective):'—'}</strong></div>
+ const periodSegments=res.segments.map(s=>`${segmentState(s)}: ${s.from} a ${s.to} (${s.days_available}/${s.days_total} jornadas con fuente)`).join(' · ');
+ const operatorName=state.operator==='ekialdebus'?'Ekialdebus':'Irunbus';
+ const routeLabel=state.route||'todas las líneas';
+ setText('data-state-note-text',hasData
+   ? `${segmentState(primary)} · ${operatorName} · ${primary.days_available}/${primary.days_total} jornadas disponibles para ${routeLabel}. El horario es programado, no servicio observado.`
+   : `Sin fuente para ${operatorName}, ${state.year}-${String(state.month).padStart(2,'0')} y el tipo de día seleccionado.`);
+ $('quality-content').innerHTML=`<div class="notice ${hasData&&primary.days_missing?'warn':''}">${hasData?`Selección: <b>${escapeHTML(operatorName)}</b> · ${escapeHTML(routeLabel)} · ${escapeHTML({LJ:'lunes–jueves',V:'viernes',S:'sábado',D:'domingo'}[state.dayType])}. La fuente contiene horarios programados; no acredita servicio prestado.`:'No hay datos importados para esta selección. El sistema no convierte la ausencia de fuente en cero expediciones.'}</div>
+ <div class="metric-row"><div><div class="label">Fuente actual</div><div class="detail">Estado temporal de la selección</div></div><strong>${hasData?segmentState(primary):'Sin datos'}</strong></div>
+ <div class="metric-row"><div><div class="label">Jornadas disponibles</div><div class="detail">Con una versión GTFS que cubre la fecha</div></div><strong>${hasData?`${fmt(primary.days_available)}/${fmt(primary.days_total)}`:'—'}</strong></div>
+ <div class="metric-row"><div><div class="label">Excepciones / retrospectivas</div><div class="detail">Trazabilidad de la fuente seleccionada</div></div><strong>${hasData?`${fmt(primary.days_explicit_exception||0)} / ${fmt(primary.days_retrospective||0)}`:'—'}</strong></div>
  <p class="hint">${escapeHTML(periodSegments||'Sin fuentes importadas')}</p>`;
  renderLines(primary);
  renderCoverage(cov);
  renderCompare(res,other);
  updateRoutes(res);
 }
-function renderCoverage(coverage){let max=31;$('month-bars').innerHTML=coverage.months.map((r,i)=>{
- let height=Math.round(r.with_source/r.days*100);
- const klass=r.with_source===0?'':r.state==='mixed'?'partial':r.state==='planning'?'plan':'ok';
- return `<div class="bar-cell" title="${r.with_source}/${r.days} días con fuente; ${r.retrospective} retrospectivos"><div class="bar ${klass}" style="height:${r.with_source?Math.max(4,height):3}%"></div><div class="bar-label">${months[i].slice(0,3)}</div></div>`;
- }).join('')}
+function renderCoverage(coverage){
+ if(!coverage?.months?.length){$('month-bars').innerHTML='<div class="empty-table" style="grid-column:1/-1">Sin cobertura de calendario para este operador.</div>';setText('coverage-note','No hay jornadas con fuente para la selección actual.');return}
+ const totalDays=coverage.months.reduce((sum,r)=>sum+(r.with_source||0),0),availableMonths=coverage.months.filter(r=>r.with_source>0).length;
+ $('month-bars').innerHTML=coverage.months.map((r,i)=>{
+   const klass=r.with_source===0?'':r.state==='mixed'?'partial':r.state==='planning'?'plan':'ok';
+   const stateLabel=r.with_source===0?'sin fuente':r.with_source===r.days?'completa':`${r.with_source}/${r.days} días`;
+   return `<div class="coverage-chip ${klass}" title="${r.with_source}/${r.days} días con fuente; ${r.retrospective} retrospectivos"><strong>${months[i].slice(0,3)}</strong><span>${stateLabel}</span><small>${r.retrospective?`${r.retrospective} retrospectivos`:(r.state==='planning'?'planificación':'fuente GTFS')}</small></div>`;
+ }).join('');
+ setText('coverage-note',`${availableMonths}/12 meses con alguna fuente · ${totalDays} jornadas cubiertas. Disponibilidad GTFS no equivale a horario validado ni servicio prestado.`);
+}
 function renderLines(segment){const rows=segment?.lines||[];
  if(!rows.length){$('lines-body').innerHTML='<tr><td colspan="4" class="empty-table">No hay expediciones en las fechas y horas seleccionadas. Comprueba la cobertura de datos.</td></tr>';return}
  $('lines-body').innerHTML=rows.map(r=>`<tr><td class="route">${escapeHTML(r.name)}</td><td>${escapeHTML(r.long_name||'—')}</td><td>${fmt(r.trips_per_day,1)}</td><td>${r.median_interval===null?'—':`${fmt(r.median_interval,1)} min`}</td></tr>`).join('')}
@@ -162,10 +175,24 @@ async function updateRoutes(res){
  const activeIds=new Set(active.map(x=>x.route_id));
  let choices=active.map(x=>({route_id:x.route_id,name:x.name}));
  try{
-   const catalog=await api(qs('/api/demo/catalog',{operator:op,year,month}));
+   const cacheKey=`${op}:${year}:${month}`;
+   let catalog=routeCatalogCache.get(cacheKey);
+   if(!catalog){
+     catalog=await api(qs('/api/routes',{operator:op,year,month}));
+     routeCatalogCache.set(cacheKey,catalog);
+   }
    if(op!==state.operator||year!==state.year||month!==state.month)return;
    if(catalog.routes?.length)choices=catalog.routes;
- }catch(e){ /* In non-demo mode, catalog comes from active GTFS service only */ }
+ }catch(e){
+   // Older/demo servers may not expose /api/routes yet; retain the previous
+   // catalog endpoint as a compatibility fallback, but never drop the active
+   // selection from the list.
+   try{
+     const catalog=await api(qs('/api/demo/catalog',{operator:op,year,month}));
+     if(catalog.routes?.length)choices=catalog.routes;
+   }catch(ignore){ /* active lines remain a safe last resort */ }
+ }
+ if(op!==state.operator||year!==state.year||month!==state.month)return;
  const select=$('route'),old=state.route;
  if(old&&!choices.some(x=>x.route_id===old))choices=[{route_id:old,name:old},...choices];
  select.innerHTML='<option value="">Todas las líneas con servicio este día</option>'+choices.map(x=>
@@ -216,7 +243,13 @@ async function loadGeoStatus(){
    setText('geo-walkways',s.walk_segments?`${fmt(s.walk_segments)} tramos`:'Sin red importada');
    setText('geo-census',s.census_sections?`${fmt(s.census_sections)} secciones`:'Sin geometrías · Eustat tabular');
    setText('geo-buildings',s.residential_buildings?`${fmt(s.residential_buildings)} edificios`:'Sin edificios residenciales');
-   setText('geo-method',s.resident_units?`${fmt(s.resident_units)} unidades residenciales · ${fmt(s.unallocated_population)} personas sin asignación residencial`:'No hay una distribución residencial utilizable todavía.');
+   setText('geo-method',s.ready
+     ? `${fmt(s.resident_units)} unidades residenciales · ${fmt(s.unallocated_population)} personas sin asignación residencial · estimación no certificada.`
+     : 'La red peatonal puede estar disponible, pero falta la unión de población censal y edificios residenciales. No se mostrarán habitantes cubiertos inventados.');
+   if(!s.ready){
+     setText('geo-result',`Cobertura del recorrido pendiente · ${populationReferenceLabel()}`);
+     setText('geo-stop-result',`Seleccione una parada · ${populationReferenceLabel()}`);
+   }
  }catch(e){setText('geo-method','No se pudo consultar la base geográfica: '+e.message)}
 }
 async function importGeo(e){e.preventDefault();const file=$('geo-file').files[0];if(!file)return;
@@ -235,6 +268,11 @@ async function downloadSource(source,button){
  catch(e){setText('source-status',`${source}: no disponible — ${e.message}. Puedes importar el fichero manualmente si lo obtienes de la fuente.`)}finally{button.disabled=false}
 }
 let isoRequestId=0;
+function populationReferenceLabel(){
+ return populationReference.loaded&&typeof populationReference.total_population==='number'
+   ? `${fmt(populationReference.total_population)} hab. de referencia Eustat 2025`
+   : 'referencia poblacional Eustat no cargada';
+}
 async function showIsochrone(stop,{auto=false}={}){
  const requestId=++isoRequestId;
  if(window.reviewMap)window.reviewMap.clearIsochrone();
@@ -252,14 +290,24 @@ async function showIsochrone(stop,{auto=false}={}){
   window.reviewMap.displayIsochrones(geometries);
   if(window.reviewMap && Number.isFinite(stop.lon) && Number.isFinite(stop.lat))window.reviewMap.focusOn(stop.lon,stop.lat,true);
   if(!Object.keys(geometries).length){
-    setText('geo-stop-result','No se pueden calcular isócronas: falta una conexión peatonal para esta parada.');
+    const reason=iso5.status==='missing_pedestrian_network'||iso10.status==='missing_pedestrian_network'
+      ? 'falta una red peatonal cargada'
+      : 'la parada no está conectada a la red peatonal';
+    setText('geo-stop-result',`${stop.name} · ${populationReferenceLabel()} · cobertura de parada no calculable: ${reason}.`);
+    if(!auto){
+      const kpiLabel=$('kpi-population')?.closest('.kpi')?.querySelector('.name');
+      if(kpiLabel)kpiLabel.textContent='Población de referencia';
+      setText('kpi-population',populationReference.loaded?fmt(populationReference.total_population):'—');
+      setText('kpi-population-note',`Parada: ${stop.name} · no equivale a cobertura de la isócrona`);
+    }
+    setText('geo-method','La isócrona solo es calculable cuando la parada se conecta a la red peatonal y la población está asignada a edificios residenciales dentro de secciones censales.');
     return;
   }
-  const formatPopulation=p=>typeof p==='number'?fmt(p)+' hab.':'no calculable · faltan capas';
+  const formatPopulation=p=>typeof p==='number'?fmt(p)+' hab.':'no calculable · faltan capas censales/residenciales';
   setText('geo-stop-result',`${stop.name} · 5 min: ${formatPopulation(iso5.population)} · 10 min: ${formatPopulation(iso10.population)} · estimación`);
   if(!auto){const kpiLabel=$('kpi-population')?.closest('.kpi')?.querySelector('.name');if(kpiLabel)kpiLabel.textContent=iso10.population===null?'Población base · seis municipios':'Población cubierta · parada';setText('kpi-population',iso10.population===null?'—':fmt(iso10.population));
     setText('kpi-population-note',iso10.population===null
-      ? `Parada: ${stop.name} · Eustat tabular disponible; faltan geometrías censales y residenciales`
+      ? `Parada: ${stop.name} · ${populationReferenceLabel()} · falta unión espacial`
       : `Parada: ${stop.name} · 10 min andando · estimación, no demanda`);}
   setText('geo-method',`Recorrido: cobertura única deduplicada. Parada: Dijkstra sobre red peatonal OSM real; naranja 5 min y azul 10 min. La cobertura poblacional solo se muestra con capas censales y residenciales verificables; resultado no certificado.`);
  }catch(e){if(requestId===isoRequestId)setText('geo-stop-result','Error al calcular las isócronas: '+e.message)}
@@ -282,10 +330,13 @@ async function computeNetworkPopulation({silent=false}={}){
  try{const data=await api(qs('/api/geo/network',{operator:$('map-both').checked?'both':state.operator,day:state.activeMapDate,route_id:state.route||'',minutes:10}));
  if(requestId!==networkRequestId)return;
  if(data.population===null){
-   setText('geo-result',data.status==='missing_gtfs'?'Falta GTFS de al menos un operador':'No calculable: faltan geometrías censales y edificios residenciales');
-   setText('kpi-population','—');
+   setText('geo-result',data.status==='missing_gtfs'
+     ? 'Falta GTFS de al menos un operador; no se puede asociar el recorrido a paradas.'
+     : `Cobertura del recorrido no calculable · ${populationReferenceLabel()} · faltan geometrías censales y edificios residenciales.`);
+   setText('kpi-population',populationReference.loaded?fmt(populationReference.total_population):'—');
    const kpiLabel=$('kpi-population')?.closest('.kpi')?.querySelector('.name');if(kpiLabel)kpiLabel.textContent='Población base · seis municipios';
-   setText('kpi-population-note','Eustat 2025 cargado como referencia · cobertura espacial pendiente');
+   setText('kpi-population-note',`${populationReferenceLabel()} · no equivale a cobertura del recorrido`);
+   setText('geo-method','La suma de paradas no se usa: la población debe deduplicarse espacialmente sobre edificios residenciales y la red peatonal. Importa las capas censales y residenciales verificables para activar la estimación.');
    return;
  }
  const scope=data.route_id?`recorrido ${data.route_id}`:`toda la red de ${state.operator}`;
@@ -359,7 +410,9 @@ document.addEventListener('DOMContentLoaded',()=>{$('frequency-run').addEventLis
 async function confirmAppVersion(){
   try {
     const info=await api('/api/version');
-    setText('running-version',document.body.classList.contains('review-mode')?'DEMO · DATOS FICTICIOS':`v${info.version} · CORTE FIJO 18 OCT 2026`);
+    window.OBSERVATORIO_VERSION=info.version;
+    setText('running-version',document.body.classList.contains('review-mode')?`DEMO · v${info.version}`:`v${info.version} · CORTE FIJO 18 OCT 2026`);
+    setText('brand-version',`Bidasoaldea + Oarsoaldea · ${document.body.classList.contains('review-mode')?'DEMO':'DATOS REALES'} · GTFS oficial`);
   } catch(error) { setText('running-version','VERSIÓN NO VERIFICABLE'); }
 }
 async function compareRoutesUI(){
@@ -405,6 +458,7 @@ function renderEustatQuickReference(x){
 async function loadEustatPopulation(){
   try{
     const x=await api('/api/population/status');
+    populationReference={loaded:!!x.loaded,total_population:x.total_population??null,sections:x.sections??null};
     if(!x.loaded){setText('eustat-validation','CSV no importado');setText('eustat-municipality-rows','Sin datos oficiales cargados');renderEustatQuickReference(x);return;}
     setText('eustat-validation',`${fmt(x.sections)} secciones verificadas · CSV 2025`);
     setText('eustat-total',fmt(x.total_population));
@@ -414,7 +468,7 @@ async function loadEustatPopulation(){
     // data visible immediately on first load. It is a territorial reference,
     // never a claim that the whole population is reachable by the selected line.
     if($('kpi-population')?.textContent.trim()==='—'){
-      const kpiLabel=$('kpi-population')?.closest('.kpi')?.querySelector('.name');if(kpiLabel)kpiLabel.textContent='Población base · seis municipios';
+      const kpiLabel=$('kpi-population')?.closest('.kpi')?.querySelector('.name');if(kpiLabel)kpiLabel.textContent='Población de referencia';
       setText('kpi-population',fmt(x.total_population));
       setText('kpi-population-note','Base Eustat 2025 · seis municipios · no equivale a cobertura del recorrido');
     }
@@ -424,6 +478,10 @@ async function loadEustatPopulation(){
     }).join('');
     setText('eustat-note',`CSV original conservado y verificado (SHA256: ${x.sha256.slice(0,12)}…). La población base está cargada en esta entrega; la cobertura de isócrona solo se informa cuando hay una unión espacial residencial verificable.`);
     renderEustatQuickReference(x);
+    const stopText=$('geo-stop-result')?.textContent||'';
+    if(stopText.includes('referencia poblacional Eustat no cargada'))setText('geo-stop-result',stopText.replace('referencia poblacional Eustat no cargada',populationReferenceLabel()));
+    const routeText=$('geo-result')?.textContent||'';
+    if(routeText.includes('referencia poblacional Eustat no cargada'))setText('geo-result',routeText.replace('referencia poblacional Eustat no cargada',populationReferenceLabel()));
   }catch(e){setText('eustat-validation','Error de datos');setText('eustat-note','Error al cargar Eustat: '+e.message)}
 }
 document.addEventListener('DOMContentLoaded',loadEustatPopulation);
@@ -436,7 +494,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
     if(!cfg.demo){
       const banner=document.querySelector('.review-banner');
       if(banner)banner.innerHTML='<strong>DATOS REALES · GTFS IMPORTADO</strong> <span class="soft">— Instantáneas entregadas por el usuario. Horarios programados: no equivalen a servicio prestado. La base poblacional Eustat 2025 está incluida; la cobertura de recorrido se mantiene separada hasta verificar la unión espacial.</span>';
-      const head=document.querySelector('header .brand p');if(head)head.textContent='Bidasoaldea + Oarsoaldea · DATOS REALES v0.6.5 · GTFS oficial';
+      const head=document.querySelector('header .brand p');if(head)head.textContent=`Bidasoaldea + Oarsoaldea · DATOS REALES v${cfg.version||window.OBSERVATORIO_VERSION||'?' } · GTFS oficial`;
       const tag=document.querySelector('header .tag');if(tag)tag.textContent='DATOS REALES · GTFS';
       const mapTitle=document.querySelector('.map-frame')?.closest('.panel')?.querySelector('.panel-head h3');if(mapTitle)mapTitle.textContent='Mapa geográfico real · Líneas GTFS';
       const legend=document.querySelector('.mini-legend');if(legend)legend.textContent='● Parada GTFS · ━ Recorrido según shape GTFS';
@@ -447,8 +505,8 @@ document.addEventListener('DOMContentLoaded',async()=>{
       document.body.classList.add('review-mode');
       for(const id of ['import-button','source-button','geo-import-button','quality-run']){const el=document.getElementById(id);if(el)el.style.display='none';}
       const footprint=document.getElementById('geo-method');if(footprint)footprint.insertAdjacentText('afterbegin','ISÓCRONAS SINTÉTICAS · no cartografía oficial. ');
-      const head=document.querySelector('header .brand p');if(head)head.textContent='Bidasoaldea + Oarsoaldea · DEMO v0.6.5 · Red peatonal OSM real';
-      const version=document.getElementById('running-version');if(version)version.textContent='PRODUCT REVIEW · DEMO NO PUBLICABLE';
+      const head=document.querySelector('header .brand p');if(head)head.textContent=`Bidasoaldea + Oarsoaldea · DEMO v${cfg.version||window.OBSERVATORIO_VERSION||'?' } · Red peatonal OSM real`;
+      const version=document.getElementById('running-version');if(version)version.textContent=`PRODUCT REVIEW · DEMO v${cfg.version||window.OBSERVATORIO_VERSION||'?'}`;
       const note=document.getElementById('quality-content');
       if(note)note.insertAdjacentHTML('afterbegin','<div class="notice warn" style="margin-bottom:9px"><b>DATOS DEMO</b> · Horarios, recorridos y paradas son ficticios. La población oficial Eustat 2025 es real, pero la cobertura accesible es simulada.</div>');
     }

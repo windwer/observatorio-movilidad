@@ -16,6 +16,31 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Comprobar sintaxis Python
         run: python -m compileall -q .
+      - name: Comprobar sintaxis del visor
+        run: |
+          node --check static/app.js
+          node --check static/offline_map.js
+      - name: Validar versión y catálogo de líneas
+        run: |
+          python - <<'PY'
+          import tempfile
+          from pathlib import Path
+          import app
+          import engine
+
+          assert app.version(True)['version'] == '0.6.6'
+          path = Path(tempfile.mkstemp(suffix='.sqlite3')[1])
+          conn = engine.connect(path)
+          conn.execute("INSERT INTO feeds(sha256,operator,snapshot_date,original_name,imported_at,min_date,max_date) VALUES ('qa','ekialdebus','2026-10-01','qa.zip','2026-10-01T00:00:00','2026-10-01','2026-10-31')")
+          conn.execute("INSERT INTO routes VALUES (1,'r1','L1','Linea 1')")
+          conn.execute("INSERT INTO routes VALUES (1,'r2','L2','Linea 2')")
+          conn.commit()
+          catalog = engine.route_catalog(conn, 'ekialdebus', 2026, 10)
+          assert [row['name'] for row in catalog['routes']] == ['L1', 'L2']
+          conn.close()
+          path.unlink(missing_ok=True)
+          print('v0.6.6 y catálogo de líneas: OK')
+          PY
       - name: Validar referencia poblacional Eustat
         run: |
           python - <<'PY'

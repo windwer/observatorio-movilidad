@@ -3,6 +3,16 @@
  * No calls to transit-data APIs or volunteer-run tile servers.
  */
 'use strict';
+function euskadiExportTile(z,x,y){
+  // GeoEuskadi publishes the official base through an ArcGIS MapServer. The
+  // export request below uses the same Web-Mercator tile bounds as the SVG
+  // renderer, avoiding the blank tiles produced by the legacy WMTS tile path
+  // in some browsers while retaining a real official raster source.
+  const half=20037508.342789244,span=(half*2)/Math.pow(2,z);
+  const xmin=-half+x*span,xmax=xmin+span;
+  const ymax=half-y*span,ymin=ymax-span;
+  return `https://www.geo.euskadi.eus/geoeuskadi/rest/services/U11/WMTS_KARTO/MapServer/export?bbox=${xmin.toFixed(2)}%2C${ymin.toFixed(2)}%2C${xmax.toFixed(2)}%2C${ymax.toFixed(2)}&bboxSR=3857&imageSR=3857&size=256%2C256&format=png&transparent=false&f=image`;
+}
 class GeographicReviewMap {
   constructor(container, handlers={}) {
     this.container=container; this.handlers=handlers;
@@ -15,10 +25,11 @@ class GeographicReviewMap {
     this.base={x:0,y:0,w:se[0]-nw[0],h:se[1]-nw[1]};
     this.view={...this.base}; this.drag=null; this.isoFeatures={}; this.isoVisible={5:true,10:true};
     this.basemapReady=false;this.errorTiles=new Set();this.tileElements=new Map();
-    // Choose the widely available topo service first; geoEuskadi is the alternative.
-    this.tileProvider='esri';
+    // Prefer the official regional base. Esri remains an explicit fallback
+    // when a browser/network cannot reach GeoEuskadi.
+    this.tileProvider='euskadi';
     this.providers={
-      euskadi:{name:'GeoEuskadi',url:(z,x,y)=>`https://www.geo.euskadi.eus/geoeuskadi/rest/services/U11/WMTS_KARTO/MapServer/tile/${z}/${y}/${x}`},
+      euskadi:{name:'GeoEuskadi',url:euskadiExportTile},
       esri:{name:'Esri World Topographic Map',url:(z,x,y)=>`https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/${z}/${y}/${x}`}
     };
     this.svg=document.createElementNS(this.ns,'svg');
@@ -63,7 +74,7 @@ class GeographicReviewMap {
     this.view.x+=(this.view.w-w)/2;this.view.y+=(this.view.h-h)/2;
     this.view.w=w;this.view.h=h;this.syncView();this.hidePopup();
   }
-  setBasemap(provider){if(!this.providers[provider])return;this.tileProvider=provider;this.tileElements.clear();this.tiles.replaceChildren();this.errorTiles.clear();this.basemapReady=false;this.refreshTiles()}
+  setBasemap(provider){if(!this.providers[provider])return;this.tileProvider=provider;this.tileElements.clear();this.tiles.replaceChildren();this.errorTiles.clear();this.basemapReady=false;this.updateBasemapStatus('Cargando cartografía · '+this.providers[provider].name,false);this.refreshTiles()}
   refreshTiles(){
     if(!this.tiles || !this.view)return;
     const scale=this.base.w/this.view.w;
@@ -114,9 +125,16 @@ class GeographicReviewMap {
       label.append(input,swatch,document.createTextNode(`${minutes} min`));legend.append(label)
     }
     const note=document.createElement('small');note.textContent='Alcance por red OSM real · no radio euclídeo. Haz clic en otra parada';legend.append(note);this.container.append(legend);
-    const credit=document.createElement('div');credit.className='map-source-credit';credit.textContent='Mapa base: © Eusko Jaurlaritza / Gobierno Vasco; © Esri y colaboradores';this.container.append(credit);
+    this.credit=document.createElement('div');this.credit.className='map-source-credit';this.container.append(this.credit);this.updateBasemapCredit();
   }
-  updateBasemapStatus(text,isError){this.status.textContent=text;this.status.classList.toggle('error',!!isError)}
+  updateBasemapCredit(fallback=false){
+    if(!this.credit)return;
+    const provider=this.providers[this.tileProvider];
+    this.credit.textContent=fallback
+      ? `Mapa base: ${provider.name} no disponible · usando Esri World Topographic Map`
+      : `Mapa base: ${provider.name} · © ${this.tileProvider==='euskadi'?'Eusko Jaurlaritza / Gobierno Vasco':'Esri y colaboradores'}`;
+  }
+  updateBasemapStatus(text,isError){this.status.textContent=text;this.status.classList.toggle('error',!!isError);this.updateBasemapCredit(text.includes('servidor alternativo'))}
   hidePopup(){this.popup.style.display='none';this.popup.replaceChildren()}
   openPopup(name,detail,actions,clientX,clientY){
     this.popup.replaceChildren();const b=document.createElement('b');b.textContent=name;
@@ -157,8 +175,8 @@ class GeographicReviewMap {
       const col=r.operator==='irunbus'?'#cc7734':'#067f72';
       const poly=this.element('polyline',{points:r.coordinates.map(p=>this.project(p).join(',')).join(' '),fill:'none',stroke:'#fff','stroke-width':filtered?7:4.4,'vector-effect':'non-scaling-stroke',opacity:filtered?.93:.67},this.geo);
       const line=this.element('polyline',{points:r.coordinates.map(p=>this.project(p).join(',')).join(' '),fill:'none',stroke:col,'stroke-width':filtered?4.4:(dense?1.5:2.1),'vector-effect':'non-scaling-stroke',opacity:filtered?.95:(dense?.32:.65),class:'route-path'},this.geo);
-      const title=this.element('title',{},line);title.textContent=(r.name||r.id)+' · geometría GTFS ficticia en esta demo';
-      line.addEventListener('click',e=>{e.stopPropagation();this.openPopup(r.name||r.id,'Recorrido DEMO (no se corresponde necesariamente con las carreteras reales)',[['Filtrar línea',()=>this.handlers.onRoute(r.name,r.operator||null)]],e.clientX,e.clientY)});
+      const title=this.element('title',{},line);title.textContent=(r.name||r.id)+' · geometría según shape GTFS';
+      line.addEventListener('click',e=>{e.stopPropagation();this.openPopup(r.name||r.id,'Recorrido según shape GTFS; la cartografía base es independiente del recorrido',[['Filtrar línea',()=>this.handlers.onRoute(r.id||r.name,r.operator||null)]],e.clientX,e.clientY)});
     }
     for(const s of stops){
       if(typeof s.lat!=='number'||typeof s.lon!=='number')continue;
@@ -166,8 +184,8 @@ class GeographicReviewMap {
       // Keep the stop symbol a cartographic point at the focused zoom. The
       // previous 4.8 map-unit radius became a large centroid disk on screen.
       const marker=this.element('circle',{cx:x,cy:y,r:.8,fill:s.operator==='irunbus'?'#be8148':'#067f72',stroke:'#fff','stroke-width':.35,'vector-effect':'non-scaling-stroke',class:'stop-point'},this.points);
-      const title=this.element('title',{},marker);title.textContent=s.name+' · parada de demostración';
-      marker.addEventListener('click',e=>{e.stopPropagation();this.openPopup(s.name,'Parada DEMO · isócronas sobre red peatonal OSM real',[
+      const title=this.element('title',{},marker);title.textContent=s.name+' · parada GTFS';
+      marker.addEventListener('click',e=>{e.stopPropagation();this.openPopup(s.name,'Parada GTFS · isócronas sobre red peatonal OSM real',[
         ['Ver horarios',()=>this.handlers.viewStop(s)],['Isócronas OSM 5 y 10 min',()=>this.handlers.showIsochrone(s)]],e.clientX,e.clientY)});
     }
   }

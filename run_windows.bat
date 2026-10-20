@@ -8,7 +8,7 @@ if not exist ".venv\Scripts\python.exe" (
 )
 ".venv\Scripts\python.exe" -m pip install -r requirements.txt
 if errorlevel 1 (echo ERROR: Fallo en dependencias. & pause & exit /b 1)
-echo *** OBSERVATORIO v0.6.5 - ABRE AUTOMATICAMENTE LA VERSION NUEVA ***
+echo *** OBSERVATORIO v0.6.6 - ABRE AUTOMATICAMENTE LA VERSION NUEVA ***
 echo Esta instancia usa el puerto configurado y abre la version del paquete actual.
 ".venv\Scripts\python.exe" launcher.py
 if errorlevel 1 echo Revisa el mensaje anterior para identificar el error.

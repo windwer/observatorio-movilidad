@@ -1,4 +1,4 @@
-# Datos reales incluidos · demo 0.6.5
+# Datos reales incluidos · demo 0.6.6
 
 Este paquete conserva la DEMO separada y arranca contra `data/real/observatorio_real.sqlite3`. No se conecta a Transitland ni descarga fuentes automáticamente: la base se ha construido con los dos ZIP entregados por el usuario.
 

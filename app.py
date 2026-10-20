@@ -27,10 +27,11 @@ DB=Path(os.environ.get('OBS_DB',ROOT/'data'/'observatorio.sqlite3'))
 HOST=os.environ.get('OBS_HOST','127.0.0.1')
 PASSWORD=os.environ.get('OBS_PASSWORD')
 USERNAME=os.environ.get('OBS_USERNAME','analista')
+APP_VERSION='0.6.6'
 if HOST not in ('127.0.0.1','localhost','::1'):
     if not PASSWORD or len(PASSWORD)<24 or PASSWORD.startswith(('CHANGE_ME','password','Password')):
         raise RuntimeError('Acceso remoto no permitido sin una OBS_PASSWORD fuerte (mínimo 24 caracteres). Requiere también HTTPS en el proxy.')
-app=FastAPI(title='Observatorio Bidasoaldea y Oarsoaldea', version='0.6.5',docs_url=None,redoc_url=None,openapi_url=None)
+app=FastAPI(title='Observatorio Bidasoaldea y Oarsoaldea', version=APP_VERSION,docs_url=None,redoc_url=None,openapi_url=None)
 @app.middleware('http')
 async def demo_readonly(request:Request,call_next):
     if os.environ.get('OBS_DEMO')=='1' and request.method!='GET' and (request.url.path.startswith('/api/') or request.url.path.startswith('/internal/')):
@@ -99,7 +100,7 @@ async def population_import(file:UploadFile=File(...),_:bool=Depends(guard)):
 
 @app.get('/api/health')
 def health(_:bool=Depends(guard)):
-    return {'ok':True,'cutoff':engine.CUTOFF.isoformat(),'scope':'Ekialdebus + Irunbus / seis municipios','published':False,'observed_service':False,'version':'0.6.5','historical_service_certified':False}
+    return {'ok':True,'cutoff':engine.CUTOFF.isoformat(),'scope':'Ekialdebus + Irunbus / seis municipios','published':False,'observed_service':False,'version':APP_VERSION,'historical_service_certified':False}
 
 @app.get('/api/versions')
 def versions(_:bool=Depends(guard)):
@@ -118,6 +119,11 @@ def month(operator:str='ekialdebus',year:int=2026,month:int=10,day_type:str='LJ'
     if not (0<=hour_start<hour_end<=2880):
         raise HTTPException(status_code=400,detail='Intervalo horario inválido')
     return handle(engine.month_analysis,operator,year,month,day_type,hour_start,hour_end,route_id,calendar_filter)
+
+@app.get('/api/routes')
+def routes(operator:str='ekialdebus',year:int=2026,month:int=10,_:bool=Depends(guard)):
+    """Return the stable line catalogue independently from the day filter."""
+    return handle(engine.route_catalog,operator,year,month)
 
 @app.get('/api/compare')
 def compare(operator:str='ekialdebus',month:int=10,day_type:str='LJ',hour_start:int=0,hour_end:int=2880,_:bool=Depends(guard)):
@@ -375,7 +381,7 @@ def data_quality_all(_:bool=Depends(guard)):
 
 @app.get('/api/version')
 def version(_:bool=Depends(guard)):
-    return {'version':'0.6.5','date_cutoff':'2026-10-18','data_state':'unverified_until_audit','api_schema':'v0.6.5'}
+    return {'version':APP_VERSION,'date_cutoff':'2026-10-18','data_state':'unverified_until_audit','api_schema':'v0.6.6','package':'historical-real-gtfs'}
 
 @app.middleware('http')
 async def safe_response_headers(request:Request,call_next):
@@ -408,7 +414,7 @@ def demo_status(_:bool=Depends(guard)):
     note=('Oferta, recorridos y paradas son DEMO; la red peatonal incluida es OSM real y la accesibilidad sigue pendiente de Product Review.'
           if demo else
           'GTFS reales importados desde las dos instantáneas entregadas por el usuario. La oferta es programada, no prueba servicio prestado; la población cubierta requiere capas censales y residenciales verificables.')
-    return {'demo':demo,'version':'0.6.5','note':note}
+    return {'demo':demo,'version':APP_VERSION,'note':note}
 
 @app.get('/api/demo/catalog')
 def demo_catalog(operator:str='ekialdebus',year:int=2026,month:int=10,_:bool=Depends(guard)):
@@ -427,6 +433,6 @@ def demo_catalog(operator:str='ekialdebus',year:int=2026,month:int=10,_:bool=Dep
     finally:con.close()
 
 if __name__=='__main__':
-    print(f"Observatorio 0.6.5 privado local: http://{HOST}:{os.environ.get('OBS_PORT','8765')}")
+    print(f"Observatorio {APP_VERSION} privado local: http://{HOST}:{os.environ.get('OBS_PORT','8765')}")
     uvicorn.run(app,host=HOST,port=int(os.environ.get('OBS_PORT','8765')))
 
