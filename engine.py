@@ -24,7 +24,7 @@ CUTOFF = date(2026, 10, 18)
 OPERATORS = {
     "ekialdebus": "Ekialdebus",
     "irunbus": "Irunbus",
-    "euskotren": "Euskotren (tren)",
+    "euskotren": "Euskotren (tren · E1/E2)",
     "errenteria_urbanoa": "Errenteria bus urbano",
 }
 CORE_OPERATORS = ("ekialdebus", "irunbus")
