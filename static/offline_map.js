@@ -153,12 +153,26 @@ class GeographicReviewMap {
     // Larger isochrone first: the 5-minute area must remain visible on top.
     for(const [minutes,color,opacity] of [[10,'#3a8ed0',.30],[5,'#e69b32',.48]]){
       const geometry=this.isoFeatures[minutes];if(!this.isoVisible[minutes]||!geometry)continue;
-      const polys=geometry.type==='Polygon'?[geometry.coordinates]:geometry.type==='MultiPolygon'?geometry.coordinates:[];
-      for(const rings of polys){
-        const parts=rings.map(r=>r.map(p=>this.project(p).map(x=>x.toFixed(2)).join(',')).join(' '));
+      // The API normally returns Polygon/MultiPolygon. Keep the renderer
+      // defensive for a union that becomes a GeometryCollection and build
+      // explicit SVG commands instead of relying on string replacement.
+      const polygons=[];
+      const collect=g=>{
+        if(!g)return;
+        if(g.type==='Feature')return collect(g.geometry);
+        if(g.type==='Polygon')polygons.push(g.coordinates);
+        else if(g.type==='MultiPolygon')g.coordinates.forEach(rings=>polygons.push(rings));
+        else if(g.type==='GeometryCollection')(g.geometries||[]).forEach(collect);
+      };
+      collect(geometry);
+      for(const rings of polygons){
+        const parts=rings.map(r=>{
+          const points=r.filter(p=>Array.isArray(p)&&Number.isFinite(p[0])&&Number.isFinite(p[1]))
+            .map(p=>{const [x,y]=this.project(p);return `${x.toFixed(2)},${y.toFixed(2)}`});
+          return points.length>=3?`M ${points.join(' L ')} Z`:'';
+        }).filter(Boolean);
         if(!parts.length)continue;
-        const path=parts.map(points=>'M '+points.replace(/ /g,' L ')+' Z').join(' ');
-        this.element('path',{d:path,fill:color,'fill-rule':'evenodd','fill-opacity':opacity,stroke:color,'stroke-width':2.1,'vector-effect':'non-scaling-stroke','stroke-linejoin':'round'},this.drawIso);
+        this.element('path',{d:parts.join(' '),fill:color,'fill-rule':'evenodd','fill-opacity':opacity,stroke:color,'stroke-width':2.1,'vector-effect':'non-scaling-stroke','stroke-linejoin':'round','pointer-events':'none','data-iso-minutes':minutes,'aria-label':`${minutes} minutos andando`},this.drawIso);
       }
     }
   }

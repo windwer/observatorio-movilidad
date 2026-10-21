@@ -5,6 +5,9 @@ No radial buffer is used as a replacement for walking time. Dijkstra first
 selects the reachable portion of each real network edge. Population access is
 tested against that graph distance. A concave envelope of reached graph nodes,
 with a narrow 25 m edge buffer, is generated only to render a legible polygon.
+The 10-minute display envelope is explicitly united with the 5-minute envelope
+so the two cartographic levels are nested even when independent hulls simplify
+different branches of the same walking network.
 """
 from __future__ import annotations
 import hashlib
@@ -25,6 +28,7 @@ TO_WGS = Transformer.from_crs('EPSG:25830','EPSG:4326', always_xy=True).transfor
 MUNICIPALITIES = ('Irun','Hondarribia','Errenteria','Pasaia','Lezo','Oiartzun')
 RESIDENTIAL = {'residential','apartments','house','detached','semidetached_house','terrace','dormitory','bungalow','farm','static_caravan','cabin'}
 ALLOW_FOOT = {'footway','pedestrian','path','living_street','residential','steps','service','unclassified','tertiary','secondary','primary','track','cycleway','bridleway'}
+ISOCHRONE_HULL_RATIO = .32
 
 
 def read_geojson(data:bytes, max_features=350_000):
@@ -201,14 +205,17 @@ class WalkNetwork:
             if g.is_empty:continue
             boundary.extend((g.coords[0],g.coords[-1]))
         cloud=MultiPoint(list(distances)+boundary+[snap.coords[0]])
-        display=concave_hull(cloud,ratio=.28,allow_holes=False) if len(cloud.geoms)>=3 else cloud.convex_hull
+        # A conservative concave hull avoids long chords across parks, rivers,
+        # or blocks between two reachable branches while keeping the result
+        # organic and network-derived (it is not a radius buffer).
+        display=concave_hull(cloud,ratio=ISOCHRONE_HULL_RATIO,allow_holes=False) if len(cloud.geoms)>=3 else cloud.convex_hull
         display=display.buffer(access_buffer_m,cap_style='round',join_style='round').simplify(2.0,preserve_topology=True)
         return {'status':'calculated','snap_m':round(snap_dist,1),'polygon':display,
                 'display_polygon':display,'reached_nodes':len(distances),
                 'reached_network_m':round(sum(g.length for g in fragments),1),
                 'analysis_area_m2':round(display.area,1),'display_area_m2':round(display.area,1),
                 'travel_limit_m':round(limit,1),
-                'method':'Dijkstra sobre red peatonal OSM; envolvente cóncava de nodos alcanzados',
+                'method':'Dijkstra sobre red peatonal OSM; envolvente cóncava de nodos y frontera alcanzados',
                 '_node_distances':distances,'_limit_m':limit}
 
     def walk_distance_to(self,point,distances):
@@ -376,6 +383,26 @@ class TerritoryStore:
         key=(round(float(lat),6),round(float(lon),6),int(minutes))
         if key not in self._iso_cache:self._iso_cache[key]=self.network.isochrone(lat,lon,minutes=minutes)
         result=self._iso_cache[key]
+        # Independent hull simplification can make a 5-minute envelope poke
+        # outside the 10-minute envelope even though the underlying Dijkstra
+        # reachable set is necessarily nested. Union the lower threshold into
+        # the 10-minute display/analysis polygon so the visual levels cannot
+        # contradict the travel-time semantics.
+        if minutes==10 and result.get('polygon') is not None:
+            inner_key=(round(float(lat),6),round(float(lon),6),5)
+            if inner_key not in self._iso_cache:
+                self._iso_cache[inner_key]=self.network.isochrone(lat,lon,minutes=5)
+            inner=self._iso_cache[inner_key]
+            if inner.get('polygon') is not None:
+                nested=unary_union([result['polygon'],inner['polygon']])
+                if not nested.is_empty:
+                    result=dict(result)
+                    result['polygon']=nested
+                    result['display_polygon']=nested
+                    result['analysis_area_m2']=round(nested.area,1)
+                    result['display_area_m2']=round(nested.area,1)
+                    result['geometry_nesting']='10-minute envelope includes the 5-minute envelope'
+                    self._iso_cache[key]=result
         if self.residents:
             pop={**calculate_population(result,self.residents,self.network),'population_method':'residential'}
         elif self.census:

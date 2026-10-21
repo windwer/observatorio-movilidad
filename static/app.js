@@ -8,6 +8,12 @@ const operatorName=code=>OPERATOR_NAMES[code]||code||'Operador';
 let map=null,layers=[],fallback=$('fallback-map');
 let populationReference={loaded:false,total_population:null,sections:null};
 const routeCatalogCache=new Map();
+// A refresh can finish after the automatic isochrone preview has started.
+// Keep a generation token so an old preview cannot paint curves over the
+// newly selected map (the source of the intermittent/asynchronous-looking
+// 5/10 minute curves).
+let mapRenderToken=0;
+let isoRequestId=0;
 function ensureRouteScheduleUI(){
  const panel=$('route-insights');if(!panel||$('route-service-window'))return;
  const metrics=panel.querySelector('.route-metrics');
@@ -230,6 +236,9 @@ async function updateRoutes(res){
 function escapeHTML(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function clearMap(){if(map){layers.forEach(l=>map.removeLayer(l));layers=[];if(geoLayer){map.removeLayer(geoLayer);geoLayer=null}}fallback.innerHTML=''}
 function renderMap(data){
+ const renderToken=++mapRenderToken;
+ // Invalidate an in-flight stop request from the previous map snapshot.
+ isoRequestId++;
  setText('map-state',(data.state==='historical'?'Histórico programado':data.state==='planning'?'Planificación':'Sin fuente')+(data.missing_operators?.length?' · Falta: '+data.missing_operators.join(', '):''));
  const codes=new Set((data.routes||[]).map(r=>r.name));
  setText('map-count',`${codes.size} líneas · ${data.routes?.length||0} trazados · ${data.stops?.length||0} paradas`);
@@ -245,23 +254,28 @@ function renderMap(data){
  const inMap=s=>Number.isFinite(s.lat)&&Number.isFinite(s.lon)&&(!bounds||
    (s.lon>=bounds.west&&s.lon<=bounds.east&&s.lat>=bounds.south&&s.lat<=bounds.north));
  const candidates=[...(data.stops||[]).filter(s=>s.id==='IR'||s.id==='ER'),...(data.stops||[]).filter(inMap),...(data.stops||[])].filter((s,i,a)=>inMap(s)&&a.findIndex(x=>x.id===s.id)===i);
- if(candidates.length) previewIsochrone(candidates).finally(()=>computeNetworkPopulation({silent:true}));
- else computeNetworkPopulation({silent:true});
+ if(candidates.length) previewIsochrone(candidates,renderToken).finally(()=>{
+   if(renderToken===mapRenderToken)computeNetworkPopulation({silent:true});
+ });
+ else if(renderToken===mapRenderToken)computeNetworkPopulation({silent:true});
 }
 
-async function previewIsochrone(candidates){
+async function previewIsochrone(candidates,renderToken){
  if(!candidates.length)return;
  let first=candidates[0];
  for(const candidate of candidates.slice(0,8)){
+   if(renderToken!==mapRenderToken)return;
    try{
      const probe=await api(qs('/api/geo/stop',{operator:candidate.operator||state.operator,day:state.activeMapDate,stop_id:candidate.id,minutes:10}));
+     if(renderToken!==mapRenderToken)return;
      if(probe.status==='calculated'&&typeof probe.population==='number'&&probe.population>0){
-       return showIsochrone(candidate,{auto:true});
+       return showIsochrone(candidate,{auto:true,renderToken});
      }
      if(!first)first=candidate;
    }catch(_){/* Try the next corridor stop. */}
  }
- return showIsochrone(first,{auto:true});
+ if(renderToken!==mapRenderToken)return;
+ return showIsochrone(first,{auto:true,renderToken});
 }
 
 async function viewStop(stop){try{const data=await api(qs('/api/stop',{operator:stop.operator||state.operator,day:state.activeMapDate,stop_id:stop.id}));
@@ -323,13 +337,13 @@ async function downloadSource(source,button){
    await updateVersions();await loadGeoStatus();await refresh();}
  catch(e){setText('source-status',`${source}: no disponible — ${e.message}. Puedes importar el fichero manualmente si lo obtienes de la fuente.`)}finally{button.disabled=false}
 }
-let isoRequestId=0;
 function populationReferenceLabel(){
  return populationReference.loaded&&typeof populationReference.total_population==='number'
    ? `${fmt(populationReference.total_population)} hab. de referencia Eustat 2025`
    : 'referencia poblacional Eustat no cargada';
 }
-async function showIsochrone(stop,{auto=false}={}){
+async function showIsochrone(stop,{auto=false,renderToken=null}={}){
+ if(renderToken!==null&&renderToken!==mapRenderToken)return;
  const requestId=++isoRequestId;
  if(window.reviewMap)window.reviewMap.clearIsochrone();
  setText('geo-stop-result',`Calculando cobertura de ${stop.name}…`);
@@ -339,7 +353,7 @@ async function showIsochrone(stop,{auto=false}={}){
     api(qs('/api/geo/stop',{...base,minutes:5})),
     api(qs('/api/geo/stop',{...base,minutes:10}))
   ]);
-  if(requestId!==isoRequestId)return;
+  if(requestId!==isoRequestId||(renderToken!==null&&renderToken!==mapRenderToken))return;
   const geometries={};
   if(iso5.status==='calculated'&&iso5.geometry)geometries[5]=iso5.geometry;
   if(iso10.status==='calculated'&&iso10.geometry)geometries[10]=iso10.geometry;
