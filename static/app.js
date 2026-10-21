@@ -237,7 +237,14 @@ function renderMap(data){
  $('map-empty').style.display=data.stops?.length?'none':'block';
  window.reviewMap.render(data, !!state.route);
  // The first stop previews both accessibility bands; clicking another stop updates them.
- const sample=(data.stops||[]).find(s=>s.id==='IR')||(data.stops||[]).find(s=>s.id==='ER')||(data.stops||[]).find(s=>Number.isFinite(s.lat)&&Number.isFinite(s.lon));
+ // Euskotren's feed contains the whole E1/E2 corridor, including Bilbao and
+ // Donostia.  Pick the first stop inside the six-municipality map extent so
+ // the automatic 5/10-minute preview does not land outside the census layer
+ // and falsely look like a missing population result.
+ const bounds=window.reviewMap?.bounds;
+ const inStudyArea=s=>Number.isFinite(s.lat)&&Number.isFinite(s.lon)&&(!bounds||
+   (s.lon>=bounds.west&&s.lon<=bounds.east&&s.lat>=bounds.south&&s.lat<=bounds.north));
+ const sample=(data.stops||[]).find(s=>s.id==='IR'&&inStudyArea(s))||(data.stops||[]).find(s=>s.id==='ER'&&inStudyArea(s))||(data.stops||[]).find(inStudyArea)||(data.stops||[]).find(s=>Number.isFinite(s.lat)&&Number.isFinite(s.lon));
  if(sample)showIsochrone(sample,{auto:true}).finally(()=>computeNetworkPopulation({silent:true}));
  else computeNetworkPopulation({silent:true});
 }
