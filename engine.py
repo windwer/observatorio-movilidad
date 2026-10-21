@@ -17,7 +17,27 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 CUTOFF = date(2026, 10, 18)
-OPERATORS = {"ekialdebus": "Ekialdebus", "irunbus": "Irunbus"}
+# The original bus pair remains the default combined scope used by the
+# historical comparison and the "both" map toggle.  New networks can still
+# be selected independently without changing the meaning of that existing
+# comparison.
+OPERATORS = {
+    "ekialdebus": "Ekialdebus",
+    "irunbus": "Irunbus",
+    "euskotren": "Euskotren (tren)",
+    "errenteria_urbanoa": "Errenteria bus urbano",
+}
+CORE_OPERATORS = ("ekialdebus", "irunbus")
+
+# The official Euskotren feed contains rail, tram and funicular services for
+# the whole Basque Country.  This observatory is scoped to the
+# Oarsoaldea–Bidasoaldea corridor, so only the corridor rail lines are loaded
+# under the Euskotren operator.  Keeping the filter at ingestion time avoids
+# silently presenting trams/funiculars as train routes in the selector,
+# coverage calculations or population estimates.
+OPERATOR_ROUTE_FILTERS = {
+    "euskotren": {"E1", "E2"},
+}
 SCHEMA = """
 PRAGMA foreign_keys=ON;
 CREATE TABLE IF NOT EXISTS feeds (
@@ -195,6 +215,44 @@ def expand_exact_frequencies(data,frequencies):
     if unknown:raise ValueError('Plantillas en frequencies.txt sin trip_id existente')
     return {**data,'trips':new_trips,'stop_times':new_times}
 
+
+def filter_operator_feed(data, operator):
+    """Apply a documented operator/territory filter before persistence.
+
+    ``routes.txt`` in the Euskotren publication is a multi-mode, Euskadi-wide
+    feed.  The observatory deliberately stores the two rail corridor lines
+    (E1/E2) only.  All dependent GTFS tables are reduced together so every
+    persisted reference remains valid and the original ZIP is still preserved
+    by :func:`ingest` for auditability.
+    """
+    allowed_names = OPERATOR_ROUTE_FILTERS.get(operator)
+    if not allowed_names:
+        return data, ''
+    selected_routes = {
+        str(row.get('route_id') or '').strip()
+        for row in data['routes']
+        if str(row.get('route_short_name') or '').strip() in allowed_names
+    }
+    if not selected_routes:
+        raise ValueError('El GTFS de Euskotren no contiene las líneas ferroviarias E1/E2 esperadas')
+    selected_trips = [row for row in data['trips'] if row.get('route_id') in selected_routes]
+    selected_trip_ids = {row.get('trip_id') for row in selected_trips}
+    selected_stop_times = [row for row in data['stop_times'] if row.get('trip_id') in selected_trip_ids]
+    selected_stop_ids = {row.get('stop_id') for row in selected_stop_times}
+    selected_shape_ids = {row.get('shape_id') for row in selected_trips if row.get('shape_id')}
+    selected_service_ids = {row.get('service_id') for row in selected_trips}
+    filtered = {
+        **data,
+        'routes': [row for row in data['routes'] if row.get('route_id') in selected_routes],
+        'trips': selected_trips,
+        'stop_times': selected_stop_times,
+        'stops': [row for row in data['stops'] if row.get('stop_id') in selected_stop_ids],
+        'shapes': [row for row in data['shapes'] if row.get('shape_id') in selected_shape_ids],
+        'calendar': [row for row in data['calendar'] if row.get('service_id') in selected_service_ids],
+        'calendar_dates': [row for row in data['calendar_dates'] if row.get('service_id') in selected_service_ids],
+    }
+    return filtered, 'Filtro de ámbito Euskotren aplicado: líneas ferroviarias E1/E2 del corredor'
+
 def ingest(conn, content:bytes, operator:str, snapshot_date:str, filename:str):
     if operator not in OPERATORS: raise ValueError('Operador no permitido')
     snap=clean_date(snapshot_date)
@@ -231,6 +289,7 @@ def ingest(conn, content:bytes, operator:str, snapshot_date:str, filename:str):
         frequencies=read_gtfs(z,'frequencies.txt') if 'frequencies.txt' in names else []
         if frequencies:
             data=expand_exact_frequencies(data,frequencies)
+    data, feed_filter_warning = filter_operator_feed(data, operator)
     # Este MVP requiere GTFS con identificadores únicos por archivo.
     for table,key in (('routes','route_id'),('stops','stop_id'),('trips','trip_id'),('calendar','service_id')):
         ids=[r.get(key) for r in data[table]]
@@ -255,6 +314,8 @@ def ingest(conn, content:bytes, operator:str, snapshot_date:str, filename:str):
         except (TypeError,ValueError):
             raise ValueError('El feed no tiene calendario ni rango feed_info válido')
         warn = 'Feed GTFS vacío; rango tomado de feed_info.txt'
+    if feed_filter_warning:
+        warn = f'{feed_filter_warning}. {warn}' if warn else feed_filter_warning
     with conn:
         cur=conn.execute('INSERT INTO feeds(sha256,operator,snapshot_date,original_name,imported_at,min_date,max_date,route_count,stop_count,warning) VALUES (?,?,?,?,?,?,?,?,?,?)',
             (digest,operator,snap,filename,datetime.now().isoformat(timespec='seconds'),low,high,len(data['routes']),len(data['stops']),warn))

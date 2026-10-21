@@ -3,12 +3,33 @@
   "package_version": "v1",
   "demo_version": "1.0",
   "package_kind": "historical-real-data",
-  "generated_on": "2026-10-20",
+  "generated_on": "2026-10-21",
   "database": "data/real/observatorio_real.sqlite3",
   "feeds": {
     "total": 160,
     "irunbus": 80,
-    "ekialdebus": 80
+    "ekialdebus": 80,
+    "current_additions": {
+      "euskotren": {
+        "snapshot_date": "2026-10-21",
+        "routes": ["E1", "E2"],
+        "route_count": 2,
+        "stop_count": 103,
+        "trip_count": 3569,
+        "service_start": "2026-10-21",
+        "service_end": "2026-11-30",
+        "sha256": "79f1940b9eccc1bf001628a10e0e1c702a9fb328fac97648eb7129614ef16150"
+      },
+      "errenteria_urbanoa": {
+        "snapshot_date": "2026-10-21",
+        "route_count": 9,
+        "stop_count": 82,
+        "trip_count": 293,
+        "service_start": "2026-10-19",
+        "service_end": "2026-12-31",
+        "sha256": "3dfe97d2de370fdd9beace423d4011724a9bacd893218a662596624c1bfc7168"
+      }
+    }
   },
   "population": {
     "source": "Eustat",

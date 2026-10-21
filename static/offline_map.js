@@ -172,7 +172,7 @@ class GeographicReviewMap {
     const paths=data.routes||[],stops=data.stops||[];const dense=paths.length>24;
     for(const r of paths){
       if(!r.coordinates?.length)continue;
-      const col=r.operator==='irunbus'?'#cc7734':'#067f72';
+      const col={ekialdebus:'#067f72',irunbus:'#cc7734',euskotren:'#6f56a8',errenteria_urbanoa:'#2d7ca4'}[r.operator]||'#067f72';
       const poly=this.element('polyline',{points:r.coordinates.map(p=>this.project(p).join(',')).join(' '),fill:'none',stroke:'#fff','stroke-width':filtered?7:4.4,'vector-effect':'non-scaling-stroke',opacity:filtered?.93:.67},this.geo);
       const line=this.element('polyline',{points:r.coordinates.map(p=>this.project(p).join(',')).join(' '),fill:'none',stroke:col,'stroke-width':filtered?4.4:(dense?1.5:2.1),'vector-effect':'non-scaling-stroke',opacity:filtered?.95:(dense?.32:.65),class:'route-path'},this.geo);
       const title=this.element('title',{},line);title.textContent=(r.name||r.id)+' · geometría según shape GTFS';
@@ -183,7 +183,8 @@ class GeographicReviewMap {
       const [x,y]=this.project([s.lon,s.lat]);
       // Keep the stop symbol a cartographic point at the focused zoom. The
       // previous 4.8 map-unit radius became a large centroid disk on screen.
-      const marker=this.element('circle',{cx:x,cy:y,r:.8,fill:s.operator==='irunbus'?'#be8148':'#067f72',stroke:'#fff','stroke-width':.35,'vector-effect':'non-scaling-stroke',class:'stop-point'},this.points);
+      const fill={ekialdebus:'#067f72',irunbus:'#be8148',euskotren:'#6f56a8',errenteria_urbanoa:'#2d7ca4'}[s.operator]||'#067f72';
+      const marker=this.element('circle',{cx:x,cy:y,r:.8,fill,stroke:'#fff','stroke-width':.35,'vector-effect':'non-scaling-stroke',class:'stop-point'},this.points);
       const title=this.element('title',{},marker);title.textContent=s.name+' · parada GTFS';
       marker.addEventListener('click',e=>{e.stopPropagation();this.openPopup(s.name,'Parada GTFS · isócronas sobre red peatonal OSM real',[
         ['Ver horarios',()=>this.handlers.viewStop(s)],['Isócronas OSM 5 y 10 min',()=>this.handlers.showIsochrone(s)]],e.clientX,e.clientY)});

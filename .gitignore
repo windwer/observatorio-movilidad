@@ -11,3 +11,7 @@ data/real/observatorio_real.sqlite3
 data/real/observatorio_real.sqlite3-*
 data/real/originals/*.zip
 data/real/originals/*.ZIP
+
+# Unit-test imports may stage a tiny original feed at repository root.
+originals/*.zip
+originals/*.ZIP

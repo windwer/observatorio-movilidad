@@ -3,6 +3,8 @@ const $=x=>document.getElementById(x);
 const months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const state={operator:'ekialdebus',year:2026,month:10,dayType:'LJ',hourFrom:0,hourTo:1440,calendarFilter:'all',route:'',exactDate:'',activeMapDate:null};
 const palette=['#237f75','#427d9f','#d17f4d','#8d79bd','#59a074','#ba7194','#c29a53','#6994bc'];
+const OPERATOR_NAMES={ekialdebus:'Ekialdebus',irunbus:'Irunbus',euskotren:'Euskotren (tren · E1/E2)',errenteria_urbanoa:'Errenteria bus urbano'};
+const operatorName=code=>OPERATOR_NAMES[code]||code||'Operador';
 let map=null,layers=[],fallback=$('fallback-map');
 let populationReference={loaded:false,total_population:null,sections:null};
 const routeCatalogCache=new Map();
@@ -63,7 +65,7 @@ function chooseMapDate(result){let s=selectMainSegment(result);if(s){let item=s.
 let refreshToken=0;
 async function refresh(){const token=++refreshToken;
  setText('page-title',`${months[state.month-1]} de ${state.year}`);
- setText('page-sub',`${state.operator==='ekialdebus'?'Ekialdebus':'Irunbus'} · ${ {LJ:'lunes a jueves',V:'viernes',S:'sábados',D:'domingos'}[state.dayType]} · Horarios programados`);
+ setText('page-sub',`${operatorName(state.operator)} · ${ {LJ:'lunes a jueves',V:'viernes',S:'sábados',D:'domingos'}[state.dayType]} · Horarios programados`);
  setText('year-label',state.year);renderDateOptions();
  try {
    const base={operator:state.operator,year:state.year,month:state.month,day_type:state.dayType,hour_start:state.hourFrom,hour_end:state.hourTo===1440?2880:state.hourTo,calendar_filter:state.calendarFilter};
@@ -88,12 +90,12 @@ function renderMain(res,cov,other){let primary=selectMainSegment(res);const hasD
  setText('kpi-trips-note',hasData?`${segmentState(primary)} · media por jornada`:'Sin información cargada');
  setText('kpi-days-note',hasData?`${primary.days_missing} sin fuente · ${primary.days_retrospective} retrospectivos · ${primary.days_explicit_exception||0} con excepción`:'Sin cobertura certificada');
  const periodSegments=res.segments.map(s=>`${segmentState(s)}: ${s.from} a ${s.to} (${s.days_available}/${s.days_total} jornadas con fuente)`).join(' · ');
- const operatorName=state.operator==='ekialdebus'?'Ekialdebus':'Irunbus';
+ const selectedOperatorName=operatorName(state.operator);
  const routeLabel=state.route||'todas las líneas';
  setText('data-state-note-text',hasData
-   ? `${segmentState(primary)} · ${operatorName} · ${primary.days_available}/${primary.days_total} jornadas disponibles para ${routeLabel}. El horario es programado, no servicio observado.`
-   : `Sin fuente para ${operatorName}, ${state.year}-${String(state.month).padStart(2,'0')} y el tipo de día seleccionado.`);
- $('quality-content').innerHTML=`<div class="notice ${hasData&&primary.days_missing?'warn':''}">${hasData?`Selección: <b>${escapeHTML(operatorName)}</b> · ${escapeHTML(routeLabel)} · ${escapeHTML({LJ:'lunes–jueves',V:'viernes',S:'sábado',D:'domingo'}[state.dayType])}. La fuente contiene horarios programados; no acredita servicio prestado.`:'No hay datos importados para esta selección. El sistema no convierte la ausencia de fuente en cero expediciones.'}</div>
+   ? `${segmentState(primary)} · ${selectedOperatorName} · ${primary.days_available}/${primary.days_total} jornadas disponibles para ${routeLabel}. El horario es programado, no servicio observado.`
+   : `Sin fuente para ${selectedOperatorName}, ${state.year}-${String(state.month).padStart(2,'0')} y el tipo de día seleccionado.`);
+ $('quality-content').innerHTML=`<div class="notice ${hasData&&primary.days_missing?'warn':''}">${hasData?`Selección: <b>${escapeHTML(selectedOperatorName)}</b> · ${escapeHTML(routeLabel)} · ${escapeHTML({LJ:'lunes–jueves',V:'viernes',S:'sábado',D:'domingo'}[state.dayType])}. La fuente contiene horarios programados; no acredita servicio prestado.`:'No hay datos importados para esta selección. El sistema no convierte la ausencia de fuente en cero expediciones.'}</div>
  <div class="metric-row"><div><div class="label">Fuente actual</div><div class="detail">Estado temporal de la selección</div></div><strong>${hasData?segmentState(primary):'Sin datos'}</strong></div>
  <div class="metric-row"><div><div class="label">Jornadas disponibles</div><div class="detail">Con una versión GTFS que cubre la fecha</div></div><strong>${hasData?`${fmt(primary.days_available)}/${fmt(primary.days_total)}`:'—'}</strong></div>
  <div class="metric-row"><div><div class="label">Excepciones / retrospectivas</div><div class="detail">Trazabilidad de la fuente seleccionada</div></div><strong>${hasData?`${fmt(primary.days_explicit_exception||0)} / ${fmt(primary.days_retrospective||0)}`:'—'}</strong></div>
@@ -268,7 +270,7 @@ async function importGeo(e){e.preventDefault();const file=$('geo-file').files[0]
 }
 async function downloadSource(source,button){
  button.disabled=true;setText('source-status',`Solicitando ${source} a la fuente oficial…`);
- const endpoint=source==='buildings'?'/api/sources/buildings':source==='osm'?'/api/sources/osm':source==='ekialdebus'||source==='irunbus'?qs('/api/sources/refresh',{operator:source}):qs('/api/sources/reference',{name:source});
+ const endpoint=source==='buildings'?'/api/sources/buildings':source==='osm'?'/api/sources/osm':['ekialdebus','irunbus','euskotren','errenteria_urbanoa'].includes(source)?qs('/api/sources/refresh',{operator:source}):qs('/api/sources/reference',{name:source});
  try{const response=await fetch(endpoint,{method:'POST'});const result=await response.json();if(!response.ok)throw Error(result.detail||'Descarga fallida');
    setText('source-status',`${source}: obtenido y registrado. ${result.trips===undefined?'Referencia conservada; requiere transformación geográfica.':`${result.trips} expediciones base de GTFS`}`);
    await updateVersions();await loadGeoStatus();await refresh();}

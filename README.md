@@ -1,8 +1,8 @@
 # Observatorio de Movilidad · Bidasoaldea y Oarsoaldea
 
 Visor reproducible para analizar red, oferta y accesibilidad peatonal de
-Irunbus y Ekialdebus, con histórico GTFS local y referencia poblacional Eustat
-2025. La entrega corresponde al paquete histórico `v1` y a la aplicación
+Irunbus, Ekialdebus, Euskotren (líneas ferroviarias E1/E2) y Errenteria bus
+urbano, con histórico GTFS local y referencia poblacional Eustat 2025. La entrega corresponde al paquete histórico `v1` y a la aplicación
 `v1.0`; mantiene la fase de
 Product Review: los horarios GTFS describen oferta programada, no prueban por sí
 solos el servicio prestado.
@@ -10,6 +10,9 @@ solos el servicio prestado.
 ## Qué contiene este repositorio
 
 - Código del visor, motor de red, isócronas y métricas de línea.
+- Catálogo seleccionable de las cuatro redes del ámbito; el mapa combinado
+  histórico conserva el par de autobuses original y las nuevas redes se
+  consultan de forma independiente.
 - Red peatonal real ligera y trazabilidad de las importaciones históricas.
 - Tablas y metadatos Eustat 2025: 109 secciones y 150.832 habitantes en los
   seis municipios del ámbito.
@@ -17,7 +20,9 @@ solos el servicio prestado.
   poblacional.
 
 El histórico completo conserva 160 cortes GTFS (80 Irunbus y 80 Ekialdebus), la
-base SQLite y los archivos originales descargados. Esos archivos no se incluyen
+base SQLite y los archivos originales descargados. La base de ejecución incluye
+además las instantáneas actuales de Euskotren E1/E2 y Errenteria bus urbano
+capturadas el 21/10/2026. Esos archivos no se incluyen
 en el commit de GitHub: la base ronda 2 GB y un ZIP completo supera el límite
 normal de archivos de GitHub. Se mantienen en el paquete histórico v1 y se
 preparan localmente con el script incluido.

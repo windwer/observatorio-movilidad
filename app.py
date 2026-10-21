@@ -100,7 +100,7 @@ async def population_import(file:UploadFile=File(...),_:bool=Depends(guard)):
 
 @app.get('/api/health')
 def health(_:bool=Depends(guard)):
-    return {'ok':True,'cutoff':engine.CUTOFF.isoformat(),'scope':'Ekialdebus + Irunbus / seis municipios','published':False,'observed_service':False,'version':APP_VERSION,'historical_service_certified':False}
+    return {'ok':True,'cutoff':engine.CUTOFF.isoformat(),'scope':'Ekialdebus + Irunbus + Euskotren E1/E2 + Errenteria bus urbano / seis municipios','published':False,'observed_service':False,'version':APP_VERSION,'historical_service_certified':False}
 
 @app.get('/api/versions')
 def versions(_:bool=Depends(guard)):
@@ -158,14 +158,18 @@ def map_both(day:str='2026-10-16',_:bool=Depends(guard)):
     day=engine.clean_date(day)
     con=db()
     try:
-        responses={op:engine.map_data(con,op,day) for op in engine.OPERATORS}
+        # Keep the legacy combined-map toggle explicitly limited to the two
+        # interurban bus operators.  Euskotren and Errenteria are available
+        # through the operator selector and are not silently mixed into the
+        # historical bus comparison.
+        responses={op:engine.map_data(con,op,day) for op in engine.CORE_OPERATORS}
         missing=[op for op,r in responses.items() if r['quality']=='missing']
         routes=[];stops=[]
         for op,r in responses.items():
             routes.extend([{**route,'id':op+':'+route['id'],'operator':op} for route in r['routes']])
             stops.extend([{**stop,'operator':op} for stop in r['stops']])
         return {'day':day,'state':'historical' if day<=engine.CUTOFF.isoformat() else 'planning',
-            'quality':'missing' if len(missing)==len(engine.OPERATORS) else 'partial' if missing else 'available_unverified',
+            'quality':'missing' if len(missing)==len(engine.CORE_OPERATORS) else 'partial' if missing else 'available_unverified',
             'missing_operators':missing,'routes':routes,'stops':stops,
             'sources':{op:{'feed_id':r.get('feed_id'),'quality':r['quality']} for op,r in responses.items()},
             'certified':False,'note':'Superposición geográfica; paradas próximas entre operadores pueden coincidir. Fuente faltante no implica ausencia de servicio.'}
@@ -217,7 +221,7 @@ def geo_network(operator:str,day:str,route_id:str='',minutes:int=10,_:bool=Depen
     if minutes not in (5,10):raise HTTPException(status_code=400,detail='Se admiten coberturas de 5 y 10 minutos')
     con=db()
     try:
-        ops=tuple(engine.OPERATORS) if operator=='both' else (operator,)
+        ops=engine.CORE_OPERATORS if operator=='both' else (operator,)
         records=[engine.map_data(con,op,day) for op in ops]
         missing=[op for op,r in zip(ops,records) if r['quality']=='missing']
         if missing:
@@ -255,7 +259,7 @@ def refresh_gtfs(operator:str, _:bool=Depends(guard)):
     if operator not in engine.OPERATORS:raise HTTPException(status_code=400,detail='Operador inválido')
     try:
         content=source_fetch.fetch_gtfs(operator)
-        return handle(engine.ingest,content,operator,__import__('datetime').date.today().isoformat(),f'{operator}_current_from_NAP_mirror.zip')
+        return handle(engine.ingest,content,operator,__import__('datetime').date.today().isoformat(),f'{operator}_current_from_Moveuskadi.zip')
     except (OSError,TimeoutError,ValueError) as e:
         raise HTTPException(status_code=502,detail='No se pudo descargar el feed oficial: '+str(e)[:300])
 
@@ -287,7 +291,7 @@ def refresh_reference(name:str,_:bool=Depends(guard)):
 
 @app.get('/api/data/requirements')
 def data_requirements(_:bool=Depends(guard)):
-    return {'cutoff':engine.CUTOFF.isoformat(),'operators':list(engine.OPERATORS),
+    return {'cutoff':engine.CUTOFF.isoformat(),'operators':list(engine.OPERATORS),'core_operators':list(engine.CORE_OPERATORS),
        'municipalities':list(territory.MUNICIPALITIES),
        'geography_required':{'census':'GeoJSON Polygon with section_id, municipality, population; Eustat 2025 (required for target population)',
         'buildings':'Optional GeoJSON Polygon with building=residential/house/apartments etc; enables a more precise dasymetric allocation',
@@ -295,6 +299,8 @@ def data_requirements(_:bool=Depends(guard)):
        'verified_historical_dates':False,
        'source_urls':{'ekialdebus':'https://gtfs-source-feeds.transit.land/es-nap-1201.zip',
                       'irunbus':'https://gtfs-source-feeds.transit.land/es-nap-1199.zip',
+                      'euskotren':'https://opendata.euskadi.eus/transport/moveuskadi/euskotren/gtfs_euskotren.zip',
+                      'errenteria_urbanoa':'https://opendata.euskadi.eus/transport/moveuskadi/errenteria/gtfs_errenteriako_urbanoa.zip',
                       'population':'https://es.eustat.eus/elementos/xls0011434_c.csv'},
        'no_data_means_zero':False}
 
@@ -330,7 +336,7 @@ def geo_service_coverage(operator:str='both',day:str='2026-10-16',
         raise HTTPException(status_code=400,detail='Franja incorrecta')
     try:day=engine.clean_date(day)
     except ValueError:raise HTTPException(status_code=400,detail='Fecha incorrecta')
-    op_list=tuple(engine.OPERATORS) if operator=='both' else (operator,)
+    op_list=engine.CORE_OPERATORS if operator=='both' else (operator,)
     con=db()
     try:
         sources=[offer.stop_service_offer(con,op,day,hour_start,hour_end) for op in op_list]
@@ -413,7 +419,7 @@ def demo_status(_:bool=Depends(guard)):
     demo=os.environ.get('OBS_DEMO','0')=='1'
     note=('Oferta, recorridos y paradas son DEMO; la red peatonal incluida es OSM real y la accesibilidad sigue pendiente de Product Review.'
           if demo else
-          'GTFS reales importados desde las dos instantáneas entregadas por el usuario. La oferta es programada, no prueba servicio prestado; la población cubierta se estima con geometría oficial de secciones Eustat y red peatonal, y mejora con edificios residenciales.')
+          'GTFS reales importados desde instantáneas históricas de Irunbus/Ekialdebus y publicaciones actuales Moveuskadi de Euskotren E1/E2 y Errenteria urbano. La oferta es programada, no prueba servicio prestado; la población cubierta se estima con geometría oficial de secciones Eustat y red peatonal, y mejora con edificios residenciales.')
     return {'demo':demo,'version':APP_VERSION,'note':note}
 
 @app.get('/api/demo/catalog')

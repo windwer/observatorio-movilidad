@@ -114,7 +114,10 @@ def readiness(conn, geographic_status=None):
     setup(conn)
     breakdown={};missing_examples=[];not_verified_examples=[]
     expected_days=(END-START).days+1
-    for operator in engine.OPERATORS:
+    # The frozen publication gate covers the historical bus baseline.  The
+    # current Euskotren/Errenteria additions are selectable real data, but
+    # they do not retroactively create a 2025–18/10/2026 audit obligation.
+    for operator in engine.CORE_OPERATORS:
         counter=Counter()
         for d in each_day(START,END):
             rec=provenance_day(conn,operator,d)

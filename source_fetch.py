@@ -12,6 +12,11 @@ from pathlib import Path
 GTFS_URLS={
     'ekialdebus':'https://gtfs-source-feeds.transit.land/es-nap-1201.zip',
     'irunbus':'https://gtfs-source-feeds.transit.land/es-nap-1199.zip',
+    # Official Moveuskadi static publications.  Euskotren is filtered by the
+    # ingestion engine to the E1/E2 rail corridor lines; the Errenteria feed
+    # contains the complete urban network.
+    'euskotren':'https://opendata.euskadi.eus/transport/moveuskadi/euskotren/gtfs_euskotren.zip',
+    'errenteria_urbanoa':'https://opendata.euskadi.eus/transport/moveuskadi/errenteria/gtfs_errenteriako_urbanoa.zip',
 }
 POP_URL='https://es.eustat.eus/elementos/xls0011434_c.csv'
 SECTIONS_URL='https://www.geo.euskadi.eus/cartografia/DatosDescarga/Limites/Unidades_estadisticas/SECCIONES_EUSTAT_5000_ETRS89.zip'

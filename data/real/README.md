@@ -21,6 +21,12 @@ ejecución. La geometría oficial de las 109 secciones Eustat 2025 se conserva e
 los edificios residenciales son opcionales y mejoran la precisión. `EJECUTAR_OBSERVATORIO_HISTORICO_v1.bat`
 comprueba que la base exista antes de iniciar el visor.
 
+La base de ejecución incluye el histórico de Irunbus/Ekialdebus y las
+instantáneas actuales de Euskotren E1/E2 y Errenteria bus urbano, capturadas
+desde las publicaciones estáticas oficiales de Moveuskadi. El feed amplio de
+Euskotren se filtra en la ingesta para conservar solo las líneas ferroviarias
+del corredor; no se mezclan tranvías ni funicular.
+
 El repositorio incluye tablas de población Eustat 2025, su validación y la
 geometría oficial GeoEuskadi. La población de referencia (150.832 habitantes,
 seis municipios) se interpola proporcionalmente por sección dentro de la
