@@ -17,7 +17,8 @@ function ensureRouteScheduleUI(){
  const style=document.createElement('style');style.textContent='.route-schedule-compare{padding:0 19px 16px;border-top:1px solid #eef1f0}.route-compare-controls{display:flex;align-items:end;gap:10px;flex-wrap:wrap}.route-compare-controls label{display:flex;flex-direction:column;gap:5px;font-size:10px;color:#728489;font-weight:700}.route-compare-controls input{border:1px solid #dfe5e3;border-radius:7px;padding:7px 8px;color:#233b45;background:#fafbf9;font:inherit}.route-compare-output{margin-top:10px;padding:10px 12px;border-radius:9px;background:#f2f7f5;color:#536d72;font-size:11px;line-height:1.45}.route-compare-output strong{display:block;color:#176958;font-size:12px;margin-bottom:3px}.frequency-cell small{font-size:9px;color:#849397;text-align:center;line-height:1.35}';document.head.appendChild(style);
  $('route-compare-run')?.addEventListener('click',()=>loadRouteComparison(refreshToken));
 }
-function init(){
+async function init(){
+ await loadOperatorCatalog();
  ensureRouteScheduleUI();
  $('month').innerHTML=months.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');$('month').value='10';
  for(let n=0;n<=24;n++){
@@ -53,6 +54,30 @@ function qs(endpoint,params){return endpoint+'?'+new URLSearchParams(params)}
 function fmt(num,decimal=0){return typeof num==='number'?new Intl.NumberFormat('es-ES',{maximumFractionDigits:decimal}).format(num):'—'}
 function setText(id,text){$(id).textContent=text}
 function segmentState(seg){return seg?.state==='historical'?'Histórico programado':seg?.state==='planning'?'Planificación':'Sin datos'}
+async function loadOperatorCatalog(){
+ try{
+   const catalog=await api('/api/data/requirements');
+   const codes=Array.isArray(catalog.operators)?catalog.operators:[];
+   const labels=catalog.operator_labels||{};
+   if(!codes.length)return;
+   const selected=$('operator')?.value;
+   const makeOptions=(includeBoth=false)=>{
+     const first=includeBoth?'<option value="both">Ambos autobuses sin duplicar población</option>':'';
+     return first+codes.map(code=>`<option value="${escapeHTML(code)}">${escapeHTML(labels[code]||operatorName(code))}</option>`).join('');
+   };
+   for(const id of ['operator','import-operator']){
+     const select=$(id);if(!select)continue;
+     const value=select.value||selected||state.operator;
+     select.innerHTML=makeOptions(false);
+     select.value=codes.includes(value)?value:(codes.includes(state.operator)?state.operator:codes[0]);
+   }
+   const frequency=$('frequency-operator');
+   if(frequency){const value=frequency.value||'both';frequency.innerHTML=makeOptions(true);frequency.value=(value==='both'||codes.includes(value))?value:'both';}
+   state.operator=$('operator')?.value||state.operator;
+ }catch(_){
+   // Static options remain a safe fallback for an older local server.
+ }
+}
 function renderDateOptions(){
  let days=calendarDays(state.year,state.month,state.dayType);
  $('exact-date').innerHTML='<option value="">Automático · primera fecha con servicio</option>'+days.map(x=>`<option value="${x}">${x.split('-').reverse().join('/')}</option>`).join('');

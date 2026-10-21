@@ -22,7 +22,8 @@
   "validation": {
     "district_subtotals_match_sections": true,
     "all_six_municipalities_present": true,
-    "spatial_coverage_ready": false,
-    "coverage_note": "Estos habitantes son la base censal territorial. No se presentan como población cubierta por una isócrona hasta disponer de una unión espacial residencial verificable."
+    "spatial_coverage_ready": true,
+    "coverage_method": "census_section_area_interpolation",
+    "coverage_note": "La capa GeoJSON de secciones Eustat y la red peatonal OSM permiten estimar población objetivo dentro de isócronas por intersección proporcional de área. Sin edificios residenciales, no es una asignación dasimétrica ni demanda observada."
   }
 }

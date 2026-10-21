@@ -19,18 +19,21 @@ histórico de Irunbus/Ekialdebus permanecen separados.
   calendarios) se reducen junto con las rutas, sin referencias huérfanas.
 - La consulta de calendario para 21/10/2026 devuelve servicio de planificación
   para E1/E2 y el catálogo de Errenteria devuelve sus nueve líneas.
+- El selector de operador se reconstruye desde `/api/data/requirements`, por
+  lo que no depende de que el HTML inicial conserve el catálogo más reciente.
 - El mapa combinado existente sigue limitado a Ekialdebus + Irunbus; las dos
   redes nuevas se seleccionan de forma independiente para no alterar la
   comparación histórica de autobuses.
-- Población Eustat 2025 e isócronas OSM mantienen el mismo tratamiento
-  metodológico: cobertura estimada, no demanda observada ni certificación de
-  servicio prestado.
+- La entrega contiene 109 polígonos censales Eustat y 65.382 tramos OSM. La
+  interpolación proporcional de sección calcula población objetivo en cada
+  parada y en el recorrido completo incluso sin edificios residenciales;
+  la asignación a edificios sigue siendo una mejora opcional.
 
 ## Pruebas automatizadas
 
 ```text
-python -m unittest test_network_additions test_engine
-Ran 11 tests ... OK
+python -m unittest test_network_additions test_engine test_territory
+Ran 20 tests ... OK
 ```
 
 Fuentes: [índice oficial Moveuskadi](https://www.euskadi.eus/contenidos/ds_movilidad/md_ideeu_moveuskadi/es_def/index.shtml),

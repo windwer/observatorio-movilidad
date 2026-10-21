@@ -25,6 +25,28 @@ def free_port():
                 return port
     raise RuntimeError('No hay un puerto libre entre %s y %s'%(requested,requested+34))
 
+def get_json(url, env, timeout=3):
+    request=urllib.request.Request(url)
+    if env.get('OBS_PASSWORD'):
+        credentials=f"{env.get('OBS_USERNAME','analista')}:{env['OBS_PASSWORD']}"
+        request.add_header('Authorization','Basic '+base64.b64encode(credentials.encode()).decode())
+    with urllib.request.urlopen(request,timeout=timeout) as resp:
+        if resp.status!=200:raise RuntimeError(f'HTTP {resp.status} en {url}')
+        return json.load(resp)
+
+def validate_real_package(port, env):
+    """Refuse to open an empty/old runtime as if it were the real package."""
+    if env.get('OBS_DEMO')=='1':return
+    requirements=get_json(f'http://127.0.0.1:{port}/api/data/requirements',env)
+    missing={'euskotren','errenteria_urbanoa'}-set(requirements.get('operators',[]))
+    if missing:raise RuntimeError('Faltan operadores en la instancia: '+', '.join(sorted(missing)))
+    population=get_json(f'http://127.0.0.1:{port}/api/population/status',env)
+    if population.get('total_population')!=150832 or not population.get('spatial_coverage_ready'):
+        raise RuntimeError('La instancia no tiene cargada la población Eustat/geometría censal de v1')
+    geography=get_json(f'http://127.0.0.1:{port}/api/geo/status',env)
+    if geography.get('census_sections',0)<109 or geography.get('walk_segments',0)<=0:
+        raise RuntimeError('La instancia no tiene la geografía real necesaria para población/isócronas')
+
 def main():
     port=free_port()
     env=os.environ.copy();env['OBS_HOST']='127.0.0.1';env['OBS_PORT']=str(port)
@@ -34,17 +56,12 @@ def main():
         for _ in range(80):
             if process.poll() is not None:raise RuntimeError('El servidor terminó inesperadamente; consulta la consola')
             try:
-                request=urllib.request.Request(f'http://127.0.0.1:{port}/api/health')
-                if env.get('OBS_PASSWORD'):
-                    credentials=f"{env.get('OBS_USERNAME','analista')}:{env['OBS_PASSWORD']}"
-                    request.add_header('Authorization','Basic '+base64.b64encode(credentials.encode()).decode())
-                with urllib.request.urlopen(request,timeout=.7) as resp:
-                    if resp.status==200:
-                        payload=json.load(resp)
-                        if payload.get('version')!=VERSION:raise RuntimeError('La versión del servidor no corresponde al paquete')
-                        break
+                payload=get_json(f'http://127.0.0.1:{port}/api/health',env,timeout=.7)
+                if payload.get('version')!=VERSION:raise RuntimeError('La versión del servidor no corresponde al paquete')
+                break
             except (OSError,TimeoutError):time.sleep(.25)
         else:raise RuntimeError('El servidor no respondió correctamente')
+        validate_real_package(port,env)
         print('\n'+'='*60,flush=True)
         print('OBSERVATORIO '+VERSION+' · CORTE HISTÓRICO 18/10/2026',flush=True)
         print('Dirección confirmada: '+url,flush=True)

@@ -44,7 +44,7 @@
     "geometry": "data/real/geography/census.geojson",
     "validation": "data/references/EUSTAT_2025_VALIDATION.json",
     "summary": "data/references/POBLACION_EUSTAT_2025_v1.json",
-    "spatial_coverage_ready": false,
+    "spatial_coverage_ready": true,
     "area_interpolation_ready": true,
     "method_note": "La población base oficial y la geometría de secciones están cargadas; la cobertura de isócrona se estima por intersección proporcional de área. Los edificios residenciales permiten una asignación más precisa."
   },

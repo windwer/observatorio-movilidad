@@ -6,6 +6,7 @@ from pathlib import Path
 
 import engine
 import source_fetch
+import territory
 
 
 def _zip(files):
@@ -51,6 +52,38 @@ class NetworkAdditionTests(unittest.TestCase):
         self.assertIn('errenteria_urbanoa', source_fetch.GTFS_URLS)
         self.assertIn('opendata.euskadi.eus', source_fetch.GTFS_URLS['euskotren'])
         self.assertIn('opendata.euskadi.eus', source_fetch.GTFS_URLS['errenteria_urbanoa'])
+
+    def test_packaged_real_geography_returns_target_population(self):
+        """The production package must calculate, not blank, target population."""
+        geo_dir = Path(__file__).resolve().parent / 'data' / 'real' / 'geography'
+        store = territory.TerritoryStore(geo_dir)
+        status = store.status()
+        self.assertEqual(status['census_sections'], 109)
+        self.assertEqual(status['census_population'], 150832)
+        self.assertGreater(status['walk_segments'], 0)
+        self.assertTrue(status['area_interpolation_ready'])
+        result = store.stop(43.3392, -1.7894, minutes=10)
+        self.assertEqual(result['status'], 'calculated')
+        self.assertGreater(result['population'], 0)
+        self.assertEqual(result['population_method'], 'census_section_area_interpolation')
+
+    def test_new_network_routes_are_mappable(self):
+        con = engine.connect(Path('network_additions_test.sqlite3'))
+        try:
+            result = engine.ingest(con, _euskotren_fixture(), 'euskotren', '2026-10-21', 'euskotren.zip')
+            mapped = engine.map_data(con, 'euskotren', '2026-10-21')
+            self.assertEqual(mapped['quality'], 'snapshot_on_or_before_date')
+            self.assertTrue(mapped['routes'])
+            self.assertTrue(mapped['stops'])
+            self.assertTrue(any(r['name'] == 'E1' for r in mapped['routes']))
+        finally:
+            con.close()
+            Path('network_additions_test.sqlite3').unlink(missing_ok=True)
+
+    def test_real_ui_exposes_all_network_operators(self):
+        html = (Path(__file__).resolve().parent / 'static' / 'index.html').read_text(encoding='utf-8')
+        for value in ('value="euskotren"', 'value="errenteria_urbanoa"'):
+            self.assertIn(value, html)
 
 
 if __name__ == '__main__':

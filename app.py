@@ -23,7 +23,13 @@ import population_reference
 from pydantic import BaseModel, Field
 
 ROOT=Path(__file__).resolve().parent
-DB=Path(os.environ.get('OBS_DB',ROOT/'data'/'observatorio.sqlite3'))
+_REAL_DB=ROOT/'data'/'real'/'observatorio_real.sqlite3'
+# Running ``python app.py`` directly should use the bundled real package when
+# it is present.  The launcher still sets OBS_DB explicitly, but this default
+# prevents a second, empty SQLite database from silently hiding the imported
+# Euskotren/Errenteria feeds and the bundled geographic layers.
+_default_db=_REAL_DB if _REAL_DB.exists() else ROOT/'data'/'observatorio.sqlite3'
+DB=Path(os.environ.get('OBS_DB',_default_db))
 HOST=os.environ.get('OBS_HOST','127.0.0.1')
 PASSWORD=os.environ.get('OBS_PASSWORD')
 USERNAME=os.environ.get('OBS_USERNAME','analista')
@@ -43,6 +49,15 @@ _TERRITORY=None
 def geo_store():
     global _TERRITORY
     destination=DB.parent/'geography'
+    # A real-data package may be copied without its runtime folder having
+    # been created yet.  Reuse the packaged, verified geography only for the
+    # named real database; temporary/test databases must remain isolated and
+    # must not inherit production population figures.
+    if DB.name.lower()=='observatorio_real.sqlite3':
+        bundled=ROOT/'data'/'real'/'geography'
+        required=('census.geojson','walkways.geojson')
+        if not all((destination/name).is_file() for name in required) and all((bundled/name).is_file() for name in required):
+            destination=bundled
     if _TERRITORY is None or _TERRITORY.directory!=destination:
         _TERRITORY=territory.TerritoryStore(destination)
     return _TERRITORY
@@ -74,7 +89,30 @@ def ensure_population():
 
 @app.get('/api/population/status')
 def population_status(_:bool=Depends(guard)):
-    return ensure_population()
+    population=ensure_population()
+    # The CSV import intentionally remains a tabular source of truth.  The
+    # runtime endpoint additionally reports whether this instance has the
+    # separately packaged census polygons and pedestrian graph needed for an
+    # area-interpolated target-population estimate.
+    if not population.get('loaded'):
+        return population
+    try:
+        geo=geo_store().status()
+        population={**population,
+            'geometry_joined':bool(geo.get('census_sections')),
+            'spatial_coverage_ready':bool(geo.get('area_interpolation_ready')),
+            'area_interpolation_ready':bool(geo.get('area_interpolation_ready')),
+            'geography':{'census_sections':geo.get('census_sections',0),
+                         'walk_segments':geo.get('walk_segments',0),
+                         'residential_buildings':geo.get('residential_buildings',0),
+                         'population_method':geo.get('population_method','unavailable')}}
+        if population['spatial_coverage_ready']:
+            population['note']='Población Eustat 2025 cruzada con secciones censales y red peatonal; la cobertura es una estimación por intersección de área, no demanda observada.'
+    except (OSError,ValueError,TypeError):
+        # Keep the validated tabular population available even if the optional
+        # geography package is absent or malformed.
+        pass
+    return population
 
 @app.get('/api/population/sections')
 def population_sections(municipality:str='',_:bool=Depends(guard)):
@@ -291,7 +329,8 @@ def refresh_reference(name:str,_:bool=Depends(guard)):
 
 @app.get('/api/data/requirements')
 def data_requirements(_:bool=Depends(guard)):
-    return {'cutoff':engine.CUTOFF.isoformat(),'operators':list(engine.OPERATORS),'core_operators':list(engine.CORE_OPERATORS),
+    return {'cutoff':engine.CUTOFF.isoformat(),'operators':list(engine.OPERATORS),'operator_labels':engine.OPERATORS,
+       'core_operators':list(engine.CORE_OPERATORS),
        'municipalities':list(territory.MUNICIPALITIES),
        'geography_required':{'census':'GeoJSON Polygon with section_id, municipality, population; Eustat 2025 (required for target population)',
         'buildings':'Optional GeoJSON Polygon with building=residential/house/apartments etc; enables a more precise dasymetric allocation',

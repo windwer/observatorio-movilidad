@@ -10,7 +10,9 @@ y los conserva en el mismo SQLite que utiliza el visor.
 | Total seis municipios | 109 | 150.832 |
 
 La validación comprueba que las secciones suman los subtotales publicados por
-distrito. Estos datos son la **base poblacional territorial**. La aplicación no
-los presenta como población cubierta por una parada mientras no exista una
-unión espacial residencial verificable; así se evita confundir población total
-del municipio con alcance peatonal de una línea.
+distrito. Estos datos son la **base poblacional territorial**. La capa de
+secciones censales y la red peatonal OSM incluidas permiten estimar la población
+objetivo de cada isócrona por intersección proporcional de área, tanto para una
+parada como para el recorrido completo, deduplicando las áreas solapadas. Al no
+haber edificios residenciales en el paquete, el resultado es una estimación
+territorial (no una asignación dasimétrica ni demanda observada).
