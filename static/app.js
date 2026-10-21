@@ -238,15 +238,30 @@ function renderMap(data){
  window.reviewMap.render(data, !!state.route);
  // The first stop previews both accessibility bands; clicking another stop updates them.
  // Euskotren's feed contains the whole E1/E2 corridor, including Bilbao and
- // Donostia.  Pick the first stop inside the six-municipality map extent so
- // the automatic 5/10-minute preview does not land outside the census layer
- // and falsely look like a missing population result.
+ // Donostia. Probe a few stops and preview the first one with a non-zero
+ // target population; otherwise the first feed row can be Hendaia/Donostia
+ // and make a working census join look like a missing result.
  const bounds=window.reviewMap?.bounds;
- const inStudyArea=s=>Number.isFinite(s.lat)&&Number.isFinite(s.lon)&&(!bounds||
+ const inMap=s=>Number.isFinite(s.lat)&&Number.isFinite(s.lon)&&(!bounds||
    (s.lon>=bounds.west&&s.lon<=bounds.east&&s.lat>=bounds.south&&s.lat<=bounds.north));
- const sample=(data.stops||[]).find(s=>s.id==='IR'&&inStudyArea(s))||(data.stops||[]).find(s=>s.id==='ER'&&inStudyArea(s))||(data.stops||[]).find(inStudyArea)||(data.stops||[]).find(s=>Number.isFinite(s.lat)&&Number.isFinite(s.lon));
- if(sample)showIsochrone(sample,{auto:true}).finally(()=>computeNetworkPopulation({silent:true}));
+ const candidates=[...(data.stops||[]).filter(s=>s.id==='IR'||s.id==='ER'),...(data.stops||[]).filter(inMap),...(data.stops||[])].filter((s,i,a)=>inMap(s)&&a.findIndex(x=>x.id===s.id)===i);
+ if(candidates.length) previewIsochrone(candidates).finally(()=>computeNetworkPopulation({silent:true}));
  else computeNetworkPopulation({silent:true});
+}
+
+async function previewIsochrone(candidates){
+ if(!candidates.length)return;
+ let first=candidates[0];
+ for(const candidate of candidates.slice(0,8)){
+   try{
+     const probe=await api(qs('/api/geo/stop',{operator:candidate.operator||state.operator,day:state.activeMapDate,stop_id:candidate.id,minutes:10}));
+     if(probe.status==='calculated'&&typeof probe.population==='number'&&probe.population>0){
+       return showIsochrone(candidate,{auto:true});
+     }
+     if(!first)first=candidate;
+   }catch(_){/* Try the next corridor stop. */}
+ }
+ return showIsochrone(first,{auto:true});
 }
 
 async function viewStop(stop){try{const data=await api(qs('/api/stop',{operator:stop.operator||state.operator,day:state.activeMapDate,stop_id:stop.id}));
