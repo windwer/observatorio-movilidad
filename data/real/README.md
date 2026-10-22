@@ -16,8 +16,9 @@ powershell -ExecutionPolicy Bypass -File .\scripts\prepare_runtime_data.ps1 `
 
 También se admite pasar directamente el ZIP. El script copia la base, los
 originales GTFS, los informes de importación y la red peatonal en sus rutas de
-ejecución. La geometría oficial de las 109 secciones Eustat 2025 se conserva en
-`geography/census.geojson` y permite estimar población por intersección de área;
+ejecución. La geometría oficial de las 544 secciones Eustat 2025 de Gipuzkoa se
+conserva en `geography/census.geojson` y permite estimar población por
+intersección de área;
 los edificios residenciales son opcionales y mejoran la precisión. `EJECUTAR_OBSERVATORIO_HISTORICO_v1.bat`
 comprueba que la base exista antes de iniciar el visor.
 
@@ -27,8 +28,9 @@ desde las publicaciones estáticas oficiales de Moveuskadi. El feed amplio de
 Euskotren se filtra en la ingesta para conservar solo las líneas ferroviarias
 del corredor; no se mezclan tranvías ni funicular.
 
-El repositorio incluye tablas de población Eustat 2025, su validación y la
-geometría oficial GeoEuskadi. La población de referencia (150.832 habitantes,
-seis municipios) se interpola proporcionalmente por sección dentro de la
-isócrona y se deduplica entre paradas; el resultado es una estimación, no
-demanda observada ni certificación de servicio.
+El repositorio incluye la tabla provincial de población Eustat 2025 (724.797
+habitantes en 88 municipios), su validación y la geometría oficial INE
+Secciones_2025 de toda Gipuzkoa. La red peatonal provincial procede de
+OpenStreetMap; la población se interpola proporcionalmente por sección dentro
+de la isócrona y se deduplica entre paradas. El resultado es una estimación,
+no demanda observada ni certificación de servicio.

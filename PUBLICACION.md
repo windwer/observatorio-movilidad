@@ -10,7 +10,7 @@ No se incluyen GTFS ni capas geográficas reales en el ZIP. Para completar el hi
 1. **Cobertura temporal:** 656 jornadas (01/01/2025–18/10/2026) **por operador**, todas con versión adecuada y revisión documentada. Noviembre–diciembre 2026 y 19–31 octubre no forman parte del histórico.
 2. **Calendario:** separar L–J, viernes, sábado y domingo; fechas excepcionales, festivos y servicios nocturnos; contrastar una muestra independiente de horarios publicados.
 3. **Concesión octubre 2026:** revisión manual de equivalencias E → OR/BI, cambios de paradas, sentidos y variantes. La detección espacial es orientativa.
-4. **Población:** seis municipios presentes, total Eustat 2025 reconciliado, secciones sin asignación residencial resueltas; sesgo por edificaciones `building=yes` investigado.
+4. **Población:** tabla provincial Eustat 2025 reconciliada (88 municipios, 724.797 habitantes); geometría espacial y secciones con asignación residencial todavía limitadas a los seis municipios iniciales; sesgo por edificaciones `building=yes` investigado.
 5. **Geografía:** red peatonal conectada y validada, sin círculos; comprobar puentes, vados, barreras, cruces y pasos de peatones. Validar manualmente isócronas urbanas y rurales.
 6. **Seguridad:** contraseña única larga, HTTPS, DNS, copias de seguridad, permisos del servidor, protección contra intentos de acceso y revisión de privacidad.
 7. **Licencias:** atribución MITRAMS, Eustat, GeoEuskadi y OpenStreetMap conforme a condiciones específicas; verificar licencias de GTFS archivados.

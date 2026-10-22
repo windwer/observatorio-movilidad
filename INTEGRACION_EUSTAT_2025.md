@@ -7,11 +7,11 @@ Referencia: población de Gipuzkoa por distrito/sección, sexo, edad y nacionali
 
 - CSV oficial original adjuntado por el usuario, conservado sin alteración en `data/references/eustat_2025_original.csv`.
 - Importación de población **por sección censal** a la SQLite incluida: tabla `population_sections`, con claves compuestas `municipality_code + district + section`.
-- Extracción de los seis municipios acordados; eliminación de filas `Secc=000` porque son subtotales de distrito.
-- Verificación independiente de los **12 subtotales de distrito**, que coinciden con sus secciones hijas.
-- Resultado: **109 secciones**, **150.832 habitantes**: Bidasoaldea **77.625**, Oarsoaldea **73.207**.
+- Carga de los **88 municipios de Gipuzkoa**; eliminación de filas `Secc=000` porque son subtotales de distrito.
+- Verificación independiente de los **120 subtotales de distrito**, que coinciden con sus secciones hijas.
+- Resultado: **544 secciones**, **724.797 habitantes**: Bidasoaldea **77.625**, Oarsoaldea **73.207** y resto de Gipuzkoa **573.965**.
 - API `GET /api/population/status` y `GET /api/population/sections?municipality=Irun`.
-- Panel nuevo en la aplicación con desglose municipal y comarcal; versión visible **0.5.1**.
+- Panel nuevo en la aplicación con desglose municipal y comarcal; versión visible **1.0**.
 - Hash de origen SHA-256: `600a0b87b7b5feb85c548c7c23bc0f517941f83b80ffafcf8a79d7d5482997f1`.
 - CSV normalizado en `data/references/eustat_sections_2025_normalized.csv` y auditoría en `data/references/EUSTAT_2025_VALIDATION.json`.
 
@@ -23,13 +23,16 @@ Referencia: población de Gipuzkoa por distrito/sección, sexo, edad y nacionali
 | Pasaia | 16.767 | 13 |
 | Lezo | 6.188 | 4 |
 | Oiartzun | 10.473 | 7 |
-| **Total** | **150.832** | **109** |
+| **Total Gipuzkoa** | **724.797** | **544** |
 
-## Importante: no confundir con cobertura espacial
+## Cobertura espacial provincial
 
-Todavía **no** existe la geometría de las secciones en este paquete. Las coordenadas, áreas residenciales e isócronas caminando aún no están ligadas al CSV oficial. El panel territorial seguirá mostrando la accesibilidad como pendiente, evitando inventar datos de cobertura.
-
-La siguiente entrada necesaria es el SHP/GeoJSON de **GeoEuskadi de secciones censales 2025** y, para distribución residencial, la capa de edificios residenciales. La unión se realizará usando municipio/distrito/sección; hay que verificar las claves reales del archivo antes de importarlo.
+La geometría censal 2025 ya está unida a las 544 secciones Eustat de Gipuzkoa
+mediante la capa oficial **INE Secciones_2025**. La red peatonal provincial se
+descarga desde OpenStreetMap por teselas y se filtra por accesibilidad a pie.
+Las isócronas calculan el alcance por Dijkstra sobre esa red y dibujan sólo la
+unión de los tramos alcanzables; la población se estima por intersección de área
+de sección y no se presenta como demanda observada.
 
 ## Verificaciones
 

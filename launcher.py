@@ -40,10 +40,13 @@ def validate_real_package(port, env):
     requirements=get_json(f'http://127.0.0.1:{port}/api/data/requirements',env)
     missing={'euskotren','errenteria_urbanoa'}-set(requirements.get('operators',[]))
     if missing:raise RuntimeError('Faltan operadores en la instancia: '+', '.join(sorted(missing)))
-    population=get_json(f'http://127.0.0.1:{port}/api/population/status',env)
-    if population.get('total_population')!=150832 or not population.get('spatial_coverage_ready'):
-        raise RuntimeError('La instancia no tiene cargada la población Eustat/geometría censal de v1')
-    geography=get_json(f'http://127.0.0.1:{port}/api/geo/status',env)
+    # The first population request builds the provincial pedestrian graph. On
+    # a cold start this can take over a minute, so do not mistake that work
+    # for a dead server during the launch validation.
+    population=get_json(f'http://127.0.0.1:{port}/api/population/status',env,timeout=180)
+    if population.get('total_population')!=724797 or population.get('study_area_population')!=150832 or not population.get('spatial_coverage_ready'):
+        raise RuntimeError('La instancia no tiene cargada la población provincial Eustat/geometría censal de v1')
+    geography=get_json(f'http://127.0.0.1:{port}/api/geo/status',env,timeout=60)
     if geography.get('census_sections',0)<109 or geography.get('walk_segments',0)<=0:
         raise RuntimeError('La instancia no tiene la geografía real necesaria para población/isócronas')
 

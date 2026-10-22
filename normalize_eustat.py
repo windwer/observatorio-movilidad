@@ -10,8 +10,30 @@ import argparse
 import csv
 import io
 import json
+import unicodedata
 from pathlib import Path
-from territory import valid_municipality, MUNICIPALITIES
+from territory import MUNICIPALITIES
+
+STUDY_MUNICIPALITIES=tuple(MUNICIPALITIES)
+
+def municipality_name(value):
+    """Return a stable display name without restricting the Gipuzkoa table.
+
+    The Eustat CSV is already scoped to Gipuzkoa.  The previous parser reused
+    the six-municipality territory validator, which silently discarded every
+    other municipality before the provincial population could be loaded.
+    """
+    text=str(value or '').strip()
+    if not text:return None
+    folded=''.join(ch for ch in unicodedata.normalize('NFKD',text)
+                   if not unicodedata.combining(ch)).casefold()
+    aliases={
+        'irun':'Irun','iruñ':'Irun','fuenterrabia':'Hondarribia',
+        'hondarribia':'Hondarribia','renteria':'Errenteria',
+        'errenteria':'Errenteria','pasajes':'Pasaia','pasaia':'Pasaia',
+        'lezo':'Lezo','oyarzun':'Oiartzun','oiartzun':'Oiartzun',
+    }
+    return aliases.get(folded,text)
 
 def read_rows(raw):
     content=None
@@ -33,10 +55,10 @@ def parse(raw,require_six=True):
         code,name,dist,sect,total=cells[:5]
         if code.isdigit() and len(code)<=4 and name and not name.isdigit():
             current_code=code.zfill(3)
-            current_town=valid_municipality(name)
+            current_town=municipality_name(name)
             current_dist=''
-        elif name and valid_municipality(name):
-            current_town=valid_municipality(name)
+        elif name:
+            current_town=municipality_name(name)
         if dist.isdigit():current_dist=dist.zfill(2)
         if not current_town or not current_code or not current_dist:continue
         if not sect.isdigit() or int(sect)==0:continue
@@ -53,7 +75,7 @@ def parse(raw,require_six=True):
                     'district':current_dist,'section':sect.zfill(3),
                     'population':int(value),'reference_date':'2025-01-01'})
     found={r['municipality'] for r in out}
-    missing=set(MUNICIPALITIES)-found
+    missing=set(STUDY_MUNICIPALITIES)-found
     if not out:raise ValueError('No se encontró la tabla Eustat Cod/Municipio/Dist/Secc/Total. Revisa el formato original.')
     if missing and require_six:raise ValueError('El CSV no cubre los seis municipios: '+', '.join(sorted(missing)))
     return {'rows':out,'municipalities':sorted(found),'missing_municipalities':sorted(missing),

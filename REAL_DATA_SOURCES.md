@@ -21,7 +21,7 @@ Los ZIP originales y las copias canónicas identificadas por hash se conservan e
 - La línea seleccionada puede mostrar longitud de `shape`, tiempo cabecera–última parada, velocidad comercial estimada y frecuencia por tipo de día.
 - La línea seleccionada muestra también la primera y última salida, la amplitud de servicio y las expediciones con hora válida. Se pueden comparar dos fechas para distinguir más/menos horario de más/menos frecuencias.
 - La red peatonal OSM se conserva para dibujar isócronas de red, no como un radio circular.
-- **Eustat 2025:** la tabla oficial se conserva en `data/references/eustat_2025_original.csv`, está precargada en SQLite y se muestra como referencia visible en el visor: 109 secciones y 150.832 habitantes (Bidasoaldea 77.625; Oarsoaldea 73.207). La geometría oficial de esas secciones se conserva en `data/real/geography/census.geojson` y permite estimar la población objetivo dentro de cada isócrona.
+- **Eustat 2025:** la tabla oficial se conserva en `data/references/eustat_2025_original.csv`, está precargada en SQLite y se muestra como referencia visible en el visor: 544 secciones y 724.797 habitantes para Gipuzkoa (Bidasoaldea 77.625; Oarsoaldea 73.207; resto 573.965). La geometría censal provincial se obtiene de la capa oficial **INE Secciones_2025** y la red peatonal provincial de **OpenStreetMap**; ese cruce permite estimar población objetivo dentro de cada isócrona, sin certificar demanda observada.
 
 ## Qué queda bloqueado en esta fase
 
@@ -40,3 +40,6 @@ Ejecuta `run_real_data_windows.bat`. La instancia real usa el puerto 8870 (o el 
 - [Moveuskadi · GTFS Errenteria urbano](https://opendata.euskadi.eus/transport/moveuskadi/errenteria/gtfs_errenteriako_urbanoa.zip)
 - [AUIF · red urbana de Irun](https://auif.es/)
 - [Eustat · población por sección censal a 01/01/2025](https://es.eustat.eus/elementos/xls0011434_c.csv)
+- [INE · OGC API Secciones_2025](https://www.ine.es/geoserver/ogc/features/v1/collections/WMS_INE_SECCIONES_G01:Secciones_2025)
+- [OpenStreetMap · atribución y licencia ODbL](https://www.openstreetmap.org/copyright)
+- [Geofabrik · extracto regional País Vasco](https://download.geofabrik.de/europe/spain/pais-vasco.html)

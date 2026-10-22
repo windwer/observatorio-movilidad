@@ -1,4 +1,4 @@
-# Observatorio de Movilidad · Bidasoaldea y Oarsoaldea
+# Observatorio de Movilidad · Gipuzkoa
 
 Visor reproducible para analizar red, oferta y accesibilidad peatonal de
 Irunbus, Ekialdebus, Euskotren (líneas ferroviarias E1/E2) y Errenteria bus
@@ -13,9 +13,9 @@ solos el servicio prestado.
 - Catálogo seleccionable de las cuatro redes del ámbito; el mapa combinado
   histórico conserva el par de autobuses original y las nuevas redes se
   consultan de forma independiente.
-- Red peatonal real ligera y trazabilidad de las importaciones históricas.
-- Tablas y metadatos Eustat 2025: 109 secciones y 150.832 habitantes en los
-  seis municipios del ámbito.
+- Red peatonal OSM provincial y trazabilidad de las importaciones históricas.
+- Tabla y metadatos Eustat 2025 para los 88 municipios de Gipuzkoa: 544
+  secciones y 724.797 habitantes de referencia.
 - Pruebas y un flujo de QA para sintaxis y validación de la referencia
   poblacional.
 
@@ -43,11 +43,11 @@ se instalan las dependencias y se abre el visor en el puerto 8870.
 
 ## Población y cobertura
 
-La población Eustat incluida es una referencia territorial validada. El visor
-la cruza con la geometría oficial de secciones y la isócrona de red para
-mostrar una estimación de población objetivo, deduplicada entre paradas. La
-asignación a edificios residenciales sigue siendo una mejora opcional; el
-resultado se etiqueta como estimación y no como demanda observada.
+La población Eustat incluida es una referencia territorial provincial validada.
+El visor cruza las 544 secciones censales 2025 con la red peatonal OSM provincial
+y la isócrona de red para mostrar una estimación de población objetivo,
+deduplicada entre paradas. La superficie dibujada sólo sigue tramos peatonales
+alcanzables; no se usa una envolvente radial que atraviese campos o manzanas.
 
 ## Alcance y límites
 

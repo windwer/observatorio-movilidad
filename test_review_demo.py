@@ -24,7 +24,7 @@ class ReviewDemoTests(unittest.TestCase):
     r=self.client.get('/api/map?operator=ekialdebus&day=2026-10-16').json()
     self.assertIn('OR01',{x['name'] for x in r['routes']})
     self.assertEqual(self.client.get('/api/map?operator=ekialdebus&day=2026-10-21').json()['state'],'planning')
-    self.assertEqual(self.client.get('/api/population/status').json()['total_population'],150832)
+    self.assertEqual(self.client.get('/api/population/status').json()['total_population'],724797)
     self.assertTrue(self.client.get('/api/geo/status').json()['ready'])
   def test_demo_comparison(self):
     r=self.client.get('/api/compare?operator=ekialdebus&month=10&day_type=LJ').json()

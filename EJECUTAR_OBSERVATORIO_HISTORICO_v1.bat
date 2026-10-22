@@ -31,7 +31,7 @@ if errorlevel 1 (
 )
 
 echo *** OBSERVATORIO DE MOVILIDAD - HISTORICO COMPLETO v1 ***
-echo Base: 160 cortes historicos + Euskotren E1/E2 + Errenteria urbano; poblacion Eustat 2025 (150832 habitantes)
+echo Base: 160 cortes historicos + Euskotren E1/E2 + Errenteria urbano; poblacion Eustat 2025 Gipuzkoa (724797 habitantes)
 ".venv\Scripts\python.exe" launcher.py
 if errorlevel 1 echo Revisa el mensaje anterior para identificar el error.
 pause

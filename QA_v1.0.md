@@ -2,8 +2,10 @@
 
 ## Resultado
 
-- Se incorporan 109 geometrías oficiales de secciones censales de GeoEuskadi,
-  unidas a los 109 valores de población Eustat 2025 (150.832 habitantes).
+- Se incorporan las 544 geometrías oficiales de secciones censales 2025 del
+  INE, unidas a los valores Eustat 2025 de toda Gipuzkoa (724.797 habitantes).
+  La red peatonal OSM provincial contiene 92.831 vías y se utiliza como grafo
+  real para alcanzar las secciones.
 - La parada calcula población objetivo a 5 y 10 minutos mediante intersección
   de la isócrona de red con las secciones, con interpolación proporcional de
   superficie.
@@ -16,10 +18,11 @@
 
 ## Comprobaciones ejecutadas
 
-- `scripts/prepare_census_geometry.py`: 109 secciones y 150.832 habitantes.
+- `scripts/prepare_census_geometry.py`: 544 secciones y 724.797 habitantes.
 - `python -m unittest -q test_territory.py`: 6 pruebas, OK.
-- API local: `/api/geo/status` devuelve `area_interpolation_ready: true`.
-- API local: parada de prueba `irunbus / 1502 / 2026-10-01` devuelve población
-  estimada de 4.077 habitantes a 10 minutos.
-- API local: línea de prueba `irunbus / route_id 1 / 2026-10-01` devuelve
-  41.096 habitantes únicos a 10 minutos.
+- API local: `/api/geo/status` devuelve 544 secciones, 88 municipios,
+  1.111.125 segmentos de grafo y `area_interpolation_ready: true`.
+- API local: parada real `ekialdebus / 1 / 2026-10-21` devuelve 9.459
+  habitantes a 5 minutos y 20.529 a 10 minutos.
+- API local: línea real Ekialdebus devuelve población única deduplicada a 10
+  minutos; no suma una sección más de una vez por sus paradas.

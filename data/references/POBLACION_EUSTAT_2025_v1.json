@@ -4,26 +4,378 @@
   "reference_date": "2025-01-01",
   "source_file": "eustat_2025_original.csv",
   "sha256": "600a0b87b7b5feb85c548c7c23bc0f517941f83b80ffafcf8a79d7d5482997f1",
-  "sections": 109,
-  "districts": 12,
-  "total_population": 150832,
+  "sections": 544,
+  "districts": 120,
+  "total_population": 724797,
+  "study_area_population": 150832,
+  "municipality_count": 88,
   "regions": {
     "Bidasoaldea": 77625,
-    "Oarsoaldea": 73207
+    "Oarsoaldea": 73207,
+    "Resto de Gipuzkoa": 573965,
+    "Gipuzkoa": 724797
   },
   "municipalities": {
-    "Irun": {"sections": 42, "population": 60665},
-    "Hondarribia": {"sections": 12, "population": 16960},
-    "Errenteria": {"sections": 31, "population": 39779},
-    "Pasaia": {"sections": 13, "population": 16767},
-    "Lezo": {"sections": 4, "population": 6188},
-    "Oiartzun": {"sections": 7, "population": 10473}
+    "Abaltzisketa": {
+      "sections": 1,
+      "population": 313
+    },
+    "Aduna": {
+      "sections": 1,
+      "population": 507
+    },
+    "Aia": {
+      "sections": 2,
+      "population": 2127
+    },
+    "Aizarnazabal": {
+      "sections": 1,
+      "population": 808
+    },
+    "Albiztur": {
+      "sections": 1,
+      "population": 314
+    },
+    "Alegia": {
+      "sections": 1,
+      "population": 1852
+    },
+    "Alkiza": {
+      "sections": 1,
+      "population": 346
+    },
+    "Altzaga": {
+      "sections": 1,
+      "population": 159
+    },
+    "Altzo": {
+      "sections": 1,
+      "population": 400
+    },
+    "Amezketa": {
+      "sections": 1,
+      "population": 935
+    },
+    "Andoain": {
+      "sections": 11,
+      "population": 14732
+    },
+    "Anoeta": {
+      "sections": 1,
+      "population": 2163
+    },
+    "Antzuola": {
+      "sections": 1,
+      "population": 2123
+    },
+    "Arama": {
+      "sections": 1,
+      "population": 181
+    },
+    "Aretxabaleta": {
+      "sections": 4,
+      "population": 7183
+    },
+    "Arrasate/Mondragón": {
+      "sections": 18,
+      "population": 22251
+    },
+    "Asteasu": {
+      "sections": 1,
+      "population": 1527
+    },
+    "Astigarraga": {
+      "sections": 4,
+      "population": 7665
+    },
+    "Ataun": {
+      "sections": 1,
+      "population": 1723
+    },
+    "Azkoitia": {
+      "sections": 8,
+      "population": 12084
+    },
+    "Azpeitia": {
+      "sections": 10,
+      "population": 15431
+    },
+    "Baliarrain": {
+      "sections": 1,
+      "population": 159
+    },
+    "Beasain": {
+      "sections": 8,
+      "population": 13915
+    },
+    "Beizama": {
+      "sections": 1,
+      "population": 101
+    },
+    "Belauntza": {
+      "sections": 1,
+      "population": 314
+    },
+    "Berastegi": {
+      "sections": 1,
+      "population": 1088
+    },
+    "Bergara": {
+      "sections": 11,
+      "population": 14725
+    },
+    "Berrobi": {
+      "sections": 1,
+      "population": 588
+    },
+    "Bidania-Goiatz": {
+      "sections": 1,
+      "population": 528
+    },
+    "Deba": {
+      "sections": 4,
+      "population": 5364
+    },
+    "Donostia / San Sebastián": {
+      "sections": 141,
+      "population": 183388
+    },
+    "Eibar": {
+      "sections": 23,
+      "population": 27118
+    },
+    "Elduain": {
+      "sections": 1,
+      "population": 239
+    },
+    "Elgeta": {
+      "sections": 1,
+      "population": 1109
+    },
+    "Elgoibar": {
+      "sections": 9,
+      "population": 11659
+    },
+    "Errenteria": {
+      "sections": 31,
+      "population": 39779
+    },
+    "Errezil": {
+      "sections": 1,
+      "population": 602
+    },
+    "Eskoriatza": {
+      "sections": 2,
+      "population": 4227
+    },
+    "Ezkio-Itsaso": {
+      "sections": 1,
+      "population": 632
+    },
+    "Gabiria": {
+      "sections": 1,
+      "population": 542
+    },
+    "Gaintza": {
+      "sections": 1,
+      "population": 124
+    },
+    "Gaztelu": {
+      "sections": 1,
+      "population": 179
+    },
+    "Getaria": {
+      "sections": 2,
+      "population": 2931
+    },
+    "Hernani": {
+      "sections": 16,
+      "population": 20428
+    },
+    "Hernialde": {
+      "sections": 1,
+      "population": 323
+    },
+    "Hondarribia": {
+      "sections": 12,
+      "population": 16960
+    },
+    "Ibarra": {
+      "sections": 3,
+      "population": 4076
+    },
+    "Idiazabal": {
+      "sections": 1,
+      "population": 2279
+    },
+    "Ikaztegieta": {
+      "sections": 1,
+      "population": 488
+    },
+    "Irun": {
+      "sections": 42,
+      "population": 60665
+    },
+    "Irura": {
+      "sections": 1,
+      "population": 1846
+    },
+    "Itsasondo": {
+      "sections": 1,
+      "population": 702
+    },
+    "Larraul": {
+      "sections": 1,
+      "population": 262
+    },
+    "Lasarte-Oria": {
+      "sections": 13,
+      "population": 19808
+    },
+    "Lazkao": {
+      "sections": 3,
+      "population": 5888
+    },
+    "Leaburu": {
+      "sections": 1,
+      "population": 383
+    },
+    "Legazpi": {
+      "sections": 7,
+      "population": 8377
+    },
+    "Legorreta": {
+      "sections": 1,
+      "population": 1499
+    },
+    "Leintz Gatzaga": {
+      "sections": 1,
+      "population": 224
+    },
+    "Lezo": {
+      "sections": 4,
+      "population": 6188
+    },
+    "Lizartza": {
+      "sections": 1,
+      "population": 700
+    },
+    "Mendaro": {
+      "sections": 1,
+      "population": 2049
+    },
+    "Mutiloa": {
+      "sections": 1,
+      "population": 249
+    },
+    "Mutriku": {
+      "sections": 4,
+      "population": 5283
+    },
+    "Oiartzun": {
+      "sections": 7,
+      "population": 10473
+    },
+    "Olaberria": {
+      "sections": 1,
+      "population": 950
+    },
+    "Ordizia": {
+      "sections": 7,
+      "population": 10398
+    },
+    "Orendain": {
+      "sections": 1,
+      "population": 241
+    },
+    "Orexa": {
+      "sections": 1,
+      "population": 99
+    },
+    "Orio": {
+      "sections": 3,
+      "population": 6197
+    },
+    "Ormaiztegi": {
+      "sections": 1,
+      "population": 1290
+    },
+    "Oñati": {
+      "sections": 8,
+      "population": 11445
+    },
+    "Pasaia": {
+      "sections": 13,
+      "population": 16767
+    },
+    "Segura": {
+      "sections": 1,
+      "population": 1499
+    },
+    "Soraluze-Placencia de las Armas": {
+      "sections": 3,
+      "population": 3765
+    },
+    "Tolosa": {
+      "sections": 14,
+      "population": 20048
+    },
+    "Urnieta": {
+      "sections": 4,
+      "population": 6294
+    },
+    "Urretxu": {
+      "sections": 6,
+      "population": 6795
+    },
+    "Usurbil": {
+      "sections": 4,
+      "population": 6485
+    },
+    "Villabona": {
+      "sections": 3,
+      "population": 5778
+    },
+    "Zaldibia": {
+      "sections": 1,
+      "population": 1766
+    },
+    "Zarautz": {
+      "sections": 15,
+      "population": 23464
+    },
+    "Zegama": {
+      "sections": 1,
+      "population": 1560
+    },
+    "Zerain": {
+      "sections": 1,
+      "population": 290
+    },
+    "Zestoa": {
+      "sections": 2,
+      "population": 3908
+    },
+    "Zizurkil": {
+      "sections": 2,
+      "population": 2904
+    },
+    "Zumaia": {
+      "sections": 6,
+      "population": 10001
+    },
+    "Zumarraga": {
+      "sections": 8,
+      "population": 9568
+    }
   },
   "validation": {
     "district_subtotals_match_sections": true,
     "all_six_municipalities_present": true,
-    "spatial_coverage_ready": true,
+    "all_gipuzkoa_municipalities_present": true,
+    "geometry_joined": false,
+    "spatial_coverage_ready": false,
     "coverage_method": "census_section_area_interpolation",
-    "coverage_note": "La capa GeoJSON de secciones Eustat y la red peatonal OSM permiten estimar población objetivo dentro de isócronas por intersección proporcional de área. Sin edificios residenciales, no es una asignación dasimétrica ni demanda observada."
+    "coverage_note": "La población tabular cubre Gipuzkoa; la geometría peatonal disponible sigue limitada a seis municipios."
   }
 }

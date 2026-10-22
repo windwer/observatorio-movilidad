@@ -3,11 +3,12 @@
 All areas in this module are computed from real *imported* geospatial features.
 No radial buffer is used as a replacement for walking time. Dijkstra first
 selects the reachable portion of each real network edge. Population access is
-tested against that graph distance. A concave envelope of reached graph nodes,
-with a narrow 25 m edge buffer, is generated only to render a legible polygon.
-The 10-minute display envelope is explicitly united with the 5-minute envelope
-so the two cartographic levels are nested even when independent hulls simplify
-different branches of the same walking network.
+tested against that graph distance. The display polygon is a narrow union of
+the reached network segments themselves; it is deliberately not a convex or
+concave hull, so it cannot draw a straight line across a field, river, block or
+other area where the pedestrian network does not exist. The 10-minute display
+envelope is explicitly united with the 5-minute envelope so the two cartographic
+levels remain nested.
 """
 from __future__ import annotations
 import hashlib
@@ -18,21 +19,32 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from pyproj import Transformer
-from shapely import concave_hull
-from shapely.geometry import Point, MultiPoint, shape, mapping, LineString, Polygon, box
+from shapely.geometry import Point, shape, mapping, LineString, Polygon, box
 from shapely.ops import transform, unary_union, substring
 from shapely.strtree import STRtree
 
 TO_LOCAL = Transformer.from_crs('EPSG:4326','EPSG:25830', always_xy=True).transform
 TO_WGS = Transformer.from_crs('EPSG:25830','EPSG:4326', always_xy=True).transform
-MUNICIPALITIES = ('Irun','Hondarribia','Errenteria','Pasaia','Lezo','Oiartzun')
+INITIAL_MUNICIPALITIES = ('Irun','Hondarribia','Errenteria','Pasaia','Lezo','Oiartzun')
+MUNICIPALITIES = (
+    'Abaltzisketa','Aduna','Aia','Aizarnazabal','Albiztur','Alegia','Alkiza','Altzaga','Altzo','Amezketa',
+    'Andoain','Anoeta','Antzuola','Arama','Aretxabaleta','Arrasate/Mondragón','Asteasu','Astigarraga','Ataun',
+    'Azkoitia','Azpeitia','Baliarrain','Beasain','Beizama','Belauntza','Berastegi','Bergara','Berrobi',
+    'Bidania-Goiatz','Deba','Eibar','Elduain','Elgeta','Elgoibar','Errenteria','Errezil','Eskoriatza',
+    'Ezkio-Itsaso','Gabiria','Gaintza','Gaztelu','Getaria','Hernani','Hernialde','Hondarribia','Ibarra',
+    'Idiazabal','Ikaztegieta','Irun','Irura','Itsasondo','Larraul','Lasarte-Oria','Lazkao','Leaburu',
+    'Legazpi','Legorreta','Leintz Gatzaga','Lezo','Lizartza','Mendaro','Mutiloa','Mutriku','Oiartzun',
+    'Olaberria','Ordizia','Orendain','Orexa','Orio','Ormaiztegi','Oñati','Pasaia','Segura',
+    'Soraluze-Placencia de las Armas','Tolosa','Urnieta','Urretxu','Usurbil','Villabona','Zaldibia','Zarautz',
+    'Zegama','Zerain','Zestoa','Zizurkil','Zumaia','Zumarraga','Donostia / San Sebastián'
+)
 RESIDENTIAL = {'residential','apartments','house','detached','semidetached_house','terrace','dormitory','bungalow','farm','static_caravan','cabin'}
 ALLOW_FOOT = {'footway','pedestrian','path','living_street','residential','steps','service','unclassified','tertiary','secondary','primary','track','cycleway','bridleway'}
-ISOCHRONE_HULL_RATIO = .32
+GIPUZKOA_LAT_LON_BOUNDS = (42.85,43.55,-2.75,-1.45)
 
 
-def read_geojson(data:bytes, max_features=350_000):
-    if len(data)>55_000_000: raise ValueError('GeoJSON supera el máximo de 55 MB')
+def read_geojson(data:bytes, max_features=1_000_000):
+    if len(data)>180_000_000: raise ValueError('GeoJSON supera el máximo de 180 MB')
     try: doc=json.loads(data)
     except (ValueError,UnicodeError) as e: raise ValueError('GeoJSON no válido') from e
     if doc.get('type')!='FeatureCollection' or not isinstance(doc.get('features'),list):
@@ -44,7 +56,10 @@ def read_geojson(data:bytes, max_features=350_000):
 def valid_municipality(s):
     text=str(s or '').strip().lower()
     alias={'irún':'Irun','irun':'Irun','fuenterrabía':'Hondarribia','hondarribia':'Hondarribia','rentería':'Errenteria','renteria':'Errenteria','errenteria':'Errenteria','pasajes':'Pasaia','pasaia':'Pasaia','lezo':'Lezo','oyarzun':'Oiartzun','oiartzun':'Oiartzun'}
-    return alias.get(text)
+    if text in alias:return alias[text]
+    for name in MUNICIPALITIES:
+        if text==name.lower():return name
+    return None
 
 
 def normalise_census(features):
@@ -66,9 +81,9 @@ def normalise_census(features):
         g=shape(f['geometry'])
         if not g.is_valid:g=g.buffer(0)
         if g.is_empty or g.geom_type not in ('Polygon','MultiPolygon'):continue
-        # Las capas deben venir en WGS84 y estar realmente en el ámbito de Gipuzkoa oriental.
+        # Las capas deben venir en WGS84 y estar realmente en el ámbito de Gipuzkoa.
         lon,lat=g.representative_point().x,g.representative_point().y
-        if not (43.16 <= lat <= 43.49 and -2.18 <= lon <= -1.55):
+        if not (GIPUZKOA_LAT_LON_BOUNDS[0] <= lat <= GIPUZKOA_LAT_LON_BOUNDS[1] and GIPUZKOA_LAT_LON_BOUNDS[2] <= lon <= GIPUZKOA_LAT_LON_BOUNDS[3]):
             raise ValueError('Sección censal fuera del ámbito territorial o CRS distinto de EPSG:4326')
         ident=str(p.get('section_id',p.get('seccion',p.get('id',i))))
         out.append({'id':town+':'+ident, 'municipality':town,'population':people,'geometry':transform(TO_LOCAL,g)})
@@ -197,25 +212,20 @@ class WalkNetwork:
             local_fragment=substring(geom,max(0,offset-budget),min(geom.length,offset+budget))
             if not local_fragment.is_empty:fragments.append(local_fragment)
         if not fragments:return {'status':'unreachable','snap_m':round(snap_dist,1),'polygon':None,'reached_nodes':len(distances)}
-        # The network search is the calculation.  The polygon is a concave
-        # cartographic envelope of the reached graph nodes (plus the exact
-        # frontier endpoints), not a radial time buffer around the stop.
-        boundary=[]
-        for g in fragments:
-            if g.is_empty:continue
-            boundary.extend((g.coords[0],g.coords[-1]))
-        cloud=MultiPoint(list(distances)+boundary+[snap.coords[0]])
-        # A conservative concave hull avoids long chords across parks, rivers,
-        # or blocks between two reachable branches while keeping the result
-        # organic and network-derived (it is not a radius buffer).
-        display=concave_hull(cloud,ratio=ISOCHRONE_HULL_RATIO,allow_holes=False) if len(cloud.geoms)>=3 else cloud.convex_hull
-        display=display.buffer(access_buffer_m,cap_style='round',join_style='round').simplify(2.0,preserve_topology=True)
+        # The graph search is the calculation. Render only reached edge
+        # fragments with a small access band. Unlike a convex/concave hull,
+        # this cannot bridge two branches through a field, park, river or block
+        # where no OSM pedestrian way exists.
+        edge_surfaces=[g.buffer(access_buffer_m,cap_style='round',join_style='round',resolution=4) for g in fragments if not g.is_empty]
+        display=unary_union(edge_surfaces).simplify(1.5,preserve_topology=True) if edge_surfaces else None
+        if display is None or display.is_empty:
+            return {'status':'unreachable','snap_m':round(snap_dist,1),'polygon':None,'reached_nodes':len(distances)}
         return {'status':'calculated','snap_m':round(snap_dist,1),'polygon':display,
                 'display_polygon':display,'reached_nodes':len(distances),
                 'reached_network_m':round(sum(g.length for g in fragments),1),
                 'analysis_area_m2':round(display.area,1),'display_area_m2':round(display.area,1),
                 'travel_limit_m':round(limit,1),
-                'method':'Dijkstra sobre red peatonal OSM; envolvente cóncava de nodos y frontera alcanzados',
+                'method':'Dijkstra sobre red peatonal OSM; unión de tramos alcanzables con banda de acceso',
                 '_node_distances':distances,'_limit_m':limit}
 
     def walk_distance_to(self,point,distances):
@@ -227,18 +237,18 @@ class WalkNetwork:
         return point.distance(snap)+min(du,dv)
 
 
-def calculate_population(iso, residents, network=None, municipalities=MUNICIPALITIES):
+def calculate_population(iso, residents, network=None, municipalities=None):
     poly=iso.get('polygon')
     if poly is None:return {'population':None,'municipalities':{},'units_reached':0}
     seen=set();by_town=defaultdict(float)
     for r in residents:
         graph_reached=(network is not None and network.walk_distance_to(r['point'],iso.get('_node_distances',{}))<=iso.get('_limit_m',0))
-        if r['municipality'] in municipalities and r['id'] not in seen and graph_reached:
+        if (municipalities is None or r['municipality'] in municipalities) and r['id'] not in seen and graph_reached:
             by_town[r['municipality']]+=r['population'];seen.add(r['id'])
     return {'population':round(sum(by_town.values())), 'municipalities':{k:round(v) for k,v in by_town.items()},'units_reached':len(seen)}
 
 
-def calculate_population_by_census_area(iso, census, municipalities=MUNICIPALITIES):
+def calculate_population_by_census_area(iso, census, municipalities=None):
     """Estimate population by areal interpolation when buildings are absent.
 
     The official Eustat count belongs to a census section, not to a point.  If
@@ -254,7 +264,7 @@ def calculate_population_by_census_area(iso, census, municipalities=MUNICIPALITI
                 'population_method':'unavailable'}
     by_town=defaultdict(float);sections=0
     for section in census:
-        if section['municipality'] not in municipalities:continue
+        if municipalities is not None and section['municipality'] not in municipalities:continue
         area=float(section['geometry'].area)
         if area<=0:continue
         intersection=poly.intersection(section['geometry'])
@@ -316,14 +326,15 @@ class TerritoryStore:
           'area_interpolation_ready':bool(self.census and self.network),
           'population_method':'residential_building_allocation' if self.residents else ('census_section_area_interpolation' if self.census and self.network else 'unavailable'),
           'method':'Residential building area × floors weighted within census sections; section-area interpolation fallback when buildings are absent',
-          'walk_method':'Dijkstra on walkable OSM graph; population by graph distance; concave reached-node display envelope',
-          'attribution':'Geometry: GeoEuskadi Secciones; counts: Eustat 2025; verify source licences'}
+          'walk_method':'Dijkstra on walkable OSM graph; population by graph distance; union of reached network segments',
+          'geography_scope':'Gipuzkoa provincial census and pedestrian network',
+          'attribution':'Geometry: INE Secciones_2025; counts: Eustat 2025; walkways: OpenStreetMap contributors; verify source licences'}
 
     def stops_near_study_area(self,stops,max_distance_m=900):
         """Filter out distant route stops outside the census footprint + walking reach.
 
-        This only reduces computation. Population itself is always allocated to the
-        six municipalities and never approximated using a bounding rectangle.
+        This only reduces computation. Population itself is allocated to all
+        loaded Gipuzkoa census sections and never approximated using a bounding rectangle.
         """
         if not self.census:return stops
         from shapely.geometry import Point
@@ -355,7 +366,7 @@ class TerritoryStore:
             distances=iso.get('_node_distances',{})
             limit=iso.get('_limit_m',0)
             for i,resident in enumerate(self.residents):
-                if i in seen or resident['municipality'] not in MUNICIPALITIES:continue
+                if i in seen:continue
                 if self.network.walk_distance_to(resident['point'],distances)<=limit:
                     seen.add(i)
         if self.residents:

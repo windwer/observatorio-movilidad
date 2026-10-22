@@ -15,3 +15,8 @@ data/real/originals/*.ZIP
 # Unit-test imports may stage a tiny original feed at repository root.
 originals/*.zip
 originals/*.ZIP
+
+# Regional OSM extract and resumable download checkpoint are local build inputs;
+# the filtered provincial GeoJSON is the runtime artifact.
+data/references/*.osm.pbf
+data/real/geography/*.partial.json

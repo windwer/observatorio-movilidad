@@ -37,7 +37,7 @@ APP_VERSION='1.0'
 if HOST not in ('127.0.0.1','localhost','::1'):
     if not PASSWORD or len(PASSWORD)<24 or PASSWORD.startswith(('CHANGE_ME','password','Password')):
         raise RuntimeError('Acceso remoto no permitido sin una OBS_PASSWORD fuerte (mínimo 24 caracteres). Requiere también HTTPS en el proxy.')
-app=FastAPI(title='Observatorio Bidasoaldea y Oarsoaldea', version=APP_VERSION,docs_url=None,redoc_url=None,openapi_url=None)
+app=FastAPI(title='Observatorio de Movilidad · Gipuzkoa', version=APP_VERSION,docs_url=None,redoc_url=None,openapi_url=None)
 @app.middleware('http')
 async def demo_readonly(request:Request,call_next):
     if os.environ.get('OBS_DEMO')=='1' and request.method!='GET' and (request.url.path.startswith('/api/') or request.url.path.startswith('/internal/')):
@@ -82,8 +82,8 @@ def home(_:bool=Depends(guard)):
     return FileResponse(ROOT/'static'/'index.html', headers={'Cache-Control':'no-store'})
 
 
-# Official census table: tabular reference only; isochrone population requires
-# matching GeoEuskadi polygons and residential buildings separately.
+# Official census table: tabular reference plus the separately packaged INE
+# section geometries and OSM pedestrian graph used for isochrone estimates.
 def ensure_population():
     return population_reference.load_if_needed(DB, ROOT/'data'/'references'/'eustat_2025_original.csv')
 
@@ -98,16 +98,24 @@ def population_status(_:bool=Depends(guard)):
         return population
     try:
         geo=geo_store().status()
+        geography_population=geo.get('census_population',0) or 0
+        geography_complete=bool(geo.get('area_interpolation_ready') and geography_population==population.get('total_population'))
         population={**population,
             'geometry_joined':bool(geo.get('census_sections')),
+            'geography_complete':geography_complete,
+            'geography_scope':'Gipuzkoa' if geography_complete else 'Gipuzkoa (geometría provincial pendiente)',
             'spatial_coverage_ready':bool(geo.get('area_interpolation_ready')),
             'area_interpolation_ready':bool(geo.get('area_interpolation_ready')),
             'geography':{'census_sections':geo.get('census_sections',0),
                          'walk_segments':geo.get('walk_segments',0),
                          'residential_buildings':geo.get('residential_buildings',0),
+                         'census_population':geography_population,
                          'population_method':geo.get('population_method','unavailable')}}
         if population['spatial_coverage_ready']:
-            population['note']='Población Eustat 2025 cruzada con secciones censales y red peatonal; la cobertura es una estimación por intersección de área, no demanda observada.'
+            population['note']=('Población Eustat 2025 cruzada con secciones censales y red peatonal; '
+                'la cobertura es una estimación por intersección de área, no demanda observada. '
+                + ('La geometría cubre Gipuzkoa.' if geography_complete else
+                   'La geometría disponible cubre por ahora sólo Bidasoaldea y Oarsoaldea.'))
     except (OSError,ValueError,TypeError):
         # Keep the validated tabular population available even if the optional
         # geography package is absent or malformed.
@@ -138,7 +146,7 @@ async def population_import(file:UploadFile=File(...),_:bool=Depends(guard)):
 
 @app.get('/api/health')
 def health(_:bool=Depends(guard)):
-    return {'ok':True,'cutoff':engine.CUTOFF.isoformat(),'scope':'Ekialdebus + Irunbus + Euskotren E1/E2 + Errenteria bus urbano / seis municipios','published':False,'observed_service':False,'version':APP_VERSION,'historical_service_certified':False}
+    return {'ok':True,'cutoff':engine.CUTOFF.isoformat(),'scope':'Gipuzkoa: población Eustat 2025; transporte y cobertura peatonal según fuentes cargadas','published':False,'observed_service':False,'version':APP_VERSION,'historical_service_certified':False}
 
 @app.get('/api/versions')
 def versions(_:bool=Depends(guard)):
@@ -192,25 +200,27 @@ def route_compare(operator:str,route_id:str,old_day:str='2025-10-16',new_day:str
     return handle(route_insights.route_comparison,operator,route_id,old_day,new_day)
 
 @app.get('/api/map/both')
-def map_both(day:str='2026-10-16',_:bool=Depends(guard)):
+def map_both(day:str='2026-10-16',scope:str='core',_:bool=Depends(guard)):
+    if scope not in ('core','all'):
+        raise HTTPException(status_code=400,detail='Alcance de mapa inválido')
     day=engine.clean_date(day)
     con=db()
     try:
-        # Keep the legacy combined-map toggle explicitly limited to the two
-        # interurban bus operators.  Euskotren and Errenteria are available
-        # through the operator selector and are not silently mixed into the
-        # historical bus comparison.
-        responses={op:engine.map_data(con,op,day) for op in engine.CORE_OPERATORS}
+        # Keep the default endpoint compatible with the historical two-bus
+        # comparison.  The map can explicitly request every loaded operator.
+        operators=engine.CORE_OPERATORS if scope=='core' else tuple(engine.OPERATORS)
+        responses={op:engine.map_data(con,op,day) for op in operators}
         missing=[op for op,r in responses.items() if r['quality']=='missing']
         routes=[];stops=[]
         for op,r in responses.items():
             routes.extend([{**route,'id':op+':'+route['id'],'operator':op} for route in r['routes']])
             stops.extend([{**stop,'operator':op} for stop in r['stops']])
         return {'day':day,'state':'historical' if day<=engine.CUTOFF.isoformat() else 'planning',
-            'quality':'missing' if len(missing)==len(engine.CORE_OPERATORS) else 'partial' if missing else 'available_unverified',
+            'quality':'missing' if len(missing)==len(operators) else 'partial' if missing else 'available_unverified',
             'missing_operators':missing,'routes':routes,'stops':stops,
             'sources':{op:{'feed_id':r.get('feed_id'),'quality':r['quality']} for op,r in responses.items()},
-            'certified':False,'note':'Superposición geográfica; paradas próximas entre operadores pueden coincidir. Fuente faltante no implica ausencia de servicio.'}
+            'scope':scope,'operators':list(operators),'certified':False,
+            'note':'Superposición geográfica; paradas próximas entre operadores pueden coincidir. Fuente faltante no implica ausencia de servicio.'}
     finally:con.close()
 
 @app.get('/api/stop')
@@ -249,27 +259,34 @@ def geo_status(_:bool=Depends(guard)):
 async def geo_import(layer:str=Form(...),file:UploadFile=File(...),_:bool=Depends(guard)):
     if not file.filename.lower().endswith(('.geojson','.json')):
         raise HTTPException(status_code=400,detail='Se necesita GeoJSON (FeatureCollection)')
-    raw=await file.read(55_000_001)
+    raw=await file.read(180_000_001)
     try:return geo_store().ingest(layer,raw)
     except (ValueError,KeyError,TypeError) as e:raise HTTPException(status_code=400,detail=str(e))
 
 @app.get('/api/geo/network')
 def geo_network(operator:str,day:str,route_id:str='',minutes:int=10,_:bool=Depends(guard)):
-    if operator not in engine.OPERATORS and operator!='both':raise HTTPException(status_code=400,detail='Operador inválido')
+    if operator not in engine.OPERATORS and operator not in ('both','all'):raise HTTPException(status_code=400,detail='Operador inválido')
     if minutes not in (5,10):raise HTTPException(status_code=400,detail='Se admiten coberturas de 5 y 10 minutos')
     con=db()
     try:
-        ops=engine.CORE_OPERATORS if operator=='both' else (operator,)
+        ops=engine.CORE_OPERATORS if operator=='both' else tuple(engine.OPERATORS) if operator=='all' else (operator,)
         records=[engine.map_data(con,op,day) for op in ops]
         missing=[op for op,r in zip(ops,records) if r['quality']=='missing']
-        if missing:
+        if missing and operator!='all':
             return {'status':'missing_gtfs','population':None,'missing_operators':missing,
                     'operator':operator,'day':day,'certified':False}
-        stops=[{**s,'operator':op} for op,r in zip(ops,records) for s in engine.map_data(con,op,day,route_id)['stops']]
-        return {'operator':operator,'day':day,'time_state':'historical' if day<=engine.CUTOFF.isoformat() else 'planning',
+        available=[(op,r) for op,r in zip(ops,records) if r['quality']!='missing']
+        if not available:
+            return {'status':'missing_gtfs','population':None,'missing_operators':missing,
+                    'operator':operator,'day':day,'certified':False}
+        stops=[{**s,'operator':op} for op,_ in available for s in engine.map_data(con,op,day,route_id)['stops']]
+        result={'operator':operator,'day':day,'time_state':'historical' if day<=engine.CUTOFF.isoformat() else 'planning',
                 'route_id':route_id or None,'minutes':minutes,
-                'source_quality':{op:r['quality'] for op,r in zip(ops,records)},
+                'source_quality':{op:r['quality'] for op,r in available},
+                'missing_operators':missing,
                 **geo_store().network_coverage(stops,minutes=minutes)}
+        if missing:result['status']='partial_sources'
+        return result
     except ValueError as e:raise HTTPException(status_code=400,detail=str(e))
     finally:con.close()
 
@@ -384,7 +401,8 @@ def geo_service_coverage(operator:str='both',day:str='2026-10-16',
                     'missing_operators':[x['operator'] for x in sources if x['status']=='missing_gtfs'],
                     'certified':False,'day':day,'operator':operator}
         store=geo_store()
-        if not store.status()['ready']:
+        geo_status=store.status()
+        if not (geo_status['ready'] or geo_status['area_interpolation_ready']):
             return {'status':'incomplete_geography','population_by_frequency':None,'day':day,
                     'operator':operator,'certified':False}
         thresholds={}
@@ -411,7 +429,7 @@ def diff_stops(operator:str='ekialdebus',old_day:str='2025-10-15',
     if territorial_scope:
         from shapely.ops import unary_union
         if not geo_store().census:
-            raise HTTPException(status_code=422,detail='Para limitar a los seis municipios, carga primero la cartografía censal. Puedes desactivar territorial_scope para comparar toda la red.')
+            raise HTTPException(status_code=422,detail='Para limitar el análisis a Gipuzkoa, carga primero la cartografía censal provincial. Puedes desactivar territorial_scope para comparar toda la red.')
         area=unary_union([x['geometry'] for x in geo_store().census])
     return handle(changes.compare_stops,operator,old_day,new_day,65,area)
 

@@ -74,11 +74,17 @@ def fetch_reference(name,dest):
 
 
 def fetch_osm_walkways():
-    """Fetch original OSM ways for the two comarcas from Overpass (local user network).
+    """Return the bundled provincial OSM network, preserving its provenance.
 
-    Coordinates are bounding boxes for download only, *not* geometries used to
-    allocate population or calculate walk times. Geometry remains OSM.
+    The production package contains the filtered Gipuzkoa extract generated
+    from the regional Geofabrik PBF.  Returning that immutable local artifact
+    prevents the refresh button from silently replacing the province-wide
+    network with the old eastern pilot windows.  The Overpass fallback remains
+    available only when developing a package without the bundled artifact.
     """
+    bundled=Path(__file__).resolve().parent/'data'/'real'/'geography'/'walkways.geojson'
+    if bundled.is_file():
+        return bundled.read_bytes()
     ways={}
     for south,west,north,east in OSM_PILOT_BBOXES:
         query=f'[out:json][timeout:60];way["highway"]({south},{west},{north},{east});out geom;'

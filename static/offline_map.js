@@ -18,7 +18,9 @@ class GeographicReviewMap {
     this.container=container; this.handlers=handlers;
     this.ns='http://www.w3.org/2000/svg';
     this.z0=12; this.worldSize=256*Math.pow(2,this.z0);
-    this.bounds={west:-2.045,east:-1.670,north:43.430,south:43.270};
+    // Province-wide cartographic extent (derived from the 544 official
+    // Gipuzkoa census sections), not only the original eastern demo window.
+    this.bounds={west:-2.630,east:-1.700,north:43.420,south:42.910};
     const nw=this.mercator([this.bounds.west,this.bounds.north]);
     const se=this.mercator([this.bounds.east,this.bounds.south]);
     this.origin={x:nw[0],y:nw[1]};
@@ -34,7 +36,7 @@ class GeographicReviewMap {
     };
     this.svg=document.createElementNS(this.ns,'svg');
     this.svg.setAttribute('role','img');
-    this.svg.setAttribute('aria-label','Mapa cartográfico georreferenciado de Gipuzkoa oriental, con capas de recorridos, paradas e isócronas de cinco y diez minutos.');
+    this.svg.setAttribute('aria-label','Mapa cartográfico georreferenciado de Gipuzkoa, con capas de recorridos, paradas e isócronas de cinco y diez minutos.');
     this.svg.setAttribute('preserveAspectRatio','xMidYMid meet');
     this.svg.style.background='#edf2f0';this.container.append(this.svg);
     this.tiles=this.g('basemap');this.geo=this.g('routes');this.drawIso=this.g('isochrones');this.points=this.g('stops');

@@ -32,8 +32,8 @@ async function init(){
    $('hour-to').add(new Option(`${String(n).padStart(2,'0')}:00`,n*60));
  }
  $('hour-from').value='0';$('hour-to').value='1440';
- ['operator','year','month','hour-from','hour-to','calendar-filter','route','exact-date'].forEach(id=>$(id).addEventListener('change',()=>{
-   state.operator=$('operator').value;state.year=Number($('year').value);state.month=Number($('month').value);state.hourFrom=Number($('hour-from').value);state.hourTo=Number($('hour-to').value);state.calendarFilter=$('calendar-filter').value;
+ ['operator','year','month','hour-from','hour-to','route','exact-date'].forEach(id=>$(id).addEventListener('change',()=>{
+   state.operator=$('operator').value;state.year=Number($('year').value);state.month=Number($('month').value);state.hourFrom=Number($('hour-from').value);state.hourTo=Number($('hour-to').value);
    state.route=$('route').value;state.exactDate=$('exact-date').value;
    if(id==='operator'||id==='year'||id==='month'){state.route='';state.exactDate='';$('route').innerHTML='<option value="">Todas las líneas</option>'}
    refresh()
@@ -50,6 +50,9 @@ async function init(){
  }});
  fallback.style.display='none';
  $('map-both').addEventListener('change',refresh);
+ const mapToggle=$('map-both')?.parentElement;
+ if(mapToggle?.lastChild?.nodeType===Node.TEXT_NODE)mapToggle.lastChild.textContent=' Mostrar todos los operadores en el mapa';
+ setQualityPanelVisible(false);
  refresh();updateVersions();
 }
 function openModal(){ $('import-modal').classList.add('open');$('import-operator').value=state.operator;updateVersions(); }
@@ -108,7 +111,7 @@ async function refresh(){const token=++refreshToken;
    if(token!==refreshToken)return;
    renderMain(result,coverage,comparison);
    const day=state.exactDate||chooseMapDate(result);state.activeMapDate=day;
-   let geographic=await api($('map-both').checked?qs('/api/map/both',{day}):qs('/api/map',{operator:state.operator,day,route_id:state.route}));
+   let geographic=await api($('map-both').checked?qs('/api/map/both',{day,scope:'all'}):qs('/api/map',{operator:state.operator,day,route_id:state.route}));
    if(token!==refreshToken)return;
    renderMap(geographic);
    await loadRouteInsights(token);
@@ -123,13 +126,8 @@ function renderMain(res,cov,other){let primary=selectMainSegment(res);const hasD
  const periodSegments=res.segments.map(s=>`${segmentState(s)}: ${s.from} a ${s.to} (${s.days_available}/${s.days_total} jornadas con fuente)`).join(' · ');
  const selectedOperatorName=operatorName(state.operator);
  const routeLabel=state.route||'todas las líneas';
- setText('data-state-note-text',hasData
-   ? `${segmentState(primary)} · ${selectedOperatorName} · ${primary.days_available}/${primary.days_total} jornadas disponibles para ${routeLabel}. El horario es programado, no servicio observado.`
-   : `Sin fuente para ${selectedOperatorName}, ${state.year}-${String(state.month).padStart(2,'0')} y el tipo de día seleccionado.`);
  $('quality-content').innerHTML=`<div class="notice ${hasData&&primary.days_missing?'warn':''}">${hasData?`Selección: <b>${escapeHTML(selectedOperatorName)}</b> · ${escapeHTML(routeLabel)} · ${escapeHTML({LJ:'lunes–jueves',V:'viernes',S:'sábado',D:'domingo'}[state.dayType])}. La fuente contiene horarios programados; no acredita servicio prestado.`:'No hay datos importados para esta selección. El sistema no convierte la ausencia de fuente en cero expediciones.'}</div>
  <div class="metric-row"><div><div class="label">Fuente actual</div><div class="detail">Estado temporal de la selección</div></div><strong>${hasData?segmentState(primary):'Sin datos'}</strong></div>
- <div class="metric-row"><div><div class="label">Jornadas disponibles</div><div class="detail">Con una versión GTFS que cubre la fecha</div></div><strong>${hasData?`${fmt(primary.days_available)}/${fmt(primary.days_total)}`:'—'}</strong></div>
- <div class="metric-row"><div><div class="label">Excepciones / retrospectivas</div><div class="detail">Trazabilidad de la fuente seleccionada</div></div><strong>${hasData?`${fmt(primary.days_explicit_exception||0)} / ${fmt(primary.days_retrospective||0)}`:'—'}</strong></div>
  <p class="hint">${escapeHTML(periodSegments||'Sin fuentes importadas')}</p>`;
  renderLines(primary);
  renderCoverage(cov);
@@ -285,7 +283,8 @@ async function viewStop(stop){try{const data=await api(qs('/api/stop',{operator:
  $('stop-body').innerHTML=data.departures.length?data.departures.map(d=>`<tr><td><b>${escapeHTML(d.time||'—')}</b></td><td class="route">${escapeHTML(d.line||'?')}</td><td>${escapeHTML(d.destination||'—')}</td><td>${escapeHTML(d.direction||'—')}</td></tr>`).join(''):'<tr><td colspan="4" class="empty-table">No hay expediciones para esta parada y fecha</td></tr>';
  $('stop-panel').scrollIntoView({behavior:'smooth',block:'nearest'});
  }catch(e){alert(e.message)}}
-async function updateVersions(){try{let v=await api('/api/versions');$('version-list').innerHTML=v.length?v.map(s=>`<div><b>${escapeHTML(s.operator.toUpperCase())}</b> · Captura ${escapeHTML(s.snapshot_date)} · ${s.route_count} rutas · ${s.stop_count} paradas<br><span style="color:#829397">${escapeHTML(s.min_date)} → ${escapeHTML(s.max_date)} · ${escapeHTML(s.original_name)} · SHA ${s.sha256.slice(0,10)}…</span></div>`).join(''):'<div>No hay versiones cargadas.</div>'}catch(e){setText('import-status',e.message)}}
+function setQualityPanelVisible(visible){const panel=$('structural-quality');if(panel)panel.style.display=visible?'':'none'}
+async function updateVersions(){try{let v=await api('/api/versions');$('version-list').innerHTML=v.length?v.map(s=>`<div><b>${escapeHTML(s.operator.toUpperCase())}</b> · Captura ${escapeHTML(s.snapshot_date)} · ${s.route_count} rutas · ${s.stop_count} paradas<br><span style="color:#829397">${escapeHTML(s.min_date)} → ${escapeHTML(s.max_date)} · ${escapeHTML(s.original_name)} · SHA ${s.sha256.slice(0,10)}…</span></div>`).join(''):'<div>No hay versiones cargadas.</div>';setQualityPanelVisible(v.length>0)}catch(e){setQualityPanelVisible(false);setText('import-status',e.message)}}
 async function importFeed(e){e.preventDefault();const operator=$('import-operator').value,stamp=$('import-date').value,file=$('import-file').files[0];if(!operator||!stamp||!file)return;
  const form=new FormData();form.append('operator',operator);form.append('snapshot_date',stamp);form.append('file',file);
  const submit=$('upload-submit');submit.disabled=true;submit.textContent='Importando…';setText('import-status','Procesando archivos y calendario; puede tardar según el GTFS.');
@@ -312,7 +311,7 @@ async function loadGeoStatus(){
    setText('geo-method',s.ready
      ? `${fmt(s.resident_units)} unidades residenciales · ${fmt(s.unallocated_population)} personas sin asignación residencial · estimación no certificada.`
      : areaReady
-       ? `${fmt(s.census_sections)} secciones Eustat con geometría oficial · interpolación proporcional de área · estimación no certificada.`
+       ? `${fmt(s.census_sections)} secciones Eustat con geometría oficial de Gipuzkoa · interpolación proporcional de área · estimación no certificada.`
        : 'La red peatonal puede estar disponible, pero falta la unión de población censal y edificios residenciales. No se mostrarán habitantes cubiertos inventados.');
    if(!s.ready && !areaReady){
      setText('geo-result',`Cobertura del recorrido pendiente · ${populationReferenceLabel()}`);
@@ -339,7 +338,7 @@ async function downloadSource(source,button){
 }
 function populationReferenceLabel(){
  return populationReference.loaded&&typeof populationReference.total_population==='number'
-   ? `${fmt(populationReference.total_population)} hab. de referencia Eustat 2025`
+   ? `${fmt(populationReference.total_population)} hab. de referencia Eustat 2025 · Gipuzkoa`
    : 'referencia poblacional Eustat no cargada';
 }
 async function showIsochrone(stop,{auto=false,renderToken=null}={}){
@@ -378,7 +377,7 @@ async function showIsochrone(stop,{auto=false,renderToken=null}={}){
     ? 'interpolación de sección censal'
     : 'asignación residencial';
   setText('geo-stop-result',`${stop.name} · 5 min: ${formatPopulation(iso5.population)} · 10 min: ${formatPopulation(iso10.population)} · ${method}`);
-  if(!auto){const kpiLabel=$('kpi-population')?.closest('.kpi')?.querySelector('.name');if(kpiLabel)kpiLabel.textContent=iso10.population===null?'Población base · seis municipios':'Población cubierta · parada';setText('kpi-population',iso10.population===null?'—':fmt(iso10.population));
+  if(!auto){const kpiLabel=$('kpi-population')?.closest('.kpi')?.querySelector('.name');if(kpiLabel)kpiLabel.textContent=iso10.population===null?'Población base · Gipuzkoa':'Población cubierta · parada';setText('kpi-population',iso10.population===null?'—':fmt(iso10.population));
     setText('kpi-population-note',iso10.population===null
       ? `Parada: ${stop.name} · ${populationReferenceLabel()} · falta unión espacial`
       : `Parada: ${stop.name} · 10 min andando · ${method} · no demanda`);}
@@ -400,19 +399,19 @@ let networkRequestId=0;
 async function computeNetworkPopulation({silent=false}={}){
  const requestId=++networkRequestId;
  const button=$('geo-network-button');button.disabled=true;setText('geo-result','Calculando cobertura única…');
- try{const data=await api(qs('/api/geo/network',{operator:$('map-both').checked?'both':state.operator,day:state.activeMapDate,route_id:state.route||'',minutes:10}));
+ try{const data=await api(qs('/api/geo/network',{operator:$('map-both').checked?'all':state.operator,day:state.activeMapDate,route_id:state.route||'',minutes:10}));
  if(requestId!==networkRequestId)return;
  if(data.population===null){
    setText('geo-result',data.status==='missing_gtfs'
      ? 'Falta GTFS de al menos un operador; no se puede asociar el recorrido a paradas.'
      : `Cobertura del recorrido no calculable · ${populationReferenceLabel()} · faltan geometrías censales y red peatonal.`);
    setText('kpi-population',populationReference.loaded?fmt(populationReference.total_population):'—');
-   const kpiLabel=$('kpi-population')?.closest('.kpi')?.querySelector('.name');if(kpiLabel)kpiLabel.textContent='Población base · seis municipios';
+   const kpiLabel=$('kpi-population')?.closest('.kpi')?.querySelector('.name');if(kpiLabel)kpiLabel.textContent='Población base · Gipuzkoa';
    setText('kpi-population-note',`${populationReferenceLabel()} · no equivale a cobertura del recorrido`);
    setText('geo-method','La suma de paradas no se usa: importa la geometría oficial de secciones Eustat y la red peatonal, o edificios residenciales para una estimación dasimétrica más precisa.');
    return;
  }
- const scope=data.route_id?`recorrido ${data.route_id}`:`toda la red de ${state.operator}`;
+ const scope=data.route_id?`recorrido ${data.route_id}`:data.operator==='all'?'todos los operadores':`toda la red de ${operatorName(state.operator)}`;
  setText('geo-result',`${fmt(data.population)} habitantes únicos estimados · ${scope} · 10 min`);
  const kpiLabel=$('kpi-population')?.closest('.kpi')?.querySelector('.name');if(kpiLabel)kpiLabel.textContent='Población cubierta · recorrido';
  setText('kpi-population',fmt(data.population));
@@ -430,7 +429,7 @@ async function loadPublicationReadiness(){
   setText('audit-summary',`Histórico 01/01/2025–18/10/2026: ${r.target_days_per_operator} fechas exigidas por operador. La certificación requiere revisión documental de horarios y cobertura geográfica.`);
   $('audit-issues').innerHTML=Object.entries(r.operators).map(([op,x])=>
    `<div><b>${escapeHTML(op)}</b>: ${fmt(x.verified)} verificadas · ${fmt(x.located_unverified)} localizadas sin verificar · ${fmt(x.missing)} sin fuente · ${fmt(x.rejected)} rechazadas.</div>`).join('')+
-   (r.geographic_gate_passed?'':'<div>Faltan capas o cobertura residencial completa de los seis municipios.</div>');
+   (r.geographic_gate_passed?'':'<div>Faltan capas o cobertura geográfica provincial completa de Gipuzkoa.</div>');
  }catch(e){setText('audit-gate','Auditoría no disponible: '+e.message)}
 }
 async function loadAuditMonthly(){
@@ -486,7 +485,7 @@ async function confirmAppVersion(){
     const info=await api('/api/version');
     window.OBSERVATORIO_VERSION=info.version;
     setText('running-version',document.body.classList.contains('review-mode')?`DEMO · v${info.version}`:`v${info.version} · CORTE FIJO 18 OCT 2026`);
-    setText('brand-version',`Bidasoaldea + Oarsoaldea · ${document.body.classList.contains('review-mode')?'DEMO':'DATOS REALES'} · GTFS oficial`);
+    setText('brand-version',`Gipuzkoa · ${document.body.classList.contains('review-mode')?'DEMO':'DATOS REALES'} · GTFS oficial`);
   } catch(error) { setText('running-version','VERSIÓN NO VERIFICABLE'); }
 }
 async function compareRoutesUI(){
@@ -515,7 +514,8 @@ async function runQuality(){
 document.addEventListener('DOMContentLoaded',()=>$('quality-run').addEventListener('click',runQuality));
 
 
-// Base oficial de Eustat cargada como referencia tabular: NO isócronas aún.
+// Base oficial de Eustat cargada como referencia provincial; la cobertura de
+// isócronas sigue dependiendo de las geometrías territoriales disponibles.
 function renderEustatQuickReference(x){
   const kpis=document.querySelector('.kpis');if(!kpis)return;
   let card=$('eustat-quick-reference');
@@ -523,18 +523,24 @@ function renderEustatQuickReference(x){
   card.className='notice';
   card.style.cssText='margin:-3px 0 17px;padding:12px 15px;line-height:1.5;border:1px solid #d9e9e4;background:#f1f8f5;color:#4f6d70;font-size:11px';
   if(!x.loaded){card.innerHTML='<b style="color:#8b5b18">Eustat 2025 pendiente de carga</b> · No hay una referencia censal disponible en esta instancia.';return;}
-  const total=fmt(x.total_population),sections=fmt(x.sections),bidasoa=fmt(x.by_region?.Bidasoaldea),oarso=fmt(x.by_region?.Oarsoaldea);
-  const spatial=x.spatial_coverage_ready
-    ? 'La unión espacial está disponible.'
-    : 'La base poblacional y la geometría oficial de secciones permiten una estimación por intersección de área; los edificios residenciales mejoran la precisión.';
-  card.innerHTML=`<b style="color:#176958">Eustat 2025 cargado</b> · ${total} habitantes de referencia en ${sections} secciones · Bidasoaldea ${bidasoa} · Oarsoaldea ${oarso}. <span>${spatial}</span>`;
+  const total=fmt(x.total_population),sections=fmt(x.sections),municipalities=fmt(x.municipality_count),bidasoa=fmt(x.by_region?.Bidasoaldea),oarso=fmt(x.by_region?.Oarsoaldea),rest=fmt(x.by_region?.['Resto de Gipuzkoa']);
+  const spatial=x.geography_complete
+    ? 'La geometría disponible cubre Gipuzkoa.'
+    : 'La población es provincial; la geometría peatonal provincial todavía no está completa en esta instancia.';
+  card.innerHTML=`<b style="color:#176958">Eustat 2025 · Gipuzkoa cargado</b> · ${total} habitantes en ${municipalities} municipios y ${sections} secciones · Bidasoaldea ${bidasoa} · Oarsoaldea ${oarso} · resto ${rest}. <span>${spatial}</span>`;
 }
 async function loadEustatPopulation(){
   try{
     const x=await api('/api/population/status');
     populationReference={loaded:!!x.loaded,total_population:x.total_population??null,sections:x.sections??null};
+    const scopeNote=document.querySelector('aside .side-note');
+    if(scopeNote)scopeNote.innerHTML=`<strong>Provincia de Gipuzkoa</strong>Población Eustat 2025: base total provincial. ${x.geography_complete?'La cobertura peatonal y censal provincial está disponible.':'La cobertura peatonal provincial sigue pendiente de completar.'}`;
+    const populationTitle=document.querySelector('#eustat-population-panel .panel-head h3');
+    if(populationTitle)populationTitle.textContent='Población Eustat 2025 · Gipuzkoa';
+    const populationCard=document.querySelector('#eustat-population-panel .kpi .name');
+    if(populationCard)populationCard.textContent='Población total · Gipuzkoa';
     if(!x.loaded){setText('eustat-validation','CSV no importado');setText('eustat-municipality-rows','Sin datos oficiales cargados');renderEustatQuickReference(x);return;}
-    setText('eustat-validation',`${fmt(x.sections)} secciones verificadas · CSV 2025`);
+    setText('eustat-validation',`${fmt(x.sections)} secciones · ${fmt(x.municipality_count)} municipios · CSV 2025 verificado`);
     setText('eustat-total',fmt(x.total_population));
     setText('eustat-bidasoa',fmt(x.by_region.Bidasoaldea));
     setText('eustat-oarso',fmt(x.by_region.Oarsoaldea));
@@ -544,13 +550,13 @@ async function loadEustatPopulation(){
     if($('kpi-population')?.textContent.trim()==='—'){
       const kpiLabel=$('kpi-population')?.closest('.kpi')?.querySelector('.name');if(kpiLabel)kpiLabel.textContent='Población de referencia';
       setText('kpi-population',fmt(x.total_population));
-      setText('kpi-population-note','Base Eustat 2025 · seis municipios · no equivale a cobertura del recorrido');
+      setText('kpi-population-note','Base Eustat 2025 · Gipuzkoa · no equivale a cobertura del recorrido');
     }
-    const order=['Irun','Hondarribia','Errenteria','Pasaia','Lezo','Oiartzun'];
+    const order=Object.keys(x.municipalities||{}).sort((a,b)=>a.localeCompare(b,'es'));
     $('eustat-municipality-rows').innerHTML=order.map(name=>{
       const d=x.municipalities[name];return `<tr><td>${escapeHTML(name)}</td><td>${fmt(d.population)}</td><td>${fmt(d.sections)}</td></tr>`;
     }).join('');
-    setText('eustat-note',`CSV original conservado y verificado (SHA256: ${x.sha256.slice(0,12)}…). La población objetivo de las isócronas se estima cruzando la geometría oficial de secciones con la red peatonal; los edificios residenciales permiten una asignación más precisa.`);
+    setText('eustat-note',`CSV original de Gipuzkoa conservado y verificado (SHA256: ${x.sha256.slice(0,12)}…). La población objetivo de las isócronas se estima donde existe geometría censal y red peatonal cargadas; ${x.geography_complete?'la cobertura espacial es provincial.':'la cobertura espacial provincial todavía está pendiente.'}`);
     renderEustatQuickReference(x);
     const stopText=$('geo-stop-result')?.textContent||'';
     if(stopText.includes('referencia poblacional Eustat no cargada'))setText('geo-stop-result',stopText.replace('referencia poblacional Eustat no cargada',populationReferenceLabel()));
@@ -568,18 +574,18 @@ document.addEventListener('DOMContentLoaded',async()=>{
     if(!cfg.demo){
       const banner=document.querySelector('.review-banner');
       if(banner)banner.innerHTML='<strong>DATOS REALES · GTFS IMPORTADO</strong> <span class="soft">— Instantáneas entregadas por el usuario. Horarios programados: no equivalen a servicio prestado. Eustat 2025 y las secciones oficiales permiten estimar la población dentro de las isócronas; los edificios residenciales mejoran la precisión.</span>';
-      const head=document.querySelector('header .brand p');if(head)head.textContent=`Bidasoaldea + Oarsoaldea · DATOS REALES v${cfg.version||window.OBSERVATORIO_VERSION||'?' } · GTFS oficial`;
+      const head=document.querySelector('header .brand p');if(head)head.textContent=`Gipuzkoa · DATOS REALES v${cfg.version||window.OBSERVATORIO_VERSION||'?' } · GTFS oficial`;
       const tag=document.querySelector('header .tag');if(tag)tag.textContent='DATOS REALES · GTFS';
       const mapTitle=document.querySelector('.map-frame')?.closest('.panel')?.querySelector('.panel-head h3');if(mapTitle)mapTitle.textContent='Mapa geográfico real · Líneas GTFS';
       const legend=document.querySelector('.mini-legend');if(legend)legend.textContent='● Parada GTFS · ━ Recorrido según shape GTFS';
       const popNote=document.getElementById('kpi-population-note');if(popNote && popNote.textContent.includes('No calculable'))popNote.textContent='Base Eustat 2025 incluida · no equivale a cobertura del recorrido';
-      const geoTitle=document.querySelector('#territorial-panel .panel-head h3');if(geoTitle)geoTitle.textContent='Accesibilidad peatonal · capas reales pendientes';
+      const geoTitle=document.querySelector('#territorial-panel .panel-head h3');if(geoTitle)geoTitle.textContent='Accesibilidad peatonal · cobertura provincial';
     }
     if(cfg.demo){
       document.body.classList.add('review-mode');
       for(const id of ['import-button','source-button','geo-import-button','quality-run']){const el=document.getElementById(id);if(el)el.style.display='none';}
       const footprint=document.getElementById('geo-method');if(footprint)footprint.insertAdjacentText('afterbegin','ISÓCRONAS SINTÉTICAS · no cartografía oficial. ');
-      const head=document.querySelector('header .brand p');if(head)head.textContent=`Bidasoaldea + Oarsoaldea · DEMO v${cfg.version||window.OBSERVATORIO_VERSION||'?' } · Red peatonal OSM real`;
+      const head=document.querySelector('header .brand p');if(head)head.textContent=`Gipuzkoa · DEMO v${cfg.version||window.OBSERVATORIO_VERSION||'?' } · Red peatonal OSM real`;
       const version=document.getElementById('running-version');if(version)version.textContent=`PRODUCT REVIEW · DEMO v${cfg.version||window.OBSERVATORIO_VERSION||'?'}`;
       const note=document.getElementById('quality-content');
       if(note)note.insertAdjacentHTML('afterbegin','<div class="notice warn" style="margin-bottom:9px"><b>DATOS DEMO</b> · Horarios, recorridos y paradas son ficticios. La población oficial Eustat 2025 es real, pero la cobertura accesible es simulada.</div>');

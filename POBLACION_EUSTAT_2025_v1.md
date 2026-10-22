@@ -1,18 +1,19 @@
 # Población incluida en v1
 
 La entrega contiene los valores oficiales de Eustat con referencia 01/01/2025
-y los conserva en el mismo SQLite que utiliza el visor.
+para los 88 municipios de Gipuzkoa y los conserva en el mismo SQLite que
+utiliza el visor.
 
 | Ámbito | Secciones | Habitantes |
 |---|---:|---:|
 | Bidasoaldea | 54 | 77.625 |
 | Oarsoaldea | 55 | 73.207 |
-| Total seis municipios | 109 | 150.832 |
+| Resto de Gipuzkoa | 435 | 573.965 |
+| Total Gipuzkoa | 544 | 724.797 |
 
-La validación comprueba que las secciones suman los subtotales publicados por
-distrito. Estos datos son la **base poblacional territorial**. La capa de
-secciones censales y la red peatonal OSM incluidas permiten estimar la población
-objetivo de cada isócrona por intersección proporcional de área, tanto para una
-parada como para el recorrido completo, deduplicando las áreas solapadas. Al no
-haber edificios residenciales en el paquete, el resultado es una estimación
-territorial (no una asignación dasimétrica ni demanda observada).
+La validación comprueba que las 120 agrupaciones de distrito suman los
+subtotales publicados por Eustat. Estos datos son la **base poblacional
+territorial de Gipuzkoa**. La geometría censal provincial se obtiene de la capa
+oficial INE Secciones_2025 y la red peatonal de OpenStreetMap; las isócronas y la
+población objetivo siguen siendo una estimación espacial, no una cifra
+provincial de cobertura ni demanda observada.

@@ -11,7 +11,7 @@ Fecha de comprobación: 19/10/2026.
 - **Mapa:** OK con shapes GTFS reales y, cuando falta shape, respaldo a la secuencia de paradas. Sonda 2026-10-16: Ekialdebus 53 trazados / 229 paradas; sonda 2026-10-19: Irunbus 13 trazados / 75 paradas.
 - **Métricas de línea:** OK. Se verificaron longitud de shape, tiempo cabecera–última parada, velocidad comercial estimada y frecuencia por categoría de día en una línea de cada operador.
 - **Ventana de servicio:** OK. El visor muestra primera salida → última salida, amplitud diaria y expediciones con hora válida; la comparación de dos fechas clasifica por separado cambios de horario y de frecuencia (incluido el caso “más horario, menos frecuencias”).
-- **Referencia demográfica:** OK. La base real contiene el CSV Eustat 2025 verificado y sus 109 secciones (150.832 habitantes; Bidasoaldea 77.625; Oarsoaldea 73.207). La referencia se muestra en la parte superior del visor, separada de la cobertura espacial.
+- **Referencia demográfica:** OK. La base real contiene el CSV Eustat 2025 verificado y sus 544 secciones (724.797 habitantes; Bidasoaldea 77.625; Oarsoaldea 73.207; resto de Gipuzkoa 573.965). La geometría censal INE Secciones_2025 y la red peatonal OSM se cargan para toda Gipuzkoa; la cobertura de una isócrona es una estimación por intersección de área.
 - **Reproducibilidad:** OK. Los ZIP entregados y las copias canónicas con SHA-256 se conservan en `data/real/originals/`.
 - **Separación DEMO/real:** OK. El arranque real apunta a `data/real/observatorio_real.sqlite3`; el paquete no contiene `data/demo`.
 

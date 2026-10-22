@@ -21,9 +21,9 @@
 6. Certificar la cobertura y procedencia del histórico de cada operador, comparativas con horarios oficiales y rendimientos reales con datos de tamaño completo.
 
 ## Conocemos la procedencia de los datos
-- **Oficial**: total poblacional Eustat 2025 para seis municipios (150.832 personas, 109 secciones originales).
-- **Ficticio**: posiciones de paradas, trazados, horarios, frecuencias, polígonos censales esquemáticos, edificios e isócronas de demostración.
-- **Sin incorporar**: GTFS históricos certificados y cartografía GeoEuskadi/OSM real de seis municipios.
+- **Oficial**: tabla poblacional Eustat 2025 para los 88 municipios de Gipuzkoa (724.797 personas, 544 secciones), geometría censal INE Secciones_2025 y red peatonal OSM provincial.
+- **Ficticio**: sólo las capas y horarios que mantengan la etiqueta DEMO en el paquete correspondiente.
+- **Cartografía**: la isócrona provincial se calcula por red real y la población por intersección de sección; es una estimación metodológica, no demanda observada.
 
 ## Qué NO hacer
 - No publicar estadísticas de oferta derivadas de la demo como reales.

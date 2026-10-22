@@ -13,11 +13,11 @@ class NewHttpTests(unittest.TestCase):
  def tearDown(self):self.tmp.cleanup()
  def test_new_version_visible_and_not_cached(self):
   doc=self.client.get('/')
-  self.assertIn('Versión privada 0.6.3',doc.text)
-  self.assertIn('0.6.3',doc.text)
+  self.assertIn('Observatorio · Gipuzkoa',doc.text)
+  self.assertIn('1.0-iso2',doc.text)
   self.assertIn('no-store',doc.headers['cache-control'])
-  self.assertEqual(self.client.get('/api/version').json()['version'],'0.6.3')
-  self.assertEqual(self.client.get('/api/health').json()['version'],'0.6.3')
+  self.assertEqual(self.client.get('/api/version').json()['version'],'1.0')
+  self.assertEqual(self.client.get('/api/health').json()['version'],'1.0')
  def test_import_diff_and_quality(self):
   for code,snapshot,start,finish in [('E25','2025-10-01','20251001','20251031'),('BI05','2026-10-02','20261001','20261031')]:
    response=self.client.post('/api/import',data={'operator':'ekialdebus','snapshot_date':snapshot},

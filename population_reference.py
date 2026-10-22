@@ -7,11 +7,13 @@ from __future__ import annotations
 import hashlib
 import sqlite3
 from collections import defaultdict
+from contextlib import closing
 from pathlib import Path
-from normalize_eustat import parse, read_rows
+from normalize_eustat import parse, read_rows, municipality_name
 
 REFERENCE='2025-01-01'
 SOURCE_URL='https://es.eustat.eus/elementos/xls0011434_c.csv'
+STUDY_MUNICIPALITIES=('Irun','Hondarribia','Errenteria','Pasaia','Lezo','Oiartzun')
 REGIONS={'Bidasoaldea':('Irun','Hondarribia'), 'Oarsoaldea':('Errenteria','Pasaia','Lezo','Oiartzun')}
 
 
@@ -73,7 +75,7 @@ def ingest(db_path, raw:bytes, source_name='eustat_2025_original.csv'):
     sha=hashlib.sha256(raw).hexdigest()
     total=sum(r['population'] for r in sections)
     path=Path(db_path);path.parent.mkdir(parents=True,exist_ok=True)
-    with sqlite3.connect(path) as conn:
+    with closing(sqlite3.connect(path)) as conn:
         _schema(conn)
         # An invalid new CSV never clears the prior validated data.
         with conn:
@@ -91,10 +93,14 @@ def load_if_needed(db_path,source_path):
     source=Path(source_path)
     if source.exists():
         raw=source.read_bytes();digest=hashlib.sha256(raw).hexdigest()
-        with sqlite3.connect(db_path) as conn:
+        with closing(sqlite3.connect(db_path)) as conn:
             _schema(conn)
-            meta=conn.execute('SELECT sha256 FROM population_reference_meta WHERE reference_date=?',(REFERENCE,)).fetchone()
-        if not meta or meta[0]!=digest:
+            meta=conn.execute('SELECT sha256,sections FROM population_reference_meta WHERE reference_date=?',(REFERENCE,)).fetchone()
+        # Re-import a legacy six-municipality database when the bundled source
+        # now contains the complete Gipuzkoa table, even if its file hash is
+        # unchanged.
+        expected=len(parse(raw,require_six=True)['rows'])
+        if not meta or meta[0]!=digest or meta[1]!=expected:
             return ingest(db_path,raw,source_name=source.name)
     return summary(db_path)
 
@@ -102,7 +108,7 @@ def load_if_needed(db_path,source_path):
 def summary(db_path):
     path=Path(db_path)
     if not path.exists():return {'loaded':False,'reference_date':REFERENCE,'source_url':SOURCE_URL,'geometry_joined':False}
-    with sqlite3.connect(path) as conn:
+    with closing(sqlite3.connect(path)) as conn:
         _schema(conn)
         m=conn.execute('''SELECT source_name,sha256,sections,districts,total FROM population_reference_meta
                           WHERE reference_date=?''',(REFERENCE,)).fetchone()
@@ -110,20 +116,26 @@ def summary(db_path):
         rows=conn.execute('''SELECT municipality,COUNT(*),SUM(population) FROM population_sections
                              WHERE reference_date=? GROUP BY municipality''',(REFERENCE,)).fetchall()
     towns={name:{'sections':count,'population':population} for name,count,population in rows}
+    total=sum(item['population'] for item in towns.values())
+    study_total=sum(towns.get(name,{}).get('population',0) for name in STUDY_MUNICIPALITIES)
+    by_region={region:sum(towns.get(town,{}).get('population',0) for town in names) for region,names in REGIONS.items()}
+    by_region['Resto de Gipuzkoa']=total-study_total
+    by_region['Gipuzkoa']=total
     return {'loaded':True,'reference_date':REFERENCE,'source_url':SOURCE_URL,
         'source_name':m[0],'sha256':m[1],'sections':m[2],'districts':m[3],
-        'total_population':m[4],'municipalities':towns,
-        'by_region':{region:sum(towns[town]['population'] for town in names) for region,names in REGIONS.items()},
+        'total_population':total,'study_area_population':study_total,
+        'municipality_count':len(towns),'municipalities':towns,'by_region':by_region,
         'geometry_joined':False,'spatial_coverage_ready':False,
-        'note':'Población censal oficial. NO expresa habitantes dentro de isócronas; falta cartografía de secciones y reparto residencial.'}
+        'note':'Población censal oficial de Gipuzkoa. No expresa habitantes dentro de isócronas; la cobertura espacial sigue limitada a las geometrías cargadas.'}
 
 
 def sections(db_path,municipality=''):
-    if municipality and municipality not in sum((list(v) for v in REGIONS.values()),[]):
-        raise ValueError('Municipio fuera del ámbito de estudio')
-    with sqlite3.connect(db_path) as conn:
+    municipality=municipality_name(municipality) if municipality else ''
+    with closing(sqlite3.connect(db_path)) as conn:
         _schema(conn)
         if municipality:
+            exists=conn.execute('SELECT 1 FROM population_sections WHERE reference_date=? AND municipality=? LIMIT 1',(REFERENCE,municipality)).fetchone()
+            if not exists:raise ValueError('Municipio fuera del ámbito de Gipuzkoa')
             data=conn.execute('''SELECT municipality_code,municipality,district,section,population FROM population_sections
                  WHERE reference_date=? AND municipality=? ORDER BY municipality_code,district,section''',(REFERENCE,municipality)).fetchall()
         else:

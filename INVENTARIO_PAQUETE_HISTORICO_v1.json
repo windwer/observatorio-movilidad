@@ -34,9 +34,11 @@
   "population": {
     "source": "Eustat",
     "reference_date": "2025-01-01",
-    "sections": 109,
-    "districts": 12,
-    "total_population": 150832,
+    "sections": 544,
+    "districts": 120,
+    "total_population": 724797,
+    "study_area_population": 150832,
+    "municipality_count": 88,
     "bidasoaldea": 77625,
     "oarsoaldea": 73207,
     "source_csv": "data/references/eustat_2025_original.csv",
@@ -46,7 +48,7 @@
     "summary": "data/references/POBLACION_EUSTAT_2025_v1.json",
     "spatial_coverage_ready": true,
     "area_interpolation_ready": true,
-    "method_note": "La población base oficial y la geometría de secciones están cargadas; la cobertura de isócrona se estima por intersección proporcional de área. Los edificios residenciales permiten una asignación más precisa."
+    "method_note": "La tabla provincial oficial está cargada; la geometría de secciones disponible sigue limitada a los seis municipios iniciales. Sólo ese ámbito permite estimar isócronas por intersección proporcional de área. Los edificios residenciales permiten una asignación más precisa."
   },
   "includes": [
     "SQLite with consolidated historical GTFS data",

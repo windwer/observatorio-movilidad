@@ -2,3 +2,4 @@
 geopandas>=1.0,<2
 pandas>=2.1,<3
 pyogrio>=0.9,<1
+osmium>=4.3,<5  # extracción local de PBF OSM regional

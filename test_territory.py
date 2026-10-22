@@ -32,6 +32,7 @@ class TerritoryTests(unittest.TestCase):
     self.assertGreater(result['reached_nodes'],1)
     self.assertEqual(result['population_method'],'residential')
     self.assertNotEqual(result['geometry']['type'],'Point')
+    self.assertIn('unión de tramos alcanzables',result['method'])
   def test_no_walkway_far_stop(self):
     result=self.store.stop(*reversed(coord(0,300)))
     self.assertEqual(result['status'],'no_walkway_near_stop')
@@ -64,5 +65,12 @@ class TerritoryTests(unittest.TestCase):
     self.assertFalse(only.status()['ready'])
     self.assertGreater(result['population'],0)
     self.assertEqual(result['population_method'],'census_section_area_interpolation')
+
+  def test_bundled_provincial_census_geometry_matches_eustat(self):
+    path=Path(__file__).resolve().parent/'data'/'real'/'geography'/'census.geojson'
+    with path.open(encoding='utf-8') as handle:doc=json.load(handle)
+    self.assertEqual(len(doc['features']),544)
+    self.assertEqual(sum(f['properties']['population'] for f in doc['features']),724797)
+    self.assertEqual(len({f['properties']['municipality'] for f in doc['features']}),88)
 
 if __name__=='__main__':unittest.main()
