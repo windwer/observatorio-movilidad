@@ -15,19 +15,15 @@ import zipfile
 from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
+import settings
 
-CUTOFF = date(2026, 10, 18)
+CUTOFF = settings.SETTINGS.cutoff
 # The original bus pair remains the default combined scope used by the
 # historical comparison and the "both" map toggle.  New networks can still
 # be selected independently without changing the meaning of that existing
 # comparison.
-OPERATORS = {
-    "ekialdebus": "Ekialdebus",
-    "irunbus": "Irunbus",
-    "euskotren": "Euskotren (tren · E1/E2)",
-    "errenteria_urbanoa": "Errenteria bus urbano",
-}
-CORE_OPERATORS = ("ekialdebus", "irunbus")
+OPERATORS = {key: value["label"] for key, value in settings.OPERATOR_CATALOG.items()}
+CORE_OPERATORS = settings.CORE_OPERATORS
 
 # The official Euskotren feed contains rail, tram and funicular services for
 # the whole Basque Country.  This observatory is scoped to the
@@ -40,62 +36,164 @@ OPERATOR_ROUTE_FILTERS = {
 }
 SCHEMA = """
 PRAGMA foreign_keys=ON;
+CREATE TABLE IF NOT EXISTS schema_migrations (
+ version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS feeds (
  id INTEGER PRIMARY KEY, sha256 TEXT NOT NULL, operator TEXT NOT NULL,
  snapshot_date TEXT NOT NULL, original_name TEXT NOT NULL,
  imported_at TEXT NOT NULL, min_date TEXT, max_date TEXT,
  route_count INT DEFAULT 0, stop_count INT DEFAULT 0, warning TEXT DEFAULT ''
 );
+CREATE TABLE IF NOT EXISTS agencies (
+ feed_id INT NOT NULL, agency_id TEXT NOT NULL, name TEXT, url TEXT, timezone TEXT,
+ PRIMARY KEY(feed_id,agency_id), FOREIGN KEY(feed_id) REFERENCES feeds(id) ON DELETE CASCADE
+);
 CREATE TABLE IF NOT EXISTS routes (
  feed_id INT NOT NULL, route_id TEXT NOT NULL, short_name TEXT, long_name TEXT,
- PRIMARY KEY(feed_id,route_id)
+ agency_id TEXT DEFAULT '', route_type INT,
+ PRIMARY KEY(feed_id,route_id), FOREIGN KEY(feed_id) REFERENCES feeds(id) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS stops (
  feed_id INT NOT NULL, stop_id TEXT NOT NULL, name TEXT,
- lat REAL, lon REAL, PRIMARY KEY(feed_id,stop_id)
+ lat REAL, lon REAL, location_type INT DEFAULT 0, parent_station TEXT DEFAULT '',
+ wheelchair_boarding INT DEFAULT 0,
+ PRIMARY KEY(feed_id,stop_id), FOREIGN KEY(feed_id) REFERENCES feeds(id) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS services (
  feed_id INT NOT NULL, service_id TEXT NOT NULL,
  start_date TEXT NOT NULL, end_date TEXT NOT NULL,
  mon INT,tue INT,wed INT,thu INT,fri INT,sat INT,sun INT,
- PRIMARY KEY(feed_id,service_id)
+ PRIMARY KEY(feed_id,service_id), FOREIGN KEY(feed_id) REFERENCES feeds(id) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS exceptions (
  feed_id INT NOT NULL, service_id TEXT NOT NULL,
  service_date TEXT NOT NULL, exception_type INT NOT NULL,
- PRIMARY KEY(feed_id,service_id,service_date)
+ PRIMARY KEY(feed_id,service_id,service_date), FOREIGN KEY(feed_id) REFERENCES feeds(id) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS trips (
  feed_id INT NOT NULL, trip_id TEXT NOT NULL,route_id TEXT NOT NULL,
  service_id TEXT NOT NULL, direction_id TEXT, headsign TEXT, shape_id TEXT,
- PRIMARY KEY(feed_id,trip_id)
+ wheelchair_accessible INT DEFAULT 0,
+ PRIMARY KEY(feed_id,trip_id), FOREIGN KEY(feed_id) REFERENCES feeds(id) ON DELETE CASCADE,
+ FOREIGN KEY(feed_id,route_id) REFERENCES routes(feed_id,route_id)
 );
 CREATE TABLE IF NOT EXISTS stop_times (
  feed_id INT NOT NULL, trip_id TEXT NOT NULL, stop_id TEXT NOT NULL,
- seq INT NOT NULL, dep_min INT, arr_min INT,
- PRIMARY KEY(feed_id,trip_id,seq)
+ seq INT NOT NULL, dep_min REAL, arr_min REAL, pickup_type INT DEFAULT 0, drop_off_type INT DEFAULT 0,
+ PRIMARY KEY(feed_id,trip_id,seq), FOREIGN KEY(feed_id,trip_id) REFERENCES trips(feed_id,trip_id),
+ FOREIGN KEY(feed_id,stop_id) REFERENCES stops(feed_id,stop_id)
 );
 CREATE TABLE IF NOT EXISTS shapes (
  feed_id INT NOT NULL,shape_id TEXT NOT NULL,seq INT NOT NULL,lat REAL,lon REAL,
- PRIMARY KEY(feed_id,shape_id,seq)
+ PRIMARY KEY(feed_id,shape_id,seq), FOREIGN KEY(feed_id) REFERENCES feeds(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS service_reviews (
+ id INTEGER PRIMARY KEY,
+ operator TEXT NOT NULL,
+ service_date TEXT NOT NULL,
+ feed_id INT NOT NULL,
+ sha256 TEXT NOT NULL,
+ review_state TEXT NOT NULL CHECK(review_state IN ('verified','rejected')),
+ reviewer TEXT NOT NULL,
+ evidence TEXT NOT NULL,
+ reviewed_at TEXT NOT NULL,
+ UNIQUE(operator,service_date),
+ FOREIGN KEY(feed_id) REFERENCES feeds(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS line_identities (
+ operator TEXT NOT NULL, public_line_id TEXT NOT NULL, display_name TEXT NOT NULL,
+ source TEXT NOT NULL DEFAULT 'gtfs_short_name', reviewed INTEGER NOT NULL DEFAULT 0,
+ PRIMARY KEY(operator,public_line_id)
+);
+CREATE TABLE IF NOT EXISTS route_equivalences (
+ feed_id INT NOT NULL, route_id TEXT NOT NULL, public_line_id TEXT NOT NULL,
+ source TEXT NOT NULL DEFAULT 'gtfs_short_name', reviewed INTEGER NOT NULL DEFAULT 0,
+ PRIMARY KEY(feed_id,route_id),
+ FOREIGN KEY(feed_id,route_id) REFERENCES routes(feed_id,route_id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS ix_feeds_lookup ON feeds(operator,min_date,max_date,snapshot_date);
 CREATE INDEX IF NOT EXISTS ix_feeds_hash ON feeds(sha256,operator,snapshot_date);
 CREATE INDEX IF NOT EXISTS ix_services_dates ON services(feed_id,start_date,end_date);
 CREATE INDEX IF NOT EXISTS ix_exceptions ON exceptions(feed_id,service_date);
 CREATE INDEX IF NOT EXISTS ix_trips_service ON trips(feed_id,service_id);
+CREATE INDEX IF NOT EXISTS ix_trips_route_service ON trips(feed_id,route_id,service_id);
 CREATE INDEX IF NOT EXISTS ix_stoptimes_trip ON stop_times(feed_id,trip_id);
 CREATE INDEX IF NOT EXISTS ix_stoptimes_stop ON stop_times(feed_id,stop_id);
 CREATE INDEX IF NOT EXISTS ix_shapes ON shapes(feed_id,shape_id,seq);
+CREATE INDEX IF NOT EXISTS ix_service_reviews_date ON service_reviews(operator,service_date);
+CREATE INDEX IF NOT EXISTS ix_route_equivalences_public ON route_equivalences(feed_id,public_line_id);
 """
 
-def connect(path):
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    conn=sqlite3.connect(path)
+def connect(path, *, readonly=False, initialize=True, timeout=30):
+    """Open a database, explicitly separating request reads from setup/writes."""
+    target=Path(path)
+    if readonly:
+        if not target.is_file():
+            raise FileNotFoundError(f'No existe la base de datos: {target}')
+        conn=sqlite3.connect(f'{target.resolve().as_uri()}?mode=ro',uri=True,timeout=timeout)
+        conn.row_factory=sqlite3.Row
+        conn.execute('PRAGMA query_only=ON')
+        conn.execute('PRAGMA foreign_keys=ON')
+        return conn
+    target.parent.mkdir(parents=True, exist_ok=True)
+    conn=sqlite3.connect(target,timeout=timeout)
     conn.row_factory=sqlite3.Row
-    conn.executescript(SCHEMA)
-    migrate_feed_hash_constraint(conn)
+    conn.execute('PRAGMA foreign_keys=ON')
+    conn.execute('PRAGMA busy_timeout=30000')
+    if initialize:
+        conn.executescript(SCHEMA)
+        migrate_schema(conn)
     return conn
+
+
+def _columns(conn, table):
+    return {row['name'] for row in conn.execute(f'PRAGMA table_info({table})')}
+
+
+def migrate_schema(conn):
+    """Run small, idempotent migrations before the service starts, never per read."""
+    migrate_feed_hash_constraint(conn)
+    additions={
+        'routes': [('agency_id', "TEXT DEFAULT ''"), ('route_type', 'INTEGER')],
+        'stops': [('location_type', 'INTEGER DEFAULT 0'), ('parent_station', "TEXT DEFAULT ''"),
+                  ('wheelchair_boarding', 'INTEGER DEFAULT 0')],
+        'trips': [('wheelchair_accessible', 'INTEGER DEFAULT 0')],
+        'stop_times': [('pickup_type', 'INTEGER DEFAULT 0'), ('drop_off_type', 'INTEGER DEFAULT 0')],
+    }
+    with conn:
+        for table, fields in additions.items():
+            existing=_columns(conn,table)
+            for name,definition in fields:
+                if name not in existing:
+                    conn.execute(f'ALTER TABLE {table} ADD COLUMN {name} {definition}')
+        conn.execute('CREATE UNIQUE INDEX IF NOT EXISTS ux_feeds_capture ON feeds(operator,snapshot_date,sha256)')
+        conn.execute('CREATE INDEX IF NOT EXISTS ix_trips_route_service ON trips(feed_id,route_id,service_id)')
+        conn.executescript('''CREATE TABLE IF NOT EXISTS service_reviews (
+ id INTEGER PRIMARY KEY, operator TEXT NOT NULL, service_date TEXT NOT NULL,
+ feed_id INT NOT NULL, sha256 TEXT NOT NULL,
+ review_state TEXT NOT NULL CHECK(review_state IN ('verified','rejected')),
+ reviewer TEXT NOT NULL, evidence TEXT NOT NULL, reviewed_at TEXT NOT NULL,
+ UNIQUE(operator,service_date), FOREIGN KEY(feed_id) REFERENCES feeds(id) ON DELETE CASCADE);
+ CREATE INDEX IF NOT EXISTS ix_service_reviews_date ON service_reviews(operator,service_date);''')
+        conn.executescript('''CREATE TABLE IF NOT EXISTS line_identities (
+ operator TEXT NOT NULL, public_line_id TEXT NOT NULL, display_name TEXT NOT NULL,
+ source TEXT NOT NULL DEFAULT 'gtfs_short_name', reviewed INTEGER NOT NULL DEFAULT 0,
+ PRIMARY KEY(operator,public_line_id));
+ CREATE TABLE IF NOT EXISTS route_equivalences (
+ feed_id INT NOT NULL, route_id TEXT NOT NULL, public_line_id TEXT NOT NULL,
+ source TEXT NOT NULL DEFAULT 'gtfs_short_name', reviewed INTEGER NOT NULL DEFAULT 0,
+ PRIMARY KEY(feed_id,route_id),
+ FOREIGN KEY(feed_id,route_id) REFERENCES routes(feed_id,route_id) ON DELETE CASCADE);
+ CREATE INDEX IF NOT EXISTS ix_route_equivalences_public ON route_equivalences(feed_id,public_line_id);
+ INSERT OR IGNORE INTO line_identities(operator,public_line_id,display_name)
+ SELECT f.operator,COALESCE(NULLIF(TRIM(r.short_name),''),r.route_id),
+        COALESCE(NULLIF(TRIM(r.short_name),''),r.route_id)
+ FROM routes r JOIN feeds f ON f.id=r.feed_id;
+ INSERT OR IGNORE INTO route_equivalences(feed_id,route_id,public_line_id)
+ SELECT r.feed_id,r.route_id,COALESCE(NULLIF(TRIM(r.short_name),''),r.route_id) FROM routes r;''')
+        conn.execute('INSERT OR IGNORE INTO schema_migrations(version,applied_at) VALUES (?,?)',
+                     (4,datetime.now().isoformat(timespec='seconds')))
 
 def migrate_feed_hash_constraint(conn):
     """Allow identical GTFS bytes to be kept for different capture dates.
@@ -239,11 +337,17 @@ def filter_operator_feed(data, operator):
     selected_trip_ids = {row.get('trip_id') for row in selected_trips}
     selected_stop_times = [row for row in data['stop_times'] if row.get('trip_id') in selected_trip_ids]
     selected_stop_ids = {row.get('stop_id') for row in selected_stop_times}
+    parent_ids = {row.get('parent_station') for row in data['stops']
+                  if row.get('stop_id') in selected_stop_ids and row.get('parent_station')}
+    selected_stop_ids.update(parent_ids)
     selected_shape_ids = {row.get('shape_id') for row in selected_trips if row.get('shape_id')}
     selected_service_ids = {row.get('service_id') for row in selected_trips}
+    selected_agency_ids = {row.get('agency_id') for row in data['routes']
+                           if row.get('route_id') in selected_routes and row.get('agency_id')}
     filtered = {
         **data,
         'routes': [row for row in data['routes'] if row.get('route_id') in selected_routes],
+        'agency': [row for row in data.get('agency',[]) if not selected_agency_ids or row.get('agency_id') in selected_agency_ids],
         'trips': selected_trips,
         'stop_times': selected_stop_times,
         'stops': [row for row in data['stops'] if row.get('stop_id') in selected_stop_ids],
@@ -277,7 +381,7 @@ def ingest(conn, content:bytes, operator:str, snapshot_date:str, filename:str):
         if not required.issubset(names): raise ValueError('Faltan archivos GTFS: '+', '.join(sorted(required-names)))
         if any(i.file_size>100_000_000 for i in z.infolist()): raise ValueError('Archivo interno demasiado grande')
         if sum(i.file_size for i in z.infolist()) > 300_000_000: raise ValueError('GTFS descomprimido demasiado grande')
-        data={s:read_gtfs(z,s+'.txt') for s in ['routes','stops','trips','stop_times','calendar','calendar_dates','shapes','feed_info']}
+        data={s:read_gtfs(z,s+'.txt') for s in ['agency','routes','stops','trips','stop_times','calendar','calendar_dates','shapes','feed_info']}
         # Preservar segundos GTFS sin truncarlos durante la conversión a minutos fraccionarios.
         for entry in data['stop_times']:
             for field in ('arrival_time','departure_time'):
@@ -316,26 +420,50 @@ def ingest(conn, content:bytes, operator:str, snapshot_date:str, filename:str):
         warn = 'Feed GTFS vacío; rango tomado de feed_info.txt'
     if feed_filter_warning:
         warn = f'{feed_filter_warning}. {warn}' if warn else feed_filter_warning
-    with conn:
-        cur=conn.execute('INSERT INTO feeds(sha256,operator,snapshot_date,original_name,imported_at,min_date,max_date,route_count,stop_count,warning) VALUES (?,?,?,?,?,?,?,?,?,?)',
-            (digest,operator,snap,filename,datetime.now().isoformat(timespec='seconds'),low,high,len(data['routes']),len(data['stops']),warn))
-        fid=cur.lastrowid
-        conn.executemany('INSERT INTO routes VALUES (?,?,?,?)',((fid,r['route_id'],r.get('route_short_name',''),r.get('route_long_name','')) for r in data['routes']))
-        conn.executemany('INSERT INTO stops VALUES (?,?,?,?,?)',((fid,s['stop_id'],s.get('stop_name',''),safe_float(s.get('stop_lat')),safe_float(s.get('stop_lon'))) for s in data['stops']))
-        conn.executemany('INSERT INTO services VALUES (?,?,?,?,?,?,?,?,?,?,?)',(
-          (fid,r['service_id'],clean_date(r['start_date']),clean_date(r['end_date']),*(int(r.get(k,0)) for k in ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'])) for r in data['calendar']))
-        conn.executemany('INSERT OR REPLACE INTO exceptions VALUES (?,?,?,?)',((fid,r['service_id'],clean_date(r['date']),int(r['exception_type'])) for r in data['calendar_dates']))
-        conn.executemany('INSERT INTO trips VALUES (?,?,?,?,?,?,?)',((fid,t['trip_id'],t['route_id'],t['service_id'],t.get('direction_id',''),t.get('trip_headsign',''),t.get('shape_id','')) for t in data['trips']))
-        conn.executemany('INSERT INTO stop_times VALUES (?,?,?,?,?,?)',((fid,s['trip_id'],s['stop_id'],int(s['stop_sequence']),minutes(s.get('departure_time')),minutes(s.get('arrival_time'))) for s in data['stop_times']))
-        conn.executemany('INSERT OR REPLACE INTO shapes VALUES (?,?,?,?,?)',((fid,s['shape_id'],int(s['shape_pt_sequence']),safe_float(s.get('shape_pt_lat')),safe_float(s.get('shape_pt_lon'))) for s in data['shapes']))
-    # Preserve exact original ZIP bytes for reproducible, auditable analyses.
     db_path=conn.execute('PRAGMA database_list').fetchone()['file']
+    staged_zip=None;original_zip=None
     if db_path:
         original_dir=Path(db_path).parent/'originals'
         original_dir.mkdir(exist_ok=True)
         original_zip=original_dir/(digest+'.zip')
         if not original_zip.exists():
-            original_zip.write_bytes(content)
+            staged_zip=original_dir/(digest+'.zip.pending')
+            staged_zip.write_bytes(content)
+    try:
+      with conn:
+        cur=conn.execute('INSERT INTO feeds(sha256,operator,snapshot_date,original_name,imported_at,min_date,max_date,route_count,stop_count,warning) VALUES (?,?,?,?,?,?,?,?,?,?)',
+            (digest,operator,snap,filename,datetime.now().isoformat(timespec='seconds'),low,high,len(data['routes']),len(data['stops']),warn))
+        fid=cur.lastrowid
+        conn.executemany('INSERT INTO agencies(feed_id,agency_id,name,url,timezone) VALUES (?,?,?,?,?)',
+          ((fid,a.get('agency_id') or 'default',a.get('agency_name',''),a.get('agency_url',''),a.get('agency_timezone','')) for a in data.get('agency',[])))
+        conn.executemany('INSERT INTO routes(feed_id,route_id,short_name,long_name,agency_id,route_type) VALUES (?,?,?,?,?,?)',
+          ((fid,r['route_id'],r.get('route_short_name',''),r.get('route_long_name',''),r.get('agency_id',''),
+            int(r['route_type']) if str(r.get('route_type','')).isdigit() else None) for r in data['routes']))
+        identities=[(operator,(r.get('route_short_name') or r['route_id']).strip(),
+                     (r.get('route_short_name') or r['route_id']).strip()) for r in data['routes']]
+        conn.executemany('INSERT OR IGNORE INTO line_identities(operator,public_line_id,display_name) VALUES (?,?,?)',identities)
+        conn.executemany('INSERT INTO route_equivalences(feed_id,route_id,public_line_id) VALUES (?,?,?)',
+          ((fid,r['route_id'],(r.get('route_short_name') or r['route_id']).strip()) for r in data['routes']))
+        conn.executemany('INSERT INTO stops(feed_id,stop_id,name,lat,lon,location_type,parent_station,wheelchair_boarding) VALUES (?,?,?,?,?,?,?,?)',
+          ((fid,s['stop_id'],s.get('stop_name',''),safe_float(s.get('stop_lat')),safe_float(s.get('stop_lon')),
+            int(s.get('location_type') or 0),s.get('parent_station',''),int(s.get('wheelchair_boarding') or 0)) for s in data['stops']))
+        conn.executemany('INSERT INTO services VALUES (?,?,?,?,?,?,?,?,?,?,?)',(
+          (fid,r['service_id'],clean_date(r['start_date']),clean_date(r['end_date']),*(int(r.get(k,0)) for k in ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'])) for r in data['calendar']))
+        conn.executemany('INSERT OR REPLACE INTO exceptions VALUES (?,?,?,?)',((fid,r['service_id'],clean_date(r['date']),int(r['exception_type'])) for r in data['calendar_dates']))
+        conn.executemany('INSERT INTO trips(feed_id,trip_id,route_id,service_id,direction_id,headsign,shape_id,wheelchair_accessible) VALUES (?,?,?,?,?,?,?,?)',
+          ((fid,t['trip_id'],t['route_id'],t['service_id'],t.get('direction_id',''),t.get('trip_headsign',''),t.get('shape_id',''),
+            int(t.get('wheelchair_accessible') or 0)) for t in data['trips']))
+        conn.executemany('INSERT INTO stop_times(feed_id,trip_id,stop_id,seq,dep_min,arr_min,pickup_type,drop_off_type) VALUES (?,?,?,?,?,?,?,?)',
+          ((fid,s['trip_id'],s['stop_id'],int(s['stop_sequence']),minutes(s.get('departure_time')),minutes(s.get('arrival_time')),
+            int(s.get('pickup_type') or 0),int(s.get('drop_off_type') or 0)) for s in data['stop_times']))
+        conn.executemany('INSERT OR REPLACE INTO shapes(feed_id,shape_id,seq,lat,lon) VALUES (?,?,?,?,?)',
+          ((fid,s['shape_id'],int(s['shape_pt_sequence']),safe_float(s.get('shape_pt_lat')),safe_float(s.get('shape_pt_lon'))) for s in data['shapes']))
+        if staged_zip is not None:
+            staged_zip.replace(original_zip)
+    except Exception:
+        if staged_zip is not None and staged_zip.exists():
+            staged_zip.unlink()
+        raise
     return {"feed_id":fid,"sha256":digest,"operator":operator,"min_date":low,"max_date":high,"routes":len(data['routes']),"stops":len(data['stops']),"trips":len(data['trips']),"already_imported":False}
 
 def versions(conn):
@@ -385,7 +513,7 @@ def date_trip_rows(conn,feed_id,services,hour_start=0,hour_end=2880):
     return out
 
 def month_analysis(conn, operator,year,month,day_type,hour_start=0,hour_end=2880,route_filter='',calendar_filter='all'):
-    if operator not in OPERATORS or day_type not in ('LJ','V','S','D') or calendar_filter not in ('all','ordinary','exception') or not 2025<=year<=2026 or not 1<=month<=12:
+    if operator not in OPERATORS or day_type not in ('LJ','V','S','D') or calendar_filter not in ('all','ordinary','exception') or not settings.SETTINGS.min_year<=year<=settings.SETTINGS.max_year or not 1<=month<=12:
         raise ValueError('Filtros no válidos')
     result={"operator":operator,"year":year,"month":month,"day_type":day_type,"hour_start":hour_start,"hour_end":hour_end,"cutoff":CUTOFF.isoformat(),"calendar_filter":calendar_filter,"segments":[]}
     grouped={"historical":[],"planning":[]}
@@ -444,7 +572,7 @@ def route_catalog(conn, operator, year=2026, month=10):
     remains selectable even when it has no service on the current day type;
     the UI marks that state instead of dropping the option.
     """
-    if operator not in OPERATORS or not 2025 <= int(year) <= 2026 or not 1 <= int(month) <= 12:
+    if operator not in OPERATORS or not settings.SETTINGS.min_year <= int(year) <= settings.SETTINGS.max_year or not 1 <= int(month) <= 12:
         raise ValueError('Filtros no válidos')
     first=f'{int(year):04d}-{int(month):02d}-01'
     last=f'{int(year):04d}-{int(month):02d}-{cal.monthrange(int(year),int(month))[1]:02d}'
@@ -480,15 +608,20 @@ def map_data(conn, operator,day,route_filter=''):
     marks=','.join('?' for _ in services)
     active_routes={r['route_id'] for r in conn.execute(f'SELECT DISTINCT route_id FROM trips WHERE feed_id=? AND service_id IN ({marks})',(fid,*services))}
     if route_filter: active_routes.intersection_update([route_filter])
-    lines=[];stop_ids=set()
+    lines=[];stop_ids=set();truncated_patterns=[]
     for route_id in sorted(active_routes):
         r=conn.execute('SELECT * FROM routes WHERE feed_id=? AND route_id=?',(fid,route_id)).fetchone()
         patterns=conn.execute(f'''SELECT DISTINCT shape_id,direction_id FROM trips
-            WHERE feed_id=? AND route_id=? AND service_id IN ({marks}) ORDER BY direction_id,shape_id LIMIT 15''' ,(fid,route_id,*services)).fetchall()
+            WHERE feed_id=? AND route_id=? AND service_id IN ({marks}) ORDER BY direction_id,shape_id''',
+            (fid,route_id,*services)).fetchall()
+        if len(patterns)>60:
+            truncated_patterns.append({'route_id':route_id,'available':len(patterns),'rendered':60})
+            patterns=patterns[:60]
         # Include all served stops across every active trip/variant, not a single pattern.
         all_stop_rows=conn.execute(f'''SELECT DISTINCT st.stop_id FROM stop_times st
           JOIN trips t ON t.feed_id=st.feed_id AND t.trip_id=st.trip_id
-          WHERE st.feed_id=? AND t.route_id=? AND t.service_id IN ({marks})''',(fid,route_id,*services))
+          WHERE st.feed_id=? AND t.route_id=? AND t.service_id IN ({marks})
+            AND COALESCE(st.pickup_type,0)<>1''',(fid,route_id,*services))
         stop_ids.update(s['stop_id'] for s in all_stop_rows)
         for pattern in patterns:
             shape_id=pattern['shape_id']
@@ -508,7 +641,10 @@ def map_data(conn, operator,day,route_filter=''):
     if stop_ids:
         marks=','.join('?' for _ in stop_ids)
         stops=[{'id':s['stop_id'],'name':s['name'],'lat':s['lat'],'lon':s['lon']} for s in conn.execute(f'SELECT * FROM stops WHERE feed_id=? AND stop_id IN ({marks})',(fid,*stop_ids)) if s['lon'] is not None and s['lat'] is not None]
-    return {'feed_id':fid,'quality':quality,'day':day,'state':'historical' if date.fromisoformat(day)<=CUTOFF else 'planning','routes':lines,'stops':stops,'snapshot_date':v['snapshot_date']}
+    return {'feed_id':fid,'quality':quality,'day':day,
+            'state':'historical' if date.fromisoformat(day)<=CUTOFF else 'planning',
+            'routes':lines,'stops':stops,'snapshot_date':v['snapshot_date'],
+            'patterns_truncated':truncated_patterns,'complete_patterns':not truncated_patterns}
 
 def stop_departures(conn,operator,day,stop_id):
     day=clean_date(day);v,quality=pick_version(conn,operator,day)

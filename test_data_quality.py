@@ -14,11 +14,11 @@ class QualityTests(unittest.TestCase):
     r=data_quality.validate_feed(self.c,self.feed)
     self.assertTrue(r['structurally_valid']);self.assertFalse(r['historically_certified'])
     self.assertEqual(r['summary']['routes'],1)
-  def test_orphan_stop_detected(self):
-    with self.c:self.c.execute('UPDATE stop_times SET stop_id=? WHERE feed_id=? AND trip_id=?',('absent',self.feed,'t1'))
+  def test_orphan_stop_is_rejected_by_database(self):
+    with self.assertRaises(engine.sqlite3.IntegrityError):
+      with self.c:self.c.execute('UPDATE stop_times SET stop_id=? WHERE feed_id=? AND trip_id=?',('absent',self.feed,'t1'))
     r=data_quality.validate_feed(self.c,self.feed)
-    self.assertFalse(r['structurally_valid'])
-    self.assertIn('stop_event_without_stop',[x['code'] for x in r['issues']])
+    self.assertTrue(r['structurally_valid'])
   def test_invalid_lat_detected(self):
     with self.c:self.c.execute('UPDATE stops SET lat=? WHERE feed_id=? AND stop_id=?',(99,self.feed,'s1'))
     r=data_quality.validate_feed(self.c,self.feed)

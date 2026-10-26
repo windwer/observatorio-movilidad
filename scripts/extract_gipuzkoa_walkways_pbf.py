@@ -37,13 +37,23 @@ class Handler(osmium.SimpleHandler):
         super().__init__()
         self.region = region
         self.features: dict[str, dict] = {}
+        self.blocked_nodes: set[str] = set()
+
+    def node(self, node):
+        barrier=node.tags.get('barrier')
+        access=node.tags.get('access')
+        foot=node.tags.get('foot')
+        passable=barrier in {'entrance','gate','lift_gate','swing_gate','kissing_gate'} and access not in {'no','private'} and foot not in {'no','private'}
+        if barrier and not passable:
+            self.blocked_nodes.add(str(node.id))
 
     def way(self, way):
         tags = way.tags
         highway = tags.get("highway")
         if highway not in ALLOWED or tags.get("foot") in {"no", "private"} or tags.get("access") in {"no", "private"}:
             return
-        coords = [[node.lon, node.lat] for node in way.nodes if node.location.valid()]
+        valid_nodes=[node for node in way.nodes if node.location.valid()]
+        coords = [[node.lon, node.lat] for node in valid_nodes]
         if len(coords) < 2:
             return
         # Keep a way when any node falls in a province section.  This retains
@@ -51,8 +61,11 @@ class Handler(osmium.SimpleHandler):
         # geometry inside the census layer.
         if not any(self.region.covers(Point(x, y)) for x, y in coords):
             return
-        properties = {"osm_id": str(way.id), "highway": highway}
-        for key in ("foot", "access", "oneway", "surface", "sidewalk"):
+        node_ids=[str(node.ref) for node in valid_nodes]
+        properties = {"osm_id": str(way.id), "highway": highway,"node_ids":node_ids}
+        blocked=[node_id for node_id in node_ids if node_id in self.blocked_nodes]
+        if blocked:properties['blocked_node_ids']=blocked
+        for key in ("foot", "access", "oneway", "oneway:foot", "surface", "sidewalk", "layer", "bridge", "tunnel"):
             value = tags.get(key)
             if value is not None:
                 properties[key] = value

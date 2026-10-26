@@ -3,7 +3,7 @@
 Visor reproducible para analizar red, oferta y accesibilidad peatonal de
 Irunbus, Ekialdebus, Euskotren (líneas ferroviarias E1/E2) y Errenteria bus
 urbano, con histórico GTFS local y referencia poblacional Eustat 2025. La entrega corresponde al paquete histórico `v1` y a la aplicación
-`v1.0`; mantiene la fase de
+`v1.1.0`; mantiene la fase de
 Product Review: los horarios GTFS describen oferta programada, no prueban por sí
 solos el servicio prestado.
 
@@ -16,7 +16,8 @@ solos el servicio prestado.
 - Red peatonal OSM provincial y trazabilidad de las importaciones históricas.
 - Tabla y metadatos Eustat 2025 para los 88 municipios de Gipuzkoa: 544
   secciones y 724.797 habitantes de referencia.
-- Pruebas y un flujo de QA para sintaxis y validación de la referencia
+- Cola persistente y proceso separado para análisis geográficos costosos.
+- Pruebas y un flujo de QA para lógica GTFS, seguridad, releases y referencia
   poblacional.
 
 El histórico completo conserva 160 cortes GTFS (80 Irunbus y 80 Ekialdebus), la
@@ -46,8 +47,23 @@ se instalan las dependencias y se abre el visor en el puerto 8870.
 La población Eustat incluida es una referencia territorial provincial validada.
 El visor cruza las 544 secciones censales 2025 con la red peatonal OSM provincial
 y la isócrona de red para mostrar una estimación de población objetivo,
-deduplicada entre paradas. La superficie dibujada sólo sigue tramos peatonales
-alcanzables; no se usa una envolvente radial que atraviese campos o manzanas.
+deduplicada entre paradas. La población de cada sección se reparte sobre
+anclajes deterministas de la red peatonal; el grosor del polígono dibujado no
+cambia el resultado. La superficie sólo sigue tramos peatonales alcanzables y
+no usa una envolvente radial que atraviese campos o manzanas.
+
+## Ejecución local optimizada
+
+La aplicación y los datos son artefactos separados. `data_release.py build`
+crea una copia SQLite consistente, cartografía, anclajes y un manifiesto SHA-256;
+`validate` comprueba el paquete y `restore` ensaya su recuperación. Para probar
+el despliegue local aislado, usa `docker compose -f compose.yaml -f
+compose.local.yaml up --build`; sólo expone `127.0.0.1:8873` y no activa Caddy.
+
+La API diferencia `/api/health` (proceso vivo) de `/api/ready` (datos listos),
+separa lectura pública de administración, aplica límites de peticiones y ofrece
+métricas restringidas. Las importaciones se desactivan cuando la release se
+monta como inmutable.
 
 ## Alcance y límites
 

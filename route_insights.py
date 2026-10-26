@@ -37,20 +37,31 @@ def _route_context(conn, operator, route_id, day, line_name=None):
         return None, quality, [], None
     if line_name:
         selected = conn.execute(
-            'SELECT route_id,short_name,long_name FROM routes WHERE feed_id=? AND COALESCE(short_name,route_id)=? ORDER BY route_id LIMIT 1',
+            '''SELECT r.route_id,r.short_name,r.long_name,
+                      COALESCE(e.public_line_id,NULLIF(r.short_name,''),r.route_id) public_line_id
+               FROM routes r LEFT JOIN route_equivalences e
+                 ON e.feed_id=r.feed_id AND e.route_id=r.route_id
+              WHERE r.feed_id=? AND COALESCE(e.public_line_id,NULLIF(r.short_name,''),r.route_id)=?
+              ORDER BY r.route_id LIMIT 1''',
             (version['id'], line_name),
         ).fetchone()
     else:
         selected = conn.execute(
-            'SELECT route_id,short_name,long_name FROM routes WHERE feed_id=? AND route_id=?',
+            '''SELECT r.route_id,r.short_name,r.long_name,
+                      COALESCE(e.public_line_id,NULLIF(r.short_name,''),r.route_id) public_line_id
+               FROM routes r LEFT JOIN route_equivalences e
+                 ON e.feed_id=r.feed_id AND e.route_id=r.route_id
+              WHERE r.feed_id=? AND r.route_id=?''',
             (version['id'], route_id),
         ).fetchone()
     if not selected:
         return version, quality, [], None
     # A public line may use a different GTFS route_id on weekend service.
-    name = selected['short_name'] or route_id
+    name = selected['public_line_id'] or selected['short_name'] or route_id
     grouped = [r['route_id'] for r in conn.execute(
-        'SELECT route_id FROM routes WHERE feed_id=? AND COALESCE(short_name,route_id)=?',
+        '''SELECT r.route_id FROM routes r LEFT JOIN route_equivalences e
+             ON e.feed_id=r.feed_id AND e.route_id=r.route_id
+           WHERE r.feed_id=? AND COALESCE(e.public_line_id,NULLIF(r.short_name,''),r.route_id)=?''',
         (version['id'], name),
     )]
     return version, quality, grouped or [route_id], dict(selected)
@@ -138,15 +149,20 @@ def route_frequency_week(conn, operator, route_id, year, month, day):
     _, quality, fallback_ids, selected = _route_context(conn, operator, route_id, day)
     if not selected:
         return {'status': 'missing', 'route_id': route_id, 'points': []}
-    line_name = selected['short_name'] or route_id
+    public_line_id = selected['public_line_id'] or selected['short_name'] or route_id
+    line_name = selected['short_name'] or public_line_id
     observations = defaultdict(list)
     ids_seen = set()
     for d in sorted(date(year, month, n) for n in range(1, __import__('calendar').monthrange(year, month)[1] + 1)):
-        version, _, ids, _ = _route_context(conn, operator, route_id, d.isoformat(), line_name=line_name)
+        version, _, ids, _ = _route_context(conn, operator, route_id, d.isoformat(), line_name=public_line_id)
         if not version:
             continue
         services = engine.active_services(conn, version['id'], d.isoformat())
         if not services:
+            # A valid source that explicitly schedules no service is a measured
+            # zero, not a missing observation. This distinction is essential
+            # when comparing weekend or holiday frequency.
+            observations[engine.day_category(d)].append({'trips': 0, 'first': None, 'last': None})
             continue
         ids = ids or fallback_ids
         ids_seen.update(ids)
@@ -180,6 +196,7 @@ def route_frequency_week(conn, operator, route_id, year, month, day):
                        'service_span_min': span, 'service_span_label': _span_label(span),
                        'dates': len(items)})
     return {'status': 'calculated', 'operator': operator, 'route_id': route_id, 'line_name': line_name,
+            'public_line_id':public_line_id,
             'grouped_route_ids': sorted(ids_seen or set(fallback_ids)), 'quality': quality, 'points': points,
             'method': 'media de expediciones y mediana de la ventana primera–última salida por categoría de día en el mes seleccionado'}
 
@@ -228,7 +245,8 @@ def route_comparison(conn, operator, route_id, old_day, new_day):
     old_day, new_day = engine.clean_date(old_day), engine.clean_date(new_day)
     new_context = _route_context(conn, operator, route_id, new_day)
     old_context = _route_context(conn, operator, route_id, old_day)
-    line_name = (new_context[3] or old_context[3] or {}).get('short_name') if (new_context[3] or old_context[3]) else None
+    identity=(new_context[3] or old_context[3] or {})
+    line_name=(identity.get('public_line_id') or identity.get('short_name')) if identity else None
     if line_name:
         if not new_context[3]:
             new_context = _route_context(conn, operator, route_id, new_day, line_name=line_name)

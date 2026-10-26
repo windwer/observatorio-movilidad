@@ -1,7 +1,7 @@
 import unittest,sys,tempfile
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from fastapi.testclient import TestClient
+from test_client import TestClient
 import app
 from test_network_compare import make_gtfs
 class CombinedMapTests(unittest.TestCase):

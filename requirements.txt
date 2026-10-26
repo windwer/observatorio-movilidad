@@ -1,6 +1,6 @@
-fastapi>=0.115,<1
-uvicorn>=0.31,<1
-python-multipart>=0.0.9,<1
-shapely>=2.0,<3
-pyproj>=3.5,<4
-httpx>=0.27,<1  # pruebas HTTP e importación
+fastapi==0.151.0
+uvicorn==0.54.0
+python-multipart==0.0.32
+shapely==2.2.0
+pyproj==3.8.0
+httpx==0.28.1

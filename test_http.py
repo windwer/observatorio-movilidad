@@ -1,18 +1,20 @@
 import sys,tempfile,unittest,os
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from fastapi.testclient import TestClient
-import app
+from test_client import TestClient
+import app,engine
 from test_engine import sample_gtfs
 from test_territory import collection,feat,square,coord
 
 class HttpTests(unittest.TestCase):
   def setUp(self):
     self.dir=tempfile.TemporaryDirectory()
+    self.old_db=app.DB;self.old_store=app._TERRITORY
     app.DB=Path(self.dir.name)/'test.sqlite3'
+    engine.connect(app.DB).close();app._TERRITORY=None
     self.client=TestClient(app.app)
   def tearDown(self):
-    self.dir.cleanup()
+    app.DB=self.old_db;app._TERRITORY=self.old_store;self.dir.cleanup()
   def test_health_and_page(self):
     self.assertEqual(self.client.get('/api/health').json()['cutoff'],'2026-10-18')
     self.assertIn('Observatorio de Movilidad',self.client.get('/').text)
@@ -35,7 +37,7 @@ class HttpTests(unittest.TestCase):
   def test_source_requirements(self):
     result=self.client.get('/api/data/requirements').json()
     self.assertEqual(result['cutoff'],'2026-10-18')
-    self.assertEqual(len(result['municipalities']),6)
+    self.assertEqual(len(result['municipalities']),88)
 
   def test_real_gtfs_upload_flow(self):
     r=self.client.post('/api/import',data={'operator':'irunbus','snapshot_date':'2026-09-30'},files={'file':('TEST_FIXTURE.zip',sample_gtfs(),'application/zip')})

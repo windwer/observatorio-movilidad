@@ -16,11 +16,15 @@ def stop_service_offer(conn,operator,day,hour_start=7*60,hour_end=9*60):
     day=engine.clean_date(day)
     if not 0<=hour_start<hour_end<=2880:raise ValueError('Intervalo horario incorrecto')
     v,source_quality=engine.pick_version(conn,operator,day)
+    base={'operator':operator,'day':day,'hour_start':hour_start,'hour_end':hour_end,
+          'time_state':'historical' if day<=engine.CUTOFF.isoformat() else 'planning',
+          'all_stops':[],'stops':[],'pattern_count':0,
+          'threshold_stops':{15:[],30:[],60:[]}}
     if v is None:
-        return {'status':'missing_gtfs','operator':operator,'day':day,'stops':[], 'source_quality':'missing'}
+        return {**base,'status':'missing_gtfs','source_quality':'missing','feed_id':None,'source_sha256':None}
     active=engine.active_services(conn,v['id'],day)
     if not active:
-        return {'status':'source_available','operator':operator,'day':day,'stops':[],
+        return {**base,'status':'source_available',
                'source_quality':source_quality,'feed_id':v['id'],'source_sha256':v['sha256']}
     marks=','.join('?' for _ in active)
     sql=f'''SELECT st.stop_id,st.dep_min,t.route_id,t.direction_id,t.headsign,
@@ -29,6 +33,7 @@ def stop_service_offer(conn,operator,day,hour_start=7*60,hour_end=9*60):
         JOIN stops s ON s.feed_id=st.feed_id AND s.stop_id=st.stop_id
         WHERE st.feed_id=? AND t.service_id IN ({marks})
           AND st.dep_min>=? AND st.dep_min<? AND st.dep_min IS NOT NULL
+          AND COALESCE(st.pickup_type,0)<>1
         ORDER BY st.stop_id,st.dep_min'''
     groups=defaultdict(list);loc={}
     for r in conn.execute(sql,(v['id'],*active,hour_start,hour_end)):

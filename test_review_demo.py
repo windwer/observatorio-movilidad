@@ -1,9 +1,13 @@
 import unittest,os,sys
 from pathlib import Path
-from fastapi.testclient import TestClient
+from test_client import TestClient
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import app
 class ReviewDemoTests(unittest.TestCase):
+  @classmethod
+  def setUpClass(cls):
+    if not (Path(__file__).resolve().parent/'data'/'demo'/'observatorio_demo.sqlite3').is_file():
+      raise unittest.SkipTest('El fixture DEMO legado no forma parte del checkout de producción')
   def setUp(self):
     self.prev=os.environ.get('OBS_DEMO');self.prevdb=app.DB
     os.environ['OBS_DEMO']='1'

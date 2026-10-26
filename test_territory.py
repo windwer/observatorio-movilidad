@@ -29,10 +29,10 @@ class TerritoryTests(unittest.TestCase):
     result=self.store.stop(*reversed(coord(0,0)))
     self.assertEqual(result['status'],'calculated')
     self.assertEqual(result['population'],50)
-    self.assertGreater(result['reached_nodes'],1)
-    self.assertEqual(result['population_method'],'residential')
+    self.assertGreaterEqual(result['reached_nodes'],1)
+    self.assertEqual(result['population_method'],'residential_building')
     self.assertNotEqual(result['geometry']['type'],'Point')
-    self.assertIn('unión de tramos alcanzables',result['method'])
+    self.assertIn('Dijkstra sobre topología peatonal OSM',result['method'])
   def test_no_walkway_far_stop(self):
     result=self.store.stop(*reversed(coord(0,300)))
     self.assertEqual(result['status'],'no_walkway_near_stop')
@@ -47,7 +47,7 @@ class TerritoryTests(unittest.TestCase):
   def test_persistent_layers(self):
     self.assertTrue(self.store.status()['ready'])
     again=territory.TerritoryStore(Path(self.d.name))
-    self.assertEqual(again.status()['walk_segments'],7)
+    self.assertEqual(again.status()['walk_segments'],1)
     self.assertEqual(again.status()['resident_units'],2)
   def test_section_population_without_buildings_not_fabricated(self):
     only=territory.TerritoryStore(Path(self.d.name)/'empty')
@@ -55,16 +55,35 @@ class TerritoryTests(unittest.TestCase):
     self.assertFalse(only.status()['ready'])
     self.assertEqual(len(only.residents),0)
 
-  def test_section_area_interpolation_is_available_without_buildings(self):
+  def test_section_population_uses_walk_network_anchors_without_buildings(self):
     only=territory.TerritoryStore(Path(self.d.name)/'area')
     only.ingest('census',collection([feat({'type':'Polygon','coordinates':[square(0,0,500)]},municipality='Irun',population=100,section_id='a')]))
     w=feat({'type':'LineString','coordinates':[coord(x,0) for x in [0,150,300,450,600,750,900,1100]]},highway='footway')
     only.ingest('walkways',collection([w]))
     result=only.stop(*reversed(coord(0,0)))
-    self.assertTrue(only.status()['area_interpolation_ready'])
-    self.assertFalse(only.status()['ready'])
+    self.assertFalse(only.status()['area_interpolation_ready'])
+    self.assertTrue(only.status()['population_access_ready'])
+    self.assertTrue(only.status()['ready'])
     self.assertGreater(result['population'],0)
-    self.assertEqual(result['population_method'],'census_section_area_interpolation')
+    self.assertEqual(result['population_method'],'census_walk_network_anchor')
+
+  def test_origin_in_middle_of_long_edge_reaches_nearby_population(self):
+    network=territory.WalkNetwork([feat({'type':'LineString','coordinates':[coord(-1200,0),coord(1200,0)]},highway='footway')])
+    iso=network.isochrone(*reversed(coord(0,0)),minutes=5)
+    resident={'id':'r','municipality':'Irun','population':25,
+              'point':Point(*territory.TO_LOCAL(*coord(10,0))),'edge_index':0}
+    result=territory.calculate_population(iso,[resident],network)
+    self.assertEqual(result['population'],25)
+
+  def test_population_is_independent_from_display_buffer(self):
+    network=territory.WalkNetwork([feat({'type':'LineString','coordinates':[coord(0,0),coord(1000,0)]},highway='footway')])
+    resident={'id':'r','municipality':'Irun','population':40,
+              'point':Point(*territory.TO_LOCAL(*coord(300,0))),'edge_index':0}
+    thin=network.isochrone(*reversed(coord(0,0)),minutes=5,display_buffer_m=5)
+    wide=network.isochrone(*reversed(coord(0,0)),minutes=5,display_buffer_m=75)
+    self.assertNotEqual(round(thin['display_area_m2']),round(wide['display_area_m2']))
+    self.assertEqual(territory.calculate_population(thin,[resident],network)['population'],40)
+    self.assertEqual(territory.calculate_population(wide,[resident],network)['population'],40)
 
   def test_bundled_provincial_census_geometry_matches_eustat(self):
     path=Path(__file__).resolve().parent/'data'/'real'/'geography'/'census.geojson'

@@ -2,6 +2,9 @@
 import os
 import hmac
 import secrets
+import threading
+import time
+from collections import defaultdict, deque, OrderedDict
 from datetime import date
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
@@ -20,24 +23,66 @@ import offer
 import network_compare
 import data_quality
 import population_reference
+import settings
+import analysis_jobs
 from pydantic import BaseModel, Field
 
 ROOT=Path(__file__).resolve().parent
-_REAL_DB=ROOT/'data'/'real'/'observatorio_real.sqlite3'
-# Running ``python app.py`` directly should use the bundled real package when
-# it is present.  The launcher still sets OBS_DB explicitly, but this default
-# prevents a second, empty SQLite database from silently hiding the imported
-# Euskotren/Errenteria feeds and the bundled geographic layers.
-_default_db=_REAL_DB if _REAL_DB.exists() else ROOT/'data'/'observatorio.sqlite3'
-DB=Path(os.environ.get('OBS_DB',_default_db))
-HOST=os.environ.get('OBS_HOST','127.0.0.1')
-PASSWORD=os.environ.get('OBS_PASSWORD')
-USERNAME=os.environ.get('OBS_USERNAME','analista')
-APP_VERSION='1.0'
-if HOST not in ('127.0.0.1','localhost','::1'):
-    if not PASSWORD or len(PASSWORD)<24 or PASSWORD.startswith(('CHANGE_ME','password','Password')):
-        raise RuntimeError('Acceso remoto no permitido sin una OBS_PASSWORD fuerte (mínimo 24 caracteres). Requiere también HTTPS en el proxy.')
+CONFIG=settings.SETTINGS
+DB=CONFIG.db
+HOST=CONFIG.host
+# Legacy aliases remain mutable for older local integrations and tests. Reads
+# and administration are nevertheless checked by different dependencies.
+PASSWORD=CONFIG.reader_password
+USERNAME=CONFIG.reader_username
+ADMIN_PASSWORD=CONFIG.admin_password
+ADMIN_USERNAME=CONFIG.admin_username
+APP_VERSION=settings.APP_VERSION
 app=FastAPI(title='Observatorio de Movilidad · Gipuzkoa', version=APP_VERSION,docs_url=None,redoc_url=None,openapi_url=None)
+_REQUESTS=defaultdict(int);_LATENCY_MS=defaultdict(float);_RATE=defaultdict(deque);_METRICS_LOCK=threading.Lock()
+_READ_CACHE=OrderedDict();_READ_CACHE_LOCK=threading.RLock();_READ_KEY_LOCKS=defaultdict(threading.Lock)
+
+def cached_read(key,loader,max_entries=128):
+    """Bounded request cache with per-key single-flight on cold reads."""
+    try:stamp=Path(DB).stat().st_mtime_ns
+    except OSError:stamp=0
+    full=(str(Path(DB).resolve()),stamp,*key)
+    with _READ_CACHE_LOCK:
+        if full in _READ_CACHE:
+            value=_READ_CACHE[full];_READ_CACHE.move_to_end(full);return value
+        lock=_READ_KEY_LOCKS[full]
+    with lock:
+        with _READ_CACHE_LOCK:
+            if full in _READ_CACHE:
+                value=_READ_CACHE[full];_READ_CACHE.move_to_end(full);return value
+        value=loader()
+        with _READ_CACHE_LOCK:
+            _READ_CACHE[full]=value;_READ_CACHE.move_to_end(full)
+            while len(_READ_CACHE)>max_entries:_READ_CACHE.popitem(last=False)
+            _READ_KEY_LOCKS.pop(full,None)
+        return value
+
+@app.middleware('http')
+async def request_budget_and_metrics(request:Request,call_next):
+    started=time.perf_counter();path=request.url.path
+    client=(request.client.host if request.client else 'unknown')
+    if path.startswith('/api/') and path not in ('/api/health','/api/ready'):
+        now=time.monotonic()
+        with _METRICS_LOCK:
+            bucket=_RATE[client]
+            while bucket and bucket[0] < now-60:bucket.popleft()
+            if len(bucket)>=CONFIG.rate_limit_per_minute:
+                from fastapi.responses import JSONResponse
+                return JSONResponse({'detail':'Demasiadas solicitudes; inténtalo de nuevo en un minuto'},status_code=429,
+                                    headers={'Retry-After':'60'})
+            bucket.append(now)
+    response=await call_next(request)
+    elapsed=(time.perf_counter()-started)*1000
+    key=f'{request.method} {path} {response.status_code}'
+    with _METRICS_LOCK:
+        _REQUESTS[key]+=1;_LATENCY_MS[key]+=elapsed
+    response.headers['X-Response-Time-Ms']=f'{elapsed:.1f}'
+    return response
 @app.middleware('http')
 async def demo_readonly(request:Request,call_next):
     if os.environ.get('OBS_DEMO')=='1' and request.method!='GET' and (request.url.path.startswith('/api/') or request.url.path.startswith('/internal/')):
@@ -46,9 +91,10 @@ async def demo_readonly(request:Request,call_next):
     return await call_next(request)
 
 _TERRITORY=None
+_TERRITORY_LOCK=threading.Lock()
 def geo_store():
     global _TERRITORY
-    destination=DB.parent/'geography'
+    destination=CONFIG.geography_dir if Path(DB).resolve()==CONFIG.db else DB.parent/'geography'
     # A real-data package may be copied without its runtime folder having
     # been created yet.  Reuse the packaged, verified geography only for the
     # named real database; temporary/test databases must remain isolated and
@@ -59,23 +105,60 @@ def geo_store():
         if not all((destination/name).is_file() for name in required) and all((bundled/name).is_file() for name in required):
             destination=bundled
     if _TERRITORY is None or _TERRITORY.directory!=destination:
-        _TERRITORY=territory.TerritoryStore(destination)
+        with _TERRITORY_LOCK:
+            if _TERRITORY is None or _TERRITORY.directory!=destination:
+                _TERRITORY=territory.TerritoryStore(destination,cache_entries=CONFIG.cache_entries)
     return _TERRITORY
 security=HTTPBasic(auto_error=False)
 
 def guard(creds:HTTPBasicCredentials|None=Depends(security)):
-    if PASSWORD:
+    # An explicitly configured legacy password keeps private-reader behaviour.
+    if PASSWORD or not CONFIG.public_read:
+        if not PASSWORD:
+            raise HTTPException(status_code=503,detail='Lectura privada sin credencial configurada')
         if not creds or not (secrets.compare_digest(creds.username,USERNAME) and secrets.compare_digest(creds.password,PASSWORD)):
-            raise HTTPException(status_code=401,detail='Acceso privado',headers={'WWW-Authenticate':'Basic realm="Observatorio privado"'})
+            raise HTTPException(status_code=401,detail='Acceso de lectura privado',headers={'WWW-Authenticate':'Basic realm="Observatorio lectura"'})
     return True
 
-def db(): return engine.connect(DB)
+def admin_guard(creds:HTTPBasicCredentials|None=Depends(security)):
+    password=ADMIN_PASSWORD or PASSWORD
+    username=ADMIN_USERNAME if ADMIN_PASSWORD else USERNAME
+    if password:
+        if not creds or not (secrets.compare_digest(creds.username,username) and secrets.compare_digest(creds.password,password)):
+            raise HTTPException(status_code=401,detail='Administración restringida',headers={'WWW-Authenticate':'Basic realm="Observatorio administracion"'})
+    elif not CONFIG.writable_local_admin:
+        raise HTTPException(status_code=403,detail='Administración deshabilitada: configura OBS_ADMIN_PASSWORD')
+    return True
+
+def write_guard(_:bool=Depends(admin_guard)):
+    if CONFIG.immutable_data:
+        raise HTTPException(status_code=403,detail='Esta release es inmutable; las importaciones se preparan fuera del servicio')
+    return True
+
+def db(): return engine.connect(DB,readonly=True,initialize=False)
+def write_db(): return engine.connect(DB,readonly=False,initialize=True)
+
+def prepare_runtime():
+    """Apply migrations once before accepting traffic and initialise state."""
+    if CONFIG.immutable_data:
+        con=engine.connect(DB,readonly=True,initialize=False)
+        try:con.execute('SELECT 1 FROM schema_migrations LIMIT 1')
+        finally:con.close()
+        return
+    con=engine.connect(DB,readonly=False,initialize=True)
+    con.close()
 
 def handle(func,*args,**kwargs):
     con=db()
     try: return func(con,*args,**kwargs)
     except ValueError as e: raise HTTPException(status_code=400,detail=str(e))
     finally: con.close()
+
+def handle_write(func,*args,**kwargs):
+    con=write_db()
+    try:return func(con,*args,**kwargs)
+    except ValueError as e:raise HTTPException(status_code=400,detail=str(e))
+    finally:con.close()
 
 @app.get('/')
 def home(_:bool=Depends(guard)):
@@ -85,7 +168,7 @@ def home(_:bool=Depends(guard)):
 # Official census table: tabular reference plus the separately packaged INE
 # section geometries and OSM pedestrian graph used for isochrone estimates.
 def ensure_population():
-    return population_reference.load_if_needed(DB, ROOT/'data'/'references'/'eustat_2025_original.csv')
+    return population_reference.summary(DB)
 
 @app.get('/api/population/status')
 def population_status(_:bool=Depends(guard)):
@@ -99,21 +182,22 @@ def population_status(_:bool=Depends(guard)):
     try:
         geo=geo_store().status()
         geography_population=geo.get('census_population',0) or 0
-        geography_complete=bool(geo.get('area_interpolation_ready') and geography_population==population.get('total_population'))
+        geography_complete=bool(geo.get('population_access_ready') and geography_population==population.get('total_population'))
         population={**population,
             'geometry_joined':bool(geo.get('census_sections')),
             'geography_complete':geography_complete,
             'geography_scope':'Gipuzkoa' if geography_complete else 'Gipuzkoa (geometría provincial pendiente)',
-            'spatial_coverage_ready':bool(geo.get('area_interpolation_ready')),
-            'area_interpolation_ready':bool(geo.get('area_interpolation_ready')),
+            'spatial_coverage_ready':bool(geo.get('population_access_ready')),
+            'area_interpolation_ready':False,
             'geography':{'census_sections':geo.get('census_sections',0),
                          'walk_segments':geo.get('walk_segments',0),
                          'residential_buildings':geo.get('residential_buildings',0),
                          'census_population':geography_population,
-                         'population_method':geo.get('population_method','unavailable')}}
+                         'population_method':geo.get('population_method','unavailable'),
+                         'method_version':geo.get('method_version')}}
         if population['spatial_coverage_ready']:
             population['note']=('Población Eustat 2025 cruzada con secciones censales y red peatonal; '
-                'la cobertura es una estimación por intersección de área, no demanda observada. '
+                'la cobertura es una estimación por unidades asignadas a la red peatonal, no demanda observada. '
                 + ('La geometría cubre Gipuzkoa.' if geography_complete else
                    'La geometría disponible cubre por ahora sólo Bidasoaldea y Oarsoaldea.'))
     except (OSError,ValueError,TypeError):
@@ -129,7 +213,7 @@ def population_sections(municipality:str='',_:bool=Depends(guard)):
     except ValueError as e:raise HTTPException(status_code=400,detail=str(e))
 
 @app.post('/api/population/import')
-async def population_import(file:UploadFile=File(...),_:bool=Depends(guard)):
+async def population_import(file:UploadFile=File(...),_:bool=Depends(write_guard)):
     if not file.filename.lower().endswith('.csv'):
         raise HTTPException(status_code=400,detail='Solo se acepta un CSV oficial Eustat')
     raw=await file.read(2_000_001)
@@ -137,49 +221,77 @@ async def population_import(file:UploadFile=File(...),_:bool=Depends(guard)):
         raise HTTPException(status_code=413,detail='CSV demasiado grande')
     try:
         result=population_reference.ingest(DB,raw,source_name=file.filename)
-        dest=ROOT/'data'/'references'/'eustat_2025_original.csv'
+        dest=CONFIG.reference_csv
         dest.parent.mkdir(parents=True,exist_ok=True)
-        dest.write_bytes(raw)
+        pending=dest.with_suffix(dest.suffix+'.pending')
+        pending.write_bytes(raw);pending.replace(dest)
         return result
     except ValueError as ex:
         raise HTTPException(status_code=422,detail=str(ex))
 
 @app.get('/api/health')
 def health(_:bool=Depends(guard)):
-    return {'ok':True,'cutoff':engine.CUTOFF.isoformat(),'scope':'Gipuzkoa: población Eustat 2025; transporte y cobertura peatonal según fuentes cargadas','published':False,'observed_service':False,'version':APP_VERSION,'historical_service_certified':False}
+    return {'ok':True,'kind':'liveness','cutoff':engine.CUTOFF.isoformat(),'scope':'Gipuzkoa: población Eustat 2025; transporte y cobertura peatonal según fuentes cargadas','published':False,'observed_service':False,'version':APP_VERSION,'historical_service_certified':False}
+
+@app.get('/api/ready')
+def ready(_:bool=Depends(guard)):
+    checks={'database':False,'feeds':0,'census_file':False,'walkways_file':False,'population_reference':False}
+    try:
+        con=db()
+        try:
+            checks['feeds']=int(con.execute('SELECT COUNT(*) FROM feeds').fetchone()[0])
+            checks['database']=True
+            checks['population_reference']=bool(con.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='population_reference_meta'").fetchone())
+        finally:con.close()
+    except (OSError,FileNotFoundError,ValueError):pass
+    checks['census_file']=(CONFIG.geography_dir/'census.geojson').is_file()
+    checks['walkways_file']=(CONFIG.geography_dir/'walkways.geojson').is_file()
+    ok=checks['database'] and checks['feeds']>0 and checks['census_file'] and checks['walkways_file'] and checks['population_reference']
+    if not ok:raise HTTPException(status_code=503,detail={'ready':False,'checks':checks})
+    return {'ready':True,'kind':'readiness','checks':checks,'data_release':os.environ.get('OBS_DATA_RELEASE','local-unversioned'),
+            'method_version':settings.METHOD_VERSION}
+
+@app.get('/api/metrics')
+def metrics(_:bool=Depends(admin_guard)):
+    with _METRICS_LOCK:
+        rows=[{'request':key,'count':count,'average_ms':round(_LATENCY_MS[key]/count,1)}
+              for key,count in sorted(_REQUESTS.items()) if count]
+    return {'requests':rows,'iso_cache':geo_store().cache_status() if _TERRITORY is not None else {'loaded':False}}
 
 @app.get('/api/versions')
 def versions(_:bool=Depends(guard)):
     return handle(engine.versions)
 
 @app.post('/api/import')
-async def upload(operator:str=Form(...),snapshot_date:str=Form(...),file:UploadFile=File(...),_:bool=Depends(guard)):
+async def upload(operator:str=Form(...),snapshot_date:str=Form(...),file:UploadFile=File(...),_:bool=Depends(write_guard)):
     if not file.filename.lower().endswith('.zip'):
         raise HTTPException(status_code=400,detail='Se requiere un GTFS .zip')
     # Limit before reading unbounded content
     content=await file.read(90_000_001)
-    return handle(engine.ingest,content,operator,snapshot_date,file.filename)
+    return handle_write(engine.ingest,content,operator,snapshot_date,file.filename)
 
 @app.get('/api/month')
 def month(operator:str='ekialdebus',year:int=2026,month:int=10,day_type:str='LJ',hour_start:int=0,hour_end:int=2880,route_id:str='',calendar_filter:str='all',_:bool=Depends(guard)):
     if not (0<=hour_start<hour_end<=2880):
         raise HTTPException(status_code=400,detail='Intervalo horario inválido')
-    return handle(engine.month_analysis,operator,year,month,day_type,hour_start,hour_end,route_id,calendar_filter)
+    return cached_read(('month',operator,year,month,day_type,hour_start,hour_end,route_id,calendar_filter),
+        lambda:handle(engine.month_analysis,operator,year,month,day_type,hour_start,hour_end,route_id,calendar_filter))
 
 @app.get('/api/routes')
 def routes(operator:str='ekialdebus',year:int=2026,month:int=10,_:bool=Depends(guard)):
     """Return the stable line catalogue independently from the day filter."""
-    return handle(engine.route_catalog,operator,year,month)
+    return cached_read(('routes',operator,year,month),lambda:handle(engine.route_catalog,operator,year,month))
 
 @app.get('/api/compare')
 def compare(operator:str='ekialdebus',month:int=10,day_type:str='LJ',hour_start:int=0,hour_end:int=2880,_:bool=Depends(guard)):
     if hour_start<0 or hour_end>2880 or hour_start>=hour_end:
         raise HTTPException(status_code=400,detail='Intervalo horario inválido')
-    return handle(engine.historical_comparison,operator,month,day_type,hour_start,hour_end)
+    return cached_read(('compare',operator,month,day_type,hour_start,hour_end),
+        lambda:handle(engine.historical_comparison,operator,month,day_type,hour_start,hour_end))
 
 @app.get('/api/map')
 def map_view(operator:str='ekialdebus',day:str='2026-10-16',route_id:str='',_:bool=Depends(guard)):
-    return handle(engine.map_data,operator,day,route_id)
+    return cached_read(('map',operator,day,route_id),lambda:handle(engine.map_data,operator,day,route_id))
 
 @app.get('/api/route/metrics')
 def route_metrics(operator:str,route_id:str,day:str,_:bool=Depends(guard)):
@@ -189,7 +301,7 @@ def route_metrics(operator:str,route_id:str,day:str,_:bool=Depends(guard)):
 
 @app.get('/api/route/frequency')
 def route_frequency(operator:str,route_id:str,year:int=2026,month:int=10,day:str='2026-10-16',_:bool=Depends(guard)):
-    if operator not in engine.OPERATORS or not route_id or year not in (2025,2026) or month not in range(1,13):
+    if operator not in engine.OPERATORS or not route_id or not CONFIG.min_year<=year<=CONFIG.max_year or month not in range(1,13):
         raise HTTPException(status_code=400,detail='Selección inválida')
     return handle(route_insights.route_frequency_week,operator,route_id,year,month,day)
 
@@ -229,7 +341,7 @@ def stop(operator:str,day:str,stop_id:str,_:bool=Depends(guard)):
 
 @app.get('/api/coverage')
 def coverage(operator:str='ekialdebus',year:int=2026,_:bool=Depends(guard)):
-    if operator not in engine.OPERATORS or year not in (2025,2026):
+    if operator not in engine.OPERATORS or not CONFIG.min_year<=year<=CONFIG.max_year:
         raise HTTPException(status_code=400,detail='Filtros inválidos')
     con=db()
     try:
@@ -256,7 +368,7 @@ def geo_status(_:bool=Depends(guard)):
     return geo_store().status()
 
 @app.post('/api/geo/import')
-async def geo_import(layer:str=Form(...),file:UploadFile=File(...),_:bool=Depends(guard)):
+async def geo_import(layer:str=Form(...),file:UploadFile=File(...),_:bool=Depends(write_guard)):
     if not file.filename.lower().endswith(('.geojson','.json')):
         raise HTTPException(status_code=400,detail='Se necesita GeoJSON (FeatureCollection)')
     raw=await file.read(180_000_001)
@@ -309,17 +421,17 @@ def geo_stop(operator:str,day:str,stop_id:str,minutes:int=10,_:bool=Depends(guar
     finally:con.close()
 
 @app.post('/api/sources/refresh')
-def refresh_gtfs(operator:str, _:bool=Depends(guard)):
+def refresh_gtfs(operator:str, _:bool=Depends(write_guard)):
     """Explicitly requested download of the latest current GTFS, not historical certification."""
     if operator not in engine.OPERATORS:raise HTTPException(status_code=400,detail='Operador inválido')
     try:
         content=source_fetch.fetch_gtfs(operator)
-        return handle(engine.ingest,content,operator,__import__('datetime').date.today().isoformat(),f'{operator}_current_from_Moveuskadi.zip')
+        return handle_write(engine.ingest,content,operator,__import__('datetime').date.today().isoformat(),f'{operator}_current_from_Moveuskadi.zip')
     except (OSError,TimeoutError,ValueError) as e:
         raise HTTPException(status_code=502,detail='No se pudo descargar el feed oficial: '+str(e)[:300])
 
 @app.post('/api/sources/osm')
-def refresh_osm(_:bool=Depends(guard)):
+def refresh_osm(_:bool=Depends(write_guard)):
     try:
         raw=source_fetch.fetch_osm_walkways()
         return geo_store().ingest('walkways',raw)
@@ -327,7 +439,7 @@ def refresh_osm(_:bool=Depends(guard)):
         raise HTTPException(status_code=502,detail='No se pudo obtener la red OSM: '+str(e)[:250])
 
 @app.post('/api/sources/buildings')
-def refresh_buildings(_:bool=Depends(guard)):
+def refresh_buildings(_:bool=Depends(write_guard)):
     try:
         raw=source_fetch.fetch_osm_buildings()
         return geo_store().ingest('buildings',raw)
@@ -335,7 +447,7 @@ def refresh_buildings(_:bool=Depends(guard)):
         raise HTTPException(status_code=502,detail='No se pudieron obtener edificios residenciales: '+str(e)[:250])
 
 @app.post('/api/sources/reference')
-def refresh_reference(name:str,_:bool=Depends(guard)):
+def refresh_reference(name:str,_:bool=Depends(write_guard)):
     if name not in ('eustat_csv','census_geometry'):
         raise HTTPException(status_code=400,detail='Fuente no autorizada')
     try:
@@ -346,6 +458,15 @@ def refresh_reference(name:str,_:bool=Depends(guard)):
 
 @app.get('/api/data/requirements')
 def data_requirements(_:bool=Depends(guard)):
+    years=[]
+    try:
+        con=db()
+        try:
+            row=con.execute("SELECT MIN(CAST(substr(min_date,1,4) AS INT)),MAX(CAST(substr(max_date,1,4) AS INT)) FROM feeds").fetchone()
+            if row and row[0] and row[1]:years=list(range(max(CONFIG.min_year,int(row[0])),min(CONFIG.max_year,int(row[1]))+1))
+        finally:con.close()
+    except (OSError,FileNotFoundError):pass
+    if not years:years=[engine.CUTOFF.year-1,engine.CUTOFF.year]
     return {'cutoff':engine.CUTOFF.isoformat(),'operators':list(engine.OPERATORS),'operator_labels':engine.OPERATORS,
        'core_operators':list(engine.CORE_OPERATORS),
        'municipalities':list(territory.MUNICIPALITIES),
@@ -358,7 +479,8 @@ def data_requirements(_:bool=Depends(guard)):
                       'euskotren':'https://opendata.euskadi.eus/transport/moveuskadi/euskotren/gtfs_euskotren.zip',
                       'errenteria_urbanoa':'https://opendata.euskadi.eus/transport/moveuskadi/errenteria/gtfs_errenteriako_urbanoa.zip',
                       'population':'https://es.eustat.eus/elementos/xls0011434_c.csv'},
-       'no_data_means_zero':False}
+       'analysis_years':{'min':CONFIG.min_year,'max':CONFIG.max_year},'available_years':years,
+       'method_version':settings.METHOD_VERSION,'no_data_means_zero':False}
 
 class HistoricalReview(BaseModel):
     operator:str
@@ -367,6 +489,37 @@ class HistoricalReview(BaseModel):
     reviewer:str=Field(min_length=3,max_length=160)
     evidence:str=Field(min_length=15,max_length=3000)
     status:str='verified'
+
+class NetworkAnalysisRequest(BaseModel):
+    operator:str
+    day:str
+    route_id:str=''
+    minutes:int=10
+
+@app.post('/api/analysis/jobs',status_code=202)
+def create_analysis_job(body:NetworkAnalysisRequest,_:bool=Depends(guard)):
+    if body.operator not in engine.OPERATORS and body.operator not in ('both','all'):
+        raise HTTPException(status_code=400,detail='Operador inválido')
+    if body.minutes not in (5,10):raise HTTPException(status_code=400,detail='Minutos inválidos')
+    try:day=engine.clean_date(body.day)
+    except ValueError:raise HTTPException(status_code=400,detail='Fecha inválida')
+    params={'operator':body.operator,'day':day,'route_id':body.route_id,'minutes':body.minutes}
+    try:
+        return analysis_jobs.enqueue(CONFIG.state_db,'network_coverage',params,
+          os.environ.get('OBS_DATA_RELEASE','local-unversioned'),settings.METHOD_VERSION,CONFIG.max_pending_jobs)
+    except OverflowError as exc:raise HTTPException(status_code=429,detail=str(exc),headers={'Retry-After':'30'})
+
+@app.get('/api/analysis/jobs/{job_id}')
+def analysis_job(job_id:str,_:bool=Depends(guard)):
+    result=analysis_jobs.get(CONFIG.state_db,job_id)
+    if result is None:raise HTTPException(status_code=404,detail='Trabajo no encontrado')
+    return result
+
+@app.post('/api/analysis/jobs/{job_id}/cancel')
+def cancel_analysis_job(job_id:str,_:bool=Depends(guard)):
+    result=analysis_jobs.cancel(CONFIG.state_db,job_id)
+    if result is None:raise HTTPException(status_code=404,detail='Trabajo no encontrado')
+    return result
 
 @app.get('/api/audit/readiness')
 def audit_readiness(_:bool=Depends(guard)):
@@ -379,8 +532,8 @@ def audit_month_grid(operator:str='ekialdebus',year:int=2026,_:bool=Depends(guar
     return handle(audit.month_grid,operator,year)
 
 @app.post('/api/audit/review')
-def audit_review(body:HistoricalReview,_:bool=Depends(guard)):
-    return handle(audit.review_period,body.operator,body.from_date,body.to_date,
+def audit_review(body:HistoricalReview,_:bool=Depends(write_guard)):
+    return handle_write(audit.review_period,body.operator,body.from_date,body.to_date,
                   body.reviewer,body.evidence,body.status)
 
 @app.get('/api/geo/service-coverage')
@@ -402,7 +555,7 @@ def geo_service_coverage(operator:str='both',day:str='2026-10-16',
                     'certified':False,'day':day,'operator':operator}
         store=geo_store()
         geo_status=store.status()
-        if not (geo_status['ready'] or geo_status['area_interpolation_ready']):
+        if not geo_status.get('population_access_ready'):
             return {'status':'incomplete_geography','population_by_frequency':None,'day':day,
                     'operator':operator,'certified':False}
         thresholds={}
@@ -444,7 +597,9 @@ def data_quality_all(_:bool=Depends(guard)):
 
 @app.get('/api/version')
 def version(_:bool=Depends(guard)):
-    return {'version':APP_VERSION,'date_cutoff':'2026-10-18','data_state':'unverified_until_audit','api_schema':'v1.0','package':'historical-real-gtfs'}
+    return {'version':APP_VERSION,'date_cutoff':engine.CUTOFF.isoformat(),'data_state':'unverified_until_audit',
+            'api_schema':settings.API_SCHEMA_VERSION,'method_version':settings.METHOD_VERSION,
+            'package':'historical-real-gtfs','public_read':CONFIG.public_read}
 
 @app.middleware('http')
 async def safe_response_headers(request:Request,call_next):
@@ -466,7 +621,8 @@ async def safe_response_headers(request:Request,call_next):
     response.headers['X-Content-Type-Options']='nosniff'
     response.headers['X-Frame-Options']='DENY'
     response.headers['Referrer-Policy']='no-referrer'
-    response.headers['Cache-Control']='private, no-store'
+    response.headers['Cache-Control']=('public, max-age=31536000, immutable'
+        if request.url.path.startswith('/static/') else 'private, no-store')
     return response
 
 app.mount('/static',StaticFiles(directory=str(ROOT/'static')),name='static')
@@ -483,7 +639,7 @@ def demo_status(_:bool=Depends(guard)):
 def demo_catalog(operator:str='ekialdebus',year:int=2026,month:int=10,_:bool=Depends(guard)):
     """All known DEMO lines for period, including ones not operated on selected weekday."""
     if os.environ.get('OBS_DEMO')!='1':raise HTTPException(status_code=404,detail='Solo disponible en product review')
-    if operator not in engine.OPERATORS or year not in (2025,2026) or month not in range(1,13):
+    if operator not in engine.OPERATORS or not CONFIG.min_year<=year<=CONFIG.max_year or month not in range(1,13):
         raise HTTPException(status_code=400,detail='Selección inválida')
     con=db()
     try:
@@ -496,6 +652,7 @@ def demo_catalog(operator:str='ekialdebus',year:int=2026,month:int=10,_:bool=Dep
     finally:con.close()
 
 if __name__=='__main__':
-    print(f"Observatorio {APP_VERSION} privado local: http://{HOST}:{os.environ.get('OBS_PORT','8765')}")
-    uvicorn.run(app,host=HOST,port=int(os.environ.get('OBS_PORT','8765')))
+    prepare_runtime()
+    print(f"Observatorio {APP_VERSION} local: http://{HOST}:{CONFIG.port}")
+    uvicorn.run(app,host=HOST,port=CONFIG.port)
 

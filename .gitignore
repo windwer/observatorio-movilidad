@@ -9,6 +9,8 @@ __pycache__/
 # Runtime data: the complete historical package is distributed separately.
 data/real/observatorio_real.sqlite3
 data/real/observatorio_real.sqlite3-*
+data/observatorio.sqlite3
+data/observatorio.sqlite3-*
 data/real/originals/*.zip
 data/real/originals/*.ZIP
 

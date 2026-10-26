@@ -14,7 +14,10 @@ from __future__ import annotations
 import hashlib
 import heapq
 import json
-from collections import defaultdict
+import os
+import tempfile
+import threading
+from collections import Counter, defaultdict, OrderedDict
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -131,14 +134,74 @@ def assign_population(census,buildings):
             continue
         total=sum(b['weight'] for b in bs)
         for b in bs:
-            residents.append({'id':c['id']+'/'+b['id'], 'municipality':c['municipality'], 'population':c['population']*b['weight']/total,'point':b['point']})
+            residents.append({'id':c['id']+'/'+b['id'], 'section_id':c['id'],
+                              'municipality':c['municipality'], 'population':c['population']*b['weight']/total,
+                              'point':b['point'],'allocation_method':'residential_building'})
+    return residents,unallocated
+
+
+def allocate_population_to_network(census,network,section_ids=None,max_anchors_per_section=240):
+    """Put section totals on walk-network anchors, independent of map styling.
+
+    This is a deterministic fallback when a section has no complete residential
+    building layer.  It is still an estimate, but changing the visual buffer of
+    an isochrone cannot alter its population.
+    """
+    allowed=set(section_ids) if section_ids is not None else None
+    residents=[];unallocated=[]
+    for section in census:
+        if allowed is not None and section['id'] not in allowed:continue
+        polygon=section['geometry'];candidates=[]
+        edge_candidates=list(network.tree.query(polygon))
+        # A dense urban section can contain tens of thousands of short OSM
+        # segments. A deterministic spatial sample is enough for the census
+        # proxy and keeps cold preparation bounded.
+        cap=max_anchors_per_section*3
+        if len(edge_candidates)>cap:
+            step=len(edge_candidates)/cap
+            edge_candidates=[edge_candidates[min(len(edge_candidates)-1,int(i*step))] for i in range(cap)]
+        for raw_idx in edge_candidates:
+            idx=int(raw_idx);line=network.geoms[idx]
+            if not polygon.intersects(line):continue
+            clipped=polygon.intersection(line)
+            parts=[]
+            if clipped.geom_type=='LineString':parts=[clipped]
+            elif clipped.geom_type=='MultiLineString':parts=list(clipped.geoms)
+            for part in parts:
+                if part.length>.25:
+                    candidates.append((idx,part.interpolate(.5,normalized=True),float(part.length)))
+        if not candidates:
+            unallocated.append({'section':section['id'],'municipality':section['municipality'],
+                                'population':section['population'],'reason':'no_walk_network_in_section'})
+            continue
+        candidates.sort(key=lambda item:item[0])
+        if len(candidates)>max_anchors_per_section:
+            step=len(candidates)/max_anchors_per_section
+            candidates=[candidates[min(len(candidates)-1,int(i*step))] for i in range(max_anchors_per_section)]
+        total=sum(weight for _,_,weight in candidates) or len(candidates)
+        for number,(edge_idx,point,weight) in enumerate(candidates):
+            residents.append({'id':f"{section['id']}/network/{number}",'section_id':section['id'],
+                              'municipality':section['municipality'],
+                              'population':float(section['population'])*(weight or 1)/total,
+                              'point':point,'edge_index':edge_idx,
+                              'allocation_method':'census_walk_network_anchor'})
     return residents,unallocated
 
 
 class WalkNetwork:
     def __init__(self,features):
-        self.edges=[];self.graph=defaultdict(list);self.geoms=[];self.osm_way_ids=set()
-        def ident(p):return (round(p[0],1),round(p[1],1))
+        self.edges=[];self.graph=defaultdict(list);self.incident=defaultdict(list);self.geoms=[];self.osm_way_ids=set()
+        def coord_ident(p,layer='0'):return ('xy',round(p[0],1),round(p[1],1),str(layer or '0'))
+        # OSM ways contain many shape vertices that are not intersections.
+        # Turning every one into a graph node made the provincial graph exceed
+        # one million edges and delayed every process start.  Shared node ids,
+        # endpoints and barriers are the only topological split points; the
+        # complete intermediate geometry is retained in each LineString.
+        node_use=Counter()
+        for feat in features:
+            props=feat.get('properties') or {}
+            ids=props.get('node_ids')
+            if isinstance(ids,list):node_use.update(str(value) for value in ids if value is not None)
         for feat in features:
             p=feat.get('properties') or {}
             highway=str(p.get('highway',p.get('type','footway'))).lower()
@@ -146,26 +209,51 @@ class WalkNetwork:
             if highway not in ALLOW_FOOT or foot in ('no','private') or access in ('private','no'):
                 continue
             if p.get('osm_id'):self.osm_way_ids.add(str(p['osm_id']))
+            layer=p.get('layer','0')
+            node_ids=p.get('node_ids') if isinstance(p.get('node_ids'),list) else None
+            blocked={str(x) for x in (p.get('blocked_node_ids') or [])}
+            surface=str(p.get('surface','')).lower()
+            factor=1.0
+            if highway=='steps':factor=1.55
+            elif highway in {'track','bridleway'}:factor=1.25
+            elif surface in {'gravel','unpaved','ground','dirt','sand','mud'}:factor=max(factor,1.2)
+            one_way=str(p.get('oneway:foot','')).lower() in {'yes','1','true'}
             try:g=shape(feat['geometry'])
             except Exception:continue
             if g.geom_type=='LineString': parts=[g]
             elif g.geom_type=='MultiLineString':parts=list(g.geoms)
             else:continue
+            node_cursor=0
             for part in parts:
                 local=transform(TO_LOCAL,part)
-                for a,b in zip(list(local.coords),list(local.coords)[1:]):
-                    u,v=ident(a),ident(b)
+                coords=list(local.coords)
+                part_ids=(node_ids[node_cursor:node_cursor+len(coords)] if node_ids else [])
+                important={0,len(coords)-1}
+                for position,value in enumerate(part_ids):
+                    if value is not None and (node_use[str(value)]>1 or str(value) in blocked):important.add(position)
+                ordered=sorted(important)
+                for start,end in zip(ordered,ordered[1:]):
+                    if end<=start:continue
+                    raw_u=str(part_ids[start]) if start<len(part_ids) and part_ids[start] is not None else None
+                    raw_v=str(part_ids[end]) if end<len(part_ids) and part_ids[end] is not None else None
+                    if raw_u in blocked or raw_v in blocked:continue
+                    u=('osm',raw_u) if raw_u else coord_ident(coords[start],layer)
+                    v=('osm',raw_v) if raw_v else coord_ident(coords[end],layer)
                     if u==v:continue
-                    ls=LineString([u,v]);length=ls.length
+                    ls=LineString(coords[start:end+1]);length=ls.length
                     if length<.25:continue
                     idx=len(self.edges)
-                    self.edges.append((u,v,length));self.geoms.append(ls)
-                    self.graph[u].append((v,length,idx));self.graph[v].append((u,length,idx))
+                    cost=length*factor
+                    self.edges.append((u,v,length,cost));self.geoms.append(ls)
+                    self.graph[u].append((v,cost,idx))
+                    if not one_way:self.graph[v].append((u,cost,idx))
+                    self.incident[u].append(idx);self.incident[v].append(idx)
+                node_cursor+=len(coords)
         if not self.edges:raise ValueError('No se han encontrado caminos peatonales conectables')
         self.tree=STRtree(self.geoms)
 
-    def isochrone(self,lat,lon,minutes=10,speed_kmh=4.5,access_buffer_m=25,
-                  max_snap_m=100):
+    def isochrone(self,lat,lon,minutes=10,speed_kmh=4.5,display_buffer_m=18,
+                  max_snap_m=80):
         if not 0<minutes<=30:raise ValueError('Tiempo fuera de rango')
         point=Point(*TO_LOCAL(lon,lat))
         closest=int(self.tree.nearest(point));geom=self.geoms[closest]
@@ -173,9 +261,10 @@ class WalkNetwork:
         if snap_dist>max_snap_m:
             return {'status':'no_walkway_near_stop','snap_m':round(snap_dist,1),'polygon':None,'reached_nodes':0}
         limit=minutes*speed_kmh*1000/60
-        u,v,length=self.edges[closest]
-        d0=snap_dist+snap.distance(Point(u))
-        d1=snap_dist+snap.distance(Point(v))
+        u,v,length,cost=self.edges[closest];factor=cost/length;origin_factor=factor
+        origin_offset=geom.project(snap)
+        d0=snap_dist+origin_offset*factor
+        d1=snap_dist+(length-origin_offset)*factor
         distances={};queue=[]
         for node,initial in ((u,d0),(v,d1)):
             if initial<=limit:
@@ -191,13 +280,13 @@ class WalkNetwork:
         # Only segments with at least one endpoint reachable contribute to the polygon.
         # Inspect only edges adjacent to reachable nodes. Iterating the entire
         # Gipuzkoa pedestrian network for every stop is unnecessarily costly.
-        reachable_edges={edge_index for node in distances for _,_,edge_index in self.graph[node]}
+        reachable_edges={edge_index for node in distances for edge_index in self.incident[node]}
         for edge_index in reachable_edges:
-            a,b,length=self.edges[edge_index]
+            a,b,length,cost=self.edges[edge_index];factor=cost/length
             ls=self.geoms[edge_index]
             da=distances.get(a,float('inf'));db=distances.get(b,float('inf'))
-            reach_a=max(0,min(length,limit-da))
-            reach_b=max(0,min(length,limit-db))
+            reach_a=max(0,min(length,(limit-da)/factor))
+            reach_b=max(0,min(length,(limit-db)/factor))
             if reach_a<=0 and reach_b<=0:continue
             if reach_a+reach_b>=length-.01: fragments.append(ls)
             else:
@@ -209,14 +298,15 @@ class WalkNetwork:
         budget=max(0,limit-snap_dist)
         if budget>0:
             offset=geom.project(snap)
-            local_fragment=substring(geom,max(0,offset-budget),min(geom.length,offset+budget))
+            local_budget=budget/origin_factor
+            local_fragment=substring(geom,max(0,offset-local_budget),min(geom.length,offset+local_budget))
             if not local_fragment.is_empty:fragments.append(local_fragment)
         if not fragments:return {'status':'unreachable','snap_m':round(snap_dist,1),'polygon':None,'reached_nodes':len(distances)}
         # The graph search is the calculation. Render only reached edge
         # fragments with a small access band. Unlike a convex/concave hull,
         # this cannot bridge two branches through a field, park, river or block
         # where no OSM pedestrian way exists.
-        edge_surfaces=[g.buffer(access_buffer_m,cap_style='round',join_style='round',resolution=4) for g in fragments if not g.is_empty]
+        edge_surfaces=[g.buffer(display_buffer_m,cap_style='round',join_style='round',quad_segs=4) for g in fragments if not g.is_empty]
         display=unary_union(edge_surfaces).simplify(1.5,preserve_topology=True) if edge_surfaces else None
         if display is None or display.is_empty:
             return {'status':'unreachable','snap_m':round(snap_dist,1),'polygon':None,'reached_nodes':len(distances)}
@@ -225,16 +315,21 @@ class WalkNetwork:
                 'reached_network_m':round(sum(g.length for g in fragments),1),
                 'analysis_area_m2':round(display.area,1),'display_area_m2':round(display.area,1),
                 'travel_limit_m':round(limit,1),
-                'method':'Dijkstra sobre red peatonal OSM; unión de tramos alcanzables con banda de acceso',
-                '_node_distances':distances,'_limit_m':limit}
+                 'method':'Dijkstra sobre topología peatonal OSM; perfil con penalización de escaleras/superficies y banda sólo visual',
+                 'population_geometry_independent':True,
+                 '_node_distances':distances,'_limit_m':limit,
+                 '_origin_edge':closest,'_origin_offset':origin_offset,'_origin_access_m':snap_dist}
 
-    def walk_distance_to(self,point,distances):
+    def walk_distance_to(self,point,distances,origin_edge=None,origin_offset=None,origin_access_m=0,edge_index=None):
         """Shortest graph distance from the origin to a point beside the network."""
-        idx=int(self.tree.nearest(point));edge=self.geoms[idx]
-        snap=edge.interpolate(edge.project(point));u,v,length=self.edges[idx]
-        du=distances.get(u,float('inf'))+snap.distance(Point(u))
-        dv=distances.get(v,float('inf'))+snap.distance(Point(v))
-        return point.distance(snap)+min(du,dv)
+        idx=int(edge_index) if edge_index is not None else int(self.tree.nearest(point));edge=self.geoms[idx]
+        offset=edge.project(point);snap=edge.interpolate(offset);u,v,length,cost=self.edges[idx];factor=cost/length
+        du=distances.get(u,float('inf'))+offset*factor
+        dv=distances.get(v,float('inf'))+(length-offset)*factor
+        direct=float('inf')
+        if origin_edge==idx and origin_offset is not None:
+            direct=origin_access_m+abs(offset-origin_offset)*factor
+        return point.distance(snap)+min(du,dv,direct)
 
 
 def calculate_population(iso, residents, network=None, municipalities=None):
@@ -242,7 +337,9 @@ def calculate_population(iso, residents, network=None, municipalities=None):
     if poly is None:return {'population':None,'municipalities':{},'units_reached':0}
     seen=set();by_town=defaultdict(float)
     for r in residents:
-        graph_reached=(network is not None and network.walk_distance_to(r['point'],iso.get('_node_distances',{}))<=iso.get('_limit_m',0))
+        graph_reached=(network is not None and network.walk_distance_to(
+            r['point'],iso.get('_node_distances',{}),iso.get('_origin_edge'),
+            iso.get('_origin_offset'),iso.get('_origin_access_m',0),r.get('edge_index'))<=iso.get('_limit_m',0))
         if (municipalities is None or r['municipality'] in municipalities) and r['id'] not in seen and graph_reached:
             by_town[r['municipality']]+=r['population'];seen.add(r['id'])
     return {'population':round(sum(by_town.values())), 'municipalities':{k:round(v) for k,v in by_town.items()},'units_reached':len(seen)}
@@ -281,37 +378,128 @@ def calculate_population_by_census_area(iso, census, municipalities=None):
 
 class TerritoryStore:
     """In-memory analysed layers, backed by original GeoJSON files for local persistence."""
-    def __init__(self, directory):
+    def __init__(self, directory,cache_entries=64):
         self.directory=Path(directory);self.directory.mkdir(parents=True,exist_ok=True)
         self.census=[];self.buildings=[];self.residents=[];self.unallocated=[];self.network=None
-        self.changes={};self._iso_cache={};self._load()
+        self.changes={};self.load_errors=[];self._cache_entries=max(8,int(cache_entries))
+        self._iso_cache=OrderedDict();self._cache_hits=0;self._cache_misses=0
+        self._lock=threading.RLock();self._resident_tree=None;self._resident_points=[];self._load()
 
     def _load(self):
         for layer in ('census','buildings','walkways'):
             f=self.directory/(layer+'.geojson')
             if f.exists():
                 try:self._apply(layer,read_geojson(f.read_bytes()))
-                except (ValueError,KeyError,TypeError):pass
-        self._assign()
+                except (ValueError,KeyError,TypeError) as exc:self.load_errors.append({'layer':layer,'error':str(exc)})
+        if not self.buildings and self._load_population_anchors():
+            self._index_residents()
+        else:self._assign()
+
+    def _load_population_anchors(self):
+        path=self.directory/'population_anchors.json'
+        if not path.is_file() or not self.census or not self.network:return False
+        try:
+            doc=json.loads(path.read_text(encoding='utf-8'))
+            if doc.get('method_version')!='walk-network-anchors-v2':return False
+            if int(doc.get('walk_segments',-1))!=len(self.network.edges):return False
+            if round(sum(row['population'] for row in self.census))!=int(doc.get('census_population',-1)):return False
+            rows=[]
+            for row in doc.get('anchors',[]):
+                ident,town,population,x,y,edge_index=row
+                edge_index=int(edge_index)
+                if not 0<=edge_index<len(self.network.edges):return False
+                rows.append({'id':str(ident),'municipality':str(town),'population':float(population),
+                             'point':Point(float(x),float(y)),'edge_index':edge_index,
+                             'allocation_method':'census_walk_network_anchor'})
+            if not rows:return False
+            self.residents=rows;self.unallocated=list(doc.get('unallocated',[]));return True
+        except (OSError,ValueError,TypeError,KeyError,json.JSONDecodeError) as exc:
+            self.load_errors.append({'layer':'population_anchors','error':str(exc)});return False
+
+    def save_population_anchors(self,path=None):
+        if self.buildings:raise ValueError('El artefacto de anclajes sólo corresponde al fallback sin edificios')
+        if not self.residents:raise ValueError('No hay anclajes calculados')
+        destination=Path(path) if path else self.directory/'population_anchors.json'
+        doc={'method_version':'walk-network-anchors-v2','walk_segments':len(self.network.edges),
+             'census_population':round(sum(row['population'] for row in self.census)),
+             'anchors':[[r['id'],r['municipality'],round(r['population'],8),round(r['point'].x,2),round(r['point'].y,2),r['edge_index']] for r in self.residents],
+             'unallocated':self.unallocated}
+        raw=json.dumps(doc,ensure_ascii=False,separators=(',',':')).encode('utf-8')
+        with tempfile.NamedTemporaryFile(dir=destination.parent,prefix=destination.name+'.',suffix='.pending',delete=False) as handle:
+            pending=Path(handle.name);handle.write(raw);handle.flush();os.fsync(handle.fileno())
+        os.replace(pending,destination)
+        return {'path':str(destination),'anchors':len(self.residents),'bytes':len(raw),'unallocated_sections':len(self.unallocated)}
 
     def _apply(self,layer,features):
         if layer=='census':self.census=normalise_census(features)
         elif layer=='buildings':self.buildings=normalise_buildings(features)
-        elif layer=='walkways':self.network=WalkNetwork(features);self._iso_cache={}
+        elif layer=='walkways':self.network=WalkNetwork(features);self._iso_cache.clear()
         else:raise ValueError('Capa no permitida')
 
     def _assign(self):
+        self.residents=[];self.unallocated=[]
         if self.census and self.buildings:
-            self.residents,self.unallocated=assign_population(self.census,self.buildings)
-        else:self.residents=[];self.unallocated=[]
+            building_residents,missing=assign_population(self.census,self.buildings)
+            self.residents.extend(building_residents)
+            if self.network and missing:
+                missing_ids={row['section'] for row in missing}
+                anchors,still_missing=allocate_population_to_network(self.census,self.network,missing_ids)
+                self.residents.extend(anchors);self.unallocated=still_missing
+            else:self.unallocated=missing
+        elif self.census and self.network:
+            self.residents,self.unallocated=allocate_population_to_network(self.census,self.network)
+        self._index_residents()
+        self._iso_cache.clear()
+
+    def _index_residents(self):
+        self._resident_points=[row['point'] for row in self.residents]
+        self._resident_tree=STRtree(self._resident_points) if self._resident_points else None
 
     def ingest(self,layer,raw):
         if layer not in ('census','buildings','walkways'):raise ValueError('Capa no válida')
         feats=read_geojson(raw)
-        self._apply(layer,feats)
-        self._assign()
-        dest=self.directory/(layer+'.geojson');dest.write_bytes(raw)
+        # Validate in isolation before publishing a complete immutable file.
+        if layer=='census':normalise_census(feats)
+        elif layer=='buildings':normalise_buildings(feats)
+        else:WalkNetwork(feats)
+        dest=self.directory/(layer+'.geojson')
+        with tempfile.NamedTemporaryFile(dir=self.directory,prefix=layer+'.',suffix='.pending',delete=False) as handle:
+            pending=Path(handle.name);handle.write(raw);handle.flush();os.fsync(handle.fileno())
+        try:
+            os.replace(pending,dest)
+            with self._lock:
+                self._apply(layer,feats);self._assign()
+        finally:
+            if pending.exists():pending.unlink()
         return self.status()
+
+    def _isochrone(self,lat,lon,minutes):
+        key=(round(float(lat),6),round(float(lon),6),int(minutes))
+        with self._lock:
+            cached=self._iso_cache.get(key)
+            if cached is not None:
+                self._cache_hits+=1;self._iso_cache.move_to_end(key);return cached
+        result=self.network.isochrone(lat,lon,minutes=minutes)
+        with self._lock:
+            self._cache_misses+=1;self._iso_cache[key]=result;self._iso_cache.move_to_end(key)
+            while len(self._iso_cache)>self._cache_entries:self._iso_cache.popitem(last=False)
+        return result
+
+    def cache_status(self):
+        with self._lock:
+            return {'loaded':True,'entries':len(self._iso_cache),'max_entries':self._cache_entries,
+                    'hits':self._cache_hits,'misses':self._cache_misses}
+
+    def _reachable_indices(self,iso):
+        if self._resident_tree is None or iso.get('polygon') is None:return set()
+        search=iso['polygon'].buffer(85)
+        reached=set()
+        for raw_idx in self._resident_tree.query(search):
+            idx=int(raw_idx);resident=self.residents[idx]
+            distance=self.network.walk_distance_to(resident['point'],iso.get('_node_distances',{}),
+                iso.get('_origin_edge'),iso.get('_origin_offset'),iso.get('_origin_access_m',0),resident.get('edge_index'))
+            if distance<=iso.get('_limit_m',0):reached.add(idx)
+        return reached
 
     def status(self):
         return {'census_sections':len(self.census),'residential_buildings':len(self.buildings),
@@ -322,11 +510,15 @@ class TerritoryStore:
           'walk_osm_ways':len(self.network.osm_way_ids) if self.network else 0,
           'municipalities':sorted({c['municipality'] for c in self.census}),
           'census_population':round(sum(c['population'] for c in self.census)),
-          'ready':bool(self.census and self.buildings and self.network and self.residents),
-          'area_interpolation_ready':bool(self.census and self.network),
-          'population_method':'residential_building_allocation' if self.residents else ('census_section_area_interpolation' if self.census and self.network else 'unavailable'),
-          'method':'Residential building area × floors weighted within census sections; section-area interpolation fallback when buildings are absent',
+          'ready':bool(self.census and self.network and self.residents and not self.load_errors),
+          'area_interpolation_ready':False,
+          'population_access_ready':bool(self.census and self.network and self.residents),
+          'population_method':('hybrid_residential_building_and_network_anchor' if self.buildings and self.residents else
+             'census_walk_network_anchor' if self.residents else 'unavailable'),
+          'method':'Residential buildings where complete; otherwise census totals allocated to deterministic walk-network anchors. Display-buffer independent.',
           'walk_method':'Dijkstra on walkable OSM graph; population by graph distance; union of reached network segments',
+          'method_version':'walk-network-anchors-v2','load_errors':list(self.load_errors),
+          'cache':self.cache_status(),
           'geography_scope':'Gipuzkoa provincial census and pedestrian network',
           'attribution':'Geometry: INE Secciones_2025; counts: Eustat 2025; walkways: OpenStreetMap contributors; verify source licences'}
 
@@ -349,51 +541,36 @@ class TerritoryStore:
     def network_coverage(self,stops,minutes=10):
         """Population unique across all active stops; never sum stop populations."""
         if minutes not in (5,10):raise ValueError('Minutos fuera de rango')
-        if not self.network or not (self.residents or self.census):
+        if not self.network or not self.residents:
             return {'status':'incomplete_geography','population':None,'stops':len(stops)}
         if len(stops)>2500:raise ValueError('Demasiadas paradas en una consulta')
         seen=set();snapped=0;outside=0;statuses={}
         polygons=[]
         for stop in stops:
             point=(round(float(stop['lat']),6),round(float(stop['lon']),6))
-            cache_key=(*point,minutes)
-            if cache_key not in self._iso_cache:
-                self._iso_cache[cache_key]=self.network.isochrone(*point,minutes=minutes)
-            iso=self._iso_cache[cache_key]
+            iso=self._isochrone(*point,minutes)
             if iso['polygon'] is None:
                 outside+=1;continue
             snapped+=1;poly=iso['polygon'];polygons.append(poly)
-            distances=iso.get('_node_distances',{})
-            limit=iso.get('_limit_m',0)
-            for i,resident in enumerate(self.residents):
-                if i in seen:continue
-                if self.network.walk_distance_to(resident['point'],distances)<=limit:
-                    seen.add(i)
-        if self.residents:
-            by_municipality=defaultdict(float)
-            for i in seen:
-                r=self.residents[i];by_municipality[r['municipality']]+=r['population']
-            return {'status':'estimated','stops':len(stops),'stops_connected':snapped,'stops_unconnected':outside,
-                    'population':round(sum(by_municipality.values())),
-                    'municipalities':{k:round(v) for k,v in by_municipality.items()},
-                    'unallocated_population':round(sum(c['population'] for c in self.unallocated)),
-                    'population_method':'residential_building_allocation',
-                    'method':f'unique residential-building census allocation + {minutes}-min network access',
-                    'certified':False}
-        union=unary_union(polygons) if polygons else None
-        interpolated=calculate_population_by_census_area({'polygon':union},self.census)
+            seen.update(self._reachable_indices(iso))
+        by_municipality=defaultdict(float);methods=set()
+        for i in seen:
+            r=self.residents[i];by_municipality[r['municipality']]+=r['population'];methods.add(r.get('allocation_method'))
         return {'status':'estimated','stops':len(stops),'stops_connected':snapped,'stops_unconnected':outside,
-                **interpolated,
-                'unallocated_population':0,
-                'method':f'unique section-area interpolation + {minutes}-min network access',
+                'population':round(sum(by_municipality.values())),
+                'municipalities':{k:round(v) for k,v in by_municipality.items()},
+                'units_reached':len(seen),
+                'population_method':'+'.join(sorted(x for x in methods if x)) or self.status()['population_method'],
+                'unallocated_population':round(sum(c['population'] for c in self.unallocated)),
+                'method':f'unique population units on walk network + {minutes}-min graph access; display independent',
+                'method_version':'walk-network-anchors-v2',
                 'certified':False}
 
     def stop(self,lat,lon,geometry=True,minutes=10):
         if not self.network:return {'status':'missing_pedestrian_network','population':None}
         if not 0 < minutes <= 30:raise ValueError('Minutos fuera de rango')
         key=(round(float(lat),6),round(float(lon),6),int(minutes))
-        if key not in self._iso_cache:self._iso_cache[key]=self.network.isochrone(lat,lon,minutes=minutes)
-        result=self._iso_cache[key]
+        result=self._isochrone(lat,lon,minutes)
         # Independent hull simplification can make a 5-minute envelope poke
         # outside the 10-minute envelope even though the underlying Dijkstra
         # reachable set is necessarily nested. Union the lower threshold into
@@ -401,9 +578,7 @@ class TerritoryStore:
         # contradict the travel-time semantics.
         if minutes==10 and result.get('polygon') is not None:
             inner_key=(round(float(lat),6),round(float(lon),6),5)
-            if inner_key not in self._iso_cache:
-                self._iso_cache[inner_key]=self.network.isochrone(lat,lon,minutes=5)
-            inner=self._iso_cache[inner_key]
+            inner=self._isochrone(lat,lon,5)
             if inner.get('polygon') is not None:
                 nested=unary_union([result['polygon'],inner['polygon']])
                 if not nested.is_empty:
@@ -413,15 +588,18 @@ class TerritoryStore:
                     result['analysis_area_m2']=round(nested.area,1)
                     result['display_area_m2']=round(nested.area,1)
                     result['geometry_nesting']='10-minute envelope includes the 5-minute envelope'
-                    self._iso_cache[key]=result
+                    with self._lock:self._iso_cache[key]=result
         if self.residents:
-            pop={**calculate_population(result,self.residents,self.network),'population_method':'residential'}
-        elif self.census:
-            pop=calculate_population_by_census_area(result,self.census)
+            indices=self._reachable_indices(result)
+            selected=[self.residents[i] for i in indices]
+            methods=sorted({row.get('allocation_method') for row in selected if row.get('allocation_method')})
+            pop={**calculate_population(result,selected,self.network),
+                 'population_method':'+'.join(methods) or self.status()['population_method'],
+                 'unallocated_population':round(sum(c['population'] for c in self.unallocated))}
         else:
             pop={'population':None,'units_reached':0,'municipalities':{},'population_method':'unavailable'}
         display=result.get('display_polygon',result.get('polygon'))
         geom=mapping(transform(TO_WGS,display)) if geometry and display is not None else None
-        return {**{k:v for k,v in result.items() if k not in ('polygon','display_polygon','_node_distances','_limit_m')},**pop,
+        return {**{k:v for k,v in result.items() if not k.startswith('_') and k not in ('polygon','display_polygon')},**pop,
                 'geometry':geom,'minutes':minutes,
-                'population_certified':False}
+                'method_version':'walk-network-anchors-v2','population_certified':False}

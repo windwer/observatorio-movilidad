@@ -12,8 +12,9 @@ import sys
 import time
 import urllib.request
 import webbrowser
+import settings
 
-VERSION='1.0'
+VERSION=settings.APP_VERSION
 ROOT=Path(__file__).resolve().parent
 
 def free_port():
@@ -54,6 +55,8 @@ def main():
     port=free_port()
     env=os.environ.copy();env['OBS_HOST']='127.0.0.1';env['OBS_PORT']=str(port)
     url=f'http://127.0.0.1:{port}/?v={VERSION}'
+    worker=subprocess.Popen([sys.executable,str(ROOT/'worker.py')],cwd=ROOT,env=env,
+                            creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
     process=subprocess.Popen([sys.executable,str(ROOT/'app.py')],cwd=ROOT,env=env)
     try:
         for _ in range(80):
@@ -66,7 +69,7 @@ def main():
         else:raise RuntimeError('El servidor no respondió correctamente')
         validate_real_package(port,env)
         print('\n'+'='*60,flush=True)
-        print('OBSERVATORIO '+VERSION+' · CORTE HISTÓRICO 18/10/2026',flush=True)
+        print('OBSERVATORIO '+VERSION+' · CORTE HISTÓRICO '+settings.SETTINGS.cutoff.strftime('%d/%m/%Y'),flush=True)
         print('Dirección confirmada: '+url,flush=True)
         print('No uses pestañas antiguas de http://127.0.0.1:8000',flush=True)
         print('='*60+'\n',flush=True)
@@ -79,5 +82,9 @@ def main():
             process.terminate()
             try:process.wait(timeout=5)
             except subprocess.TimeoutExpired:process.kill()
+        if worker.poll() is None:
+            worker.terminate()
+            try:worker.wait(timeout=5)
+            except subprocess.TimeoutExpired:worker.kill()
 
 if __name__=='__main__':main()

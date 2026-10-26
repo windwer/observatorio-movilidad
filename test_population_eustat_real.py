@@ -2,7 +2,7 @@
 from pathlib import Path
 import tempfile
 import unittest
-from fastapi.testclient import TestClient
+from test_client import TestClient
 import app
 import population_reference as p
 
@@ -11,9 +11,9 @@ SOURCE=Path(__file__).resolve().parent/'data'/'references'/'eustat_2025_original
 class EustatRealTests(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.db=Path(self.tmp.name)/'data.sqlite3'
-  self.old_db=app.DB;app.DB=self.db
+  self.old_db=app.DB;self.old_store=app._TERRITORY;app.DB=self.db;app._TERRITORY=None
   self.client=TestClient(app.app)
- def tearDown(self):app.DB=self.old_db;self.tmp.cleanup()
+ def tearDown(self):app.DB=self.old_db;app._TERRITORY=self.old_store;self.tmp.cleanup()
  def test_real_csv_load_exact_subtotals(self):
   x=p.ingest(self.db,SOURCE.read_bytes())
   self.assertEqual(x['total_population'],724797)
@@ -23,7 +23,8 @@ class EustatRealTests(unittest.TestCase):
   self.assertEqual(x['by_region'],{'Bidasoaldea':77625,'Oarsoaldea':73207,'Resto de Gipuzkoa':573965,'Gipuzkoa':724797})
   self.assertFalse(x['geometry_joined'])
   self.assertFalse(x['spatial_coverage_ready'])
- def test_api_loads_embedded_source_automatically(self):
+ def test_api_reads_prepared_population_without_writing_on_get(self):
+  p.ingest(self.db,SOURCE.read_bytes())
   response=self.client.get('/api/population/status')
   self.assertEqual(response.status_code,200,response.text)
   x=response.json();self.assertTrue(x['loaded']);self.assertEqual(x['total_population'],724797);self.assertEqual(x['municipality_count'],88)
@@ -43,7 +44,7 @@ class EustatRealTests(unittest.TestCase):
   doc=self.client.get('/').text
   self.assertIn('Población Eustat 2025 · Gipuzkoa',doc)
   self.assertIn('eustat-population-panel',doc)
-  self.assertIn('/static/app.js?v=1.0-iso4',doc)
+  self.assertIn('/static/app.js?v=1.1.0',doc)
   self.assertIn('loadEustatPopulation',Path(__file__).resolve().parent.joinpath('static/app.js').read_text(encoding='utf-8'))
 
 if __name__=='__main__':unittest.main()

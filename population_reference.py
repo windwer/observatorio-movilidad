@@ -108,13 +108,16 @@ def load_if_needed(db_path,source_path):
 def summary(db_path):
     path=Path(db_path)
     if not path.exists():return {'loaded':False,'reference_date':REFERENCE,'source_url':SOURCE_URL,'geometry_joined':False}
-    with closing(sqlite3.connect(path)) as conn:
-        _schema(conn)
-        m=conn.execute('''SELECT source_name,sha256,sections,districts,total FROM population_reference_meta
-                          WHERE reference_date=?''',(REFERENCE,)).fetchone()
-        if not m:return {'loaded':False,'reference_date':REFERENCE,'source_url':SOURCE_URL,'geometry_joined':False}
-        rows=conn.execute('''SELECT municipality,COUNT(*),SUM(population) FROM population_sections
-                             WHERE reference_date=? GROUP BY municipality''',(REFERENCE,)).fetchall()
+    try:
+        with closing(sqlite3.connect(f'{path.resolve().as_uri()}?mode=ro',uri=True)) as conn:
+            conn.execute('PRAGMA query_only=ON')
+            m=conn.execute('''SELECT source_name,sha256,sections,districts,total FROM population_reference_meta
+                              WHERE reference_date=?''',(REFERENCE,)).fetchone()
+            if not m:return {'loaded':False,'reference_date':REFERENCE,'source_url':SOURCE_URL,'geometry_joined':False}
+            rows=conn.execute('''SELECT municipality,COUNT(*),SUM(population) FROM population_sections
+                                 WHERE reference_date=? GROUP BY municipality''',(REFERENCE,)).fetchall()
+    except sqlite3.OperationalError:
+        return {'loaded':False,'reference_date':REFERENCE,'source_url':SOURCE_URL,'geometry_joined':False}
     towns={name:{'sections':count,'population':population} for name,count,population in rows}
     total=sum(item['population'] for item in towns.values())
     study_total=sum(towns.get(name,{}).get('population',0) for name in STUDY_MUNICIPALITIES)
@@ -131,8 +134,10 @@ def summary(db_path):
 
 def sections(db_path,municipality=''):
     municipality=municipality_name(municipality) if municipality else ''
-    with closing(sqlite3.connect(db_path)) as conn:
-        _schema(conn)
+    path=Path(db_path)
+    if not path.is_file():raise ValueError('No hay referencia poblacional cargada')
+    with closing(sqlite3.connect(f'{path.resolve().as_uri()}?mode=ro',uri=True)) as conn:
+        conn.execute('PRAGMA query_only=ON')
         if municipality:
             exists=conn.execute('SELECT 1 FROM population_sections WHERE reference_date=? AND municipality=? LIMIT 1',(REFERENCE,municipality)).fetchone()
             if not exists:raise ValueError('Municipio fuera del ámbito de Gipuzkoa')

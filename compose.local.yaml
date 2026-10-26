@@ -1,0 +1,6 @@
+services:
+  app:
+    ports:
+      - "127.0.0.1:8873:8000"
+  caddy:
+    profiles: [online-only]

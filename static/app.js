@@ -14,6 +14,7 @@ const routeCatalogCache=new Map();
 // 5/10 minute curves).
 let mapRenderToken=0;
 let isoRequestId=0;
+let refreshController=null;
 function ensureRouteScheduleUI(){
  const panel=$('route-insights');if(!panel||$('route-service-window'))return;
  const metrics=panel.querySelector('.route-metrics');
@@ -58,7 +59,7 @@ async function init(){
 function openModal(){ $('import-modal').classList.add('open');$('import-operator').value=state.operator;updateVersions(); }
 function closeModal(){ $('import-modal').classList.remove('open') }
 window.openModal=openModal;window.closeModal=closeModal;
-async function api(endpoint){const response=await fetch(endpoint);let out=await response.json();if(!response.ok)throw Error(out.detail||`HTTP ${response.status}`);return out}
+async function api(endpoint,options={}){const response=await fetch(endpoint,options);let out=await response.json();if(!response.ok){const detail=typeof out.detail==='string'?out.detail:(out.detail?JSON.stringify(out.detail):`HTTP ${response.status}`);throw Error(detail)}return out}
 function qs(endpoint,params){return endpoint+'?'+new URLSearchParams(params)}
 function fmt(num,decimal=0){return typeof num==='number'?new Intl.NumberFormat('es-ES',{maximumFractionDigits:decimal}).format(num):'—'}
 function setText(id,text){$(id).textContent=text}
@@ -83,6 +84,12 @@ async function loadOperatorCatalog(){
    const frequency=$('frequency-operator');
    if(frequency){const value=frequency.value||'both';frequency.innerHTML=makeOptions(true);frequency.value=(value==='both'||codes.includes(value))?value:'both';}
    state.operator=$('operator')?.value||state.operator;
+    const years=Array.isArray(catalog.available_years)?catalog.available_years:[];
+    if(years.length&&$('year')){
+      const selected=Number($('year').value)||state.year;
+      $('year').innerHTML=[...years].sort((a,b)=>b-a).map(year=>`<option value="${year}">${year}</option>`).join('');
+      state.year=years.includes(selected)?selected:years[years.length-1];$('year').value=String(state.year);
+    }
  }catch(_){
    // Static options remain a safe fallback for an older local server.
  }
@@ -98,26 +105,28 @@ function calendarDays(year,month,dayType){let d=[];const n=new Date(year,month,0
 function chooseMapDate(result){let s=selectMainSegment(result);if(s){let item=s.daily.find(d=>d.trips!==null && d.trips>0)||s.daily.find(d=>d.trips!==null);if(item)return item.date}return calendarDays(state.year,state.month,state.dayType)[0]||`${state.year}-10-01`}
 let refreshToken=0;
 async function refresh(){const token=++refreshToken;
+ refreshController?.abort();refreshController=new AbortController();const signal=refreshController.signal;
  setText('page-title',`${months[state.month-1]} de ${state.year}`);
  setText('page-sub',`${operatorName(state.operator)} · ${ {LJ:'lunes a jueves',V:'viernes',S:'sábados',D:'domingos'}[state.dayType]} · Horarios programados`);
  setText('year-label',state.year);renderDateOptions();
  try {
    const base={operator:state.operator,year:state.year,month:state.month,day_type:state.dayType,hour_start:state.hourFrom,hour_end:state.hourTo===1440?2880:state.hourTo,calendar_filter:state.calendarFilter};
-   const [result,coverage,comparison]=await Promise.all([
-     api(qs('/api/month',{...base,route_id:state.route})),
-     api(qs('/api/coverage',{operator:state.operator,year:state.year})),
-     api(qs('/api/compare',{operator:state.operator,month:state.month,day_type:state.dayType,hour_start:state.hourFrom,hour_end:state.hourTo===1440?2880:state.hourTo}))
+   const [result,coverage,comparison,routeActivity]=await Promise.all([
+     api(qs('/api/month',{...base,route_id:state.route}),{signal}),
+     api(qs('/api/coverage',{operator:state.operator,year:state.year}),{signal}),
+     api(qs('/api/compare',{operator:state.operator,month:state.month,day_type:state.dayType,hour_start:state.hourFrom,hour_end:state.hourTo===1440?2880:state.hourTo}),{signal}),
+     state.route?api(qs('/api/month',{...base,route_id:''}),{signal}):Promise.resolve(null)
    ]);
    if(token!==refreshToken)return;
-   renderMain(result,coverage,comparison);
+   renderMain(result,coverage,comparison,routeActivity||result);
    const day=state.exactDate||chooseMapDate(result);state.activeMapDate=day;
-   let geographic=await api($('map-both').checked?qs('/api/map/both',{day,scope:'all'}):qs('/api/map',{operator:state.operator,day,route_id:state.route}));
+    let geographic=await api($('map-both').checked?qs('/api/map/both',{day,scope:'all'}):qs('/api/map',{operator:state.operator,day,route_id:state.route}),{signal});
    if(token!==refreshToken)return;
    renderMap(geographic);
-   await loadRouteInsights(token);
- } catch(e){setText('page-sub',`Error de datos: ${e.message}`);console.error(e)}
+    await loadRouteInsights(token,signal);
+  } catch(e){if(e.name!=='AbortError'){setText('page-sub',`Error de datos: ${e.message}`);console.error(e)}}
 }
-function renderMain(res,cov,other){let primary=selectMainSegment(res);const hasData=primary!==null;
+function renderMain(res,cov,other,routeActivity=res){let primary=selectMainSegment(res);const hasData=primary!==null;
  setText('kpi-trips',hasData?fmt(primary.average_trips_per_day,1):'—');
  setText('kpi-lines',hasData?fmt(primary.lines.length):'—');
  setText('kpi-days',hasData?`${primary.days_available}/${primary.days_total}`:'—');
@@ -132,7 +141,7 @@ function renderMain(res,cov,other){let primary=selectMainSegment(res);const hasD
  renderLines(primary);
  renderCoverage(cov);
  renderCompare(res,other);
- updateRoutes(res);
+ updateRoutes(routeActivity);
 }
 function renderCoverage(coverage){
  if(!coverage?.months?.length){$('month-bars').innerHTML='<div class="empty-table" style="grid-column:1/-1">Sin cobertura de calendario para este operador.</div>';setText('coverage-note','No hay jornadas con fuente para la selección actual.');return}
@@ -181,11 +190,11 @@ async function loadRouteComparison(token=refreshToken){
  if(!oldDay||!newDay){renderRouteComparison({status:'incomplete',reason:'Indica las dos fechas que quieres comparar.'});return}
  try{const data=await api(qs('/api/route/compare',{operator:state.operator,route_id:state.route,old_day:oldDay,new_day:newDay}));if(token===refreshToken)renderRouteComparison(data)}catch(e){if(token===refreshToken)renderRouteComparison({status:'incomplete',reason:'No se pudo comparar: '+e.message})}
 }
-async function loadRouteInsights(token){
+async function loadRouteInsights(token,signal){
  if(!state.route){renderRouteMetrics(null);renderFrequency(null);renderRouteComparison(null);return}
  try{
   const params={operator:state.operator,route_id:state.route,day:state.activeMapDate,year:state.year,month:state.month};
-  const [metrics,frequency]=await Promise.all([api(qs('/api/route/metrics',params)),api(qs('/api/route/frequency',params))]);
+  const [metrics,frequency]=await Promise.all([api(qs('/api/route/metrics',params),{signal}),api(qs('/api/route/frequency',params),{signal})]);
   if(token!==refreshToken)return;
   renderRouteMetrics(metrics);renderFrequency(frequency);await loadRouteComparison(token);
  }catch(e){if(token===refreshToken){renderRouteMetrics({status:'error'});renderFrequency(null);setText('route-insights-state','No disponible: '+e.message)}}
@@ -305,18 +314,16 @@ async function loadGeoStatus(){
    setText('geo-walkways',s.walk_segments?`${fmt(s.walk_segments)} tramos`:'Sin red importada');
    setText('geo-census',s.census_sections?`${fmt(s.census_sections)} secciones`:'Sin geometrías · Eustat tabular');
    setText('geo-buildings',s.residential_buildings?`${fmt(s.residential_buildings)} edificios`:'Sin edificios residenciales');
-   const areaReady=!!s.area_interpolation_ready;
+   const accessReady=!!s.population_access_ready;
    const title=document.querySelector('#territorial-panel .panel-head h3');
-   if(title)title.textContent=areaReady?'Accesibilidad peatonal · población estimada':'Accesibilidad peatonal · capas reales pendientes';
-   setText('geo-method',s.ready
-     ? `${fmt(s.resident_units)} unidades residenciales · ${fmt(s.unallocated_population)} personas sin asignación residencial · estimación no certificada.`
-     : areaReady
-       ? `${fmt(s.census_sections)} secciones Eustat con geometría oficial de Gipuzkoa · interpolación proporcional de área · estimación no certificada.`
-       : 'La red peatonal puede estar disponible, pero falta la unión de población censal y edificios residenciales. No se mostrarán habitantes cubiertos inventados.');
-   if(!s.ready && !areaReady){
+   if(title)title.textContent=accessReady?'Accesibilidad peatonal · población estimada':'Accesibilidad peatonal · capas reales pendientes';
+   setText('geo-method',accessReady
+     ? `${fmt(s.resident_units)} anclajes poblacionales en la red · ${fmt(s.unallocated_population)} personas sin asignar · estimación no certificada e independiente del grosor visual.`
+     : 'Falta la unión verificable entre secciones censales y red peatonal. No se mostrarán habitantes cubiertos inventados.');
+   if(!accessReady){
      setText('geo-result',`Cobertura del recorrido pendiente · ${populationReferenceLabel()}`);
      setText('geo-stop-result',`Seleccione una parada · ${populationReferenceLabel()}`);
-   } else if(areaReady){
+   } else {
      setText('geo-stop-result','Seleccione una parada para ver su población objetivo a 5 y 10 minutos.');
    }
  }catch(e){setText('geo-method','No se pudo consultar la base geográfica: '+e.message)}
@@ -369,13 +376,13 @@ async function showIsochrone(stop,{auto=false,renderToken=null}={}){
       setText('kpi-population',populationReference.loaded?fmt(populationReference.total_population):'—');
       setText('kpi-population-note',`Parada: ${stop.name} · no equivale a cobertura de la isócrona`);
     }
-    setText('geo-method','La isócrona solo es calculable cuando la parada se conecta a la red peatonal y la población está asignada a edificios residenciales dentro de secciones censales.');
+    setText('geo-method','La isócrona sólo es calculable cuando la parada se conecta a la red peatonal y la población censal está anclada a esa misma red.');
     return;
   }
   const formatPopulation=p=>typeof p==='number'?fmt(p)+' hab.':'no calculable';
-  const method=iso10.population_method==='census_section_area_interpolation'
-    ? 'interpolación de sección censal'
-    : 'asignación residencial';
+  const method=(iso10.population_method||'').includes('network_anchor')
+    ? 'asignación censal a la red peatonal'
+    : 'asignación a edificios residenciales';
   setText('geo-stop-result',`${stop.name} · 5 min: ${formatPopulation(iso5.population)} · 10 min: ${formatPopulation(iso10.population)} · ${method}`);
   if(!auto){const kpiLabel=$('kpi-population')?.closest('.kpi')?.querySelector('.name');if(kpiLabel)kpiLabel.textContent=iso10.population===null?'Población base · Gipuzkoa':'Población cubierta · parada';setText('kpi-population',iso10.population===null?'—':fmt(iso10.population));
     setText('kpi-population-note',iso10.population===null
@@ -399,7 +406,16 @@ let networkRequestId=0;
 async function computeNetworkPopulation({silent=false}={}){
  const requestId=++networkRequestId;
  const button=$('geo-network-button');button.disabled=true;setText('geo-result','Calculando cobertura única…');
- try{const data=await api(qs('/api/geo/network',{operator:$('map-both').checked?'all':state.operator,day:state.activeMapDate,route_id:state.route||'',minutes:10}));
+ try{
+  const queued=await api('/api/analysis/jobs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({operator:$('map-both').checked?'all':state.operator,day:state.activeMapDate,route_id:state.route||'',minutes:10})});
+  let job=queued;
+  for(let attempt=0;attempt<180&&['pending','running'].includes(job.status);attempt++){
+    if(requestId!==networkRequestId)return;
+    setText('geo-result',job.status==='pending'?'Cobertura en cola…':'Calculando cobertura única en segundo plano…');
+    await new Promise(resolve=>setTimeout(resolve,500));job=await api(`/api/analysis/jobs/${encodeURIComponent(job.id)}`);
+  }
+  if(job.status!=='complete')throw Error(job.error||`Trabajo ${job.status}`);
+  const data=job.result;
  if(requestId!==networkRequestId)return;
  if(data.population===null){
    setText('geo-result',data.status==='missing_gtfs'
@@ -415,7 +431,7 @@ async function computeNetworkPopulation({silent=false}={}){
  setText('geo-result',`${fmt(data.population)} habitantes únicos estimados · ${scope} · 10 min`);
  const kpiLabel=$('kpi-population')?.closest('.kpi')?.querySelector('.name');if(kpiLabel)kpiLabel.textContent='Población cubierta · recorrido';
  setText('kpi-population',fmt(data.population));
- const method=data.population_method==='census_section_area_interpolation'?'interpolación proporcional de secciones Eustat':'asignación a edificios residenciales';
+  const method=(data.population_method||'').includes('network_anchor')?'asignación censal a puntos de la red peatonal':(data.population_method||'').includes('residential')?'asignación a edificios residenciales':'modelo peatonal versionado';
  setText('kpi-population-note',`${scope} · ${data.stops_connected}/${data.stops} paradas · 10 min · cobertura única · ${method}`);
  setText('geo-method',`${data.stops_connected} paradas conectadas de ${data.stops}; población deduplicada entre isócronas mediante ${method}. ${fmt(data.unallocated_population||0)} habitantes sin asignación residencial. Estimación no certificada.`);
  }catch(e){if(requestId===networkRequestId)setText('geo-result','No calculable: '+e.message)}finally{button.disabled=false}
@@ -484,7 +500,7 @@ async function confirmAppVersion(){
   try {
     const info=await api('/api/version');
     window.OBSERVATORIO_VERSION=info.version;
-    setText('running-version',document.body.classList.contains('review-mode')?`DEMO · v${info.version}`:`v${info.version} · CORTE FIJO 18 OCT 2026`);
+    setText('running-version',document.body.classList.contains('review-mode')?`DEMO · v${info.version}`:`v${info.version} · CORTE ${info.date_cutoff}`);
     setText('brand-version',`Gipuzkoa · ${document.body.classList.contains('review-mode')?'DEMO':'DATOS REALES'} · GTFS oficial`);
   } catch(error) { setText('running-version','VERSIÓN NO VERIFICABLE'); }
 }

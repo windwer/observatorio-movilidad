@@ -6,7 +6,7 @@ import zipfile
 from pathlib import Path
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from fastapi.testclient import TestClient
+from test_client import TestClient
 import engine,audit,changes,offer,territory,app
 from test_engine import sample_gtfs
 from test_territory import coord,feat,collection,square
@@ -67,10 +67,13 @@ class GeographicRegression(unittest.TestCase):
 class EndpointTests(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory()
+        self.original_db=app.DB
         app.DB=Path(self.tmp.name)/'db.sqlite3'
+        engine.connect(app.DB).close()
         app._TERRITORY=None
         self.client=TestClient(app.app)
-    def tearDown(self):self.tmp.cleanup()
+    def tearDown(self):
+        app.DB=self.original_db;app._TERRITORY=None;self.tmp.cleanup()
     def test_new_readiness_api_and_page(self):
         r=self.client.get('/api/audit/readiness')
         self.assertEqual(r.status_code,200)

@@ -37,6 +37,12 @@ def setup(conn:sqlite3.Connection):
     conn.executescript(REVIEW_SCHEMA)
 
 
+def require_review_schema(conn:sqlite3.Connection):
+    """Fail explicitly if startup migrations were skipped; never mutate on GET."""
+    present=conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='service_reviews'").fetchone()
+    if not present:raise RuntimeError('La base no está migrada: falta service_reviews')
+
+
 def each_day(start:date, end:date):
     current=start
     while current<=end:
@@ -69,7 +75,7 @@ def provenance_day(conn, operator:str, d:date):
 def month_grid(conn, operator:str, year:int):
     if operator not in engine.OPERATORS or year not in (2025,2026):
         raise ValueError('Operador o año no válido')
-    setup(conn)
+    require_review_schema(conn)
     out=[]
     for month in range(1,13):
         dates=[provenance_day(conn,operator,d) for d in each_day(date(year,month,1),date(year,month,monthrange(year,month)[1]))]
@@ -111,7 +117,7 @@ def review_period(conn, operator:str, from_day:str, to_day:str,
 
 
 def readiness(conn, geographic_status=None):
-    setup(conn)
+    require_review_schema(conn)
     breakdown={};missing_examples=[];not_verified_examples=[]
     expected_days=(END-START).days+1
     # The frozen publication gate covers the historical bus baseline.  The

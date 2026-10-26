@@ -5,52 +5,70 @@ on:
   pull_request:
 
 jobs:
-  python-qa:
+  application-qa:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - name: Instalar dependencias
-        run: python -m pip install -r requirements.txt
-      - name: Comprobar sintaxis Python
-        run: python -m compileall -q .
-      - name: Comprobar sintaxis del visor
+          python-version: '3.12'
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar dependencias exactas
         run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip check
+      - name: Comprobar sintaxis
+        run: |
+          python -m compileall -q -x '(\.git|data/real)' .
           node --check static/app.js
           node --check static/offline_map.js
-      - name: Validar versión y catálogo de líneas
+      - name: Validar despliegue Compose
+        env:
+          OBS_ADMIN_PASSWORD: ci_only_secret_with_more_than_24_chars
+          OBS_DATA_RELEASE: ci-release
+          OBS_DATA_RELEASE_DIR: /tmp/observatorio-release
+          OBS_DOMAIN: observatorio.example.org
+        run: docker compose -f compose.yaml -f compose.local.yaml config --quiet
+      - name: Ejecutar regresiones autocontenidas
+        run: python -m unittest discover -v
+      - name: Validar versión y catálogo
         run: |
           python - <<'PY'
           import tempfile
           from pathlib import Path
-          import app
-          import engine
+          import app, engine
 
-          assert app.version(True)['version'] == '1.0'
-          path = Path(tempfile.mkstemp(suffix='.sqlite3')[1])
-          conn = engine.connect(path)
-          conn.execute("INSERT INTO feeds(sha256,operator,snapshot_date,original_name,imported_at,min_date,max_date) VALUES ('qa','ekialdebus','2026-10-01','qa.zip','2026-10-01T00:00:00','2026-10-01','2026-10-31')")
-          conn.execute("INSERT INTO routes VALUES (1,'r1','L1','Linea 1')")
-          conn.execute("INSERT INTO routes VALUES (1,'r2','L2','Linea 2')")
-          conn.commit()
-          catalog = engine.route_catalog(conn, 'ekialdebus', 2026, 10)
-          assert [row['name'] for row in catalog['routes']] == ['L1', 'L2']
-          conn.close()
-          path.unlink(missing_ok=True)
-          print('v1.0 y catálogo de líneas: OK')
+          assert app.version(True)['version'] == '1.1.0'
+          with tempfile.TemporaryDirectory() as folder:
+              path = Path(folder) / 'qa.sqlite3'
+              conn = engine.connect(path)
+              conn.execute("INSERT INTO feeds(sha256,operator,snapshot_date,original_name,imported_at,min_date,max_date) VALUES ('qa','ekialdebus','2026-10-01','qa.zip','2026-10-01T00:00:00','2026-10-01','2026-10-31')")
+              conn.execute("INSERT INTO routes(feed_id,route_id,short_name,long_name) VALUES (1,'r1','L1','Linea 1')")
+              conn.execute("INSERT INTO routes(feed_id,route_id,short_name,long_name) VALUES (1,'r2','L2','Linea 2')")
+              conn.commit()
+              catalog = engine.route_catalog(conn, 'ekialdebus', 2026, 10)
+              assert [row['name'] for row in catalog['routes']] == ['L1', 'L2']
+              conn.close()
+          print('v1.1.0 y catálogo estable: OK')
           PY
-      - name: Validar referencia poblacional Eustat
+      - name: Validar población y cartografía provincial
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
 
-          path = Path('data/references/POBLACION_EUSTAT_2025_v1.json')
-          payload = json.loads(path.read_text(encoding='utf-8'))
-          assert payload['total_population'] == 150832
-          assert payload['sections'] == 109
-          assert payload['validation']['spatial_coverage_ready'] is False
-          print('Eustat 2025: 109 secciones, 150832 habitantes; sin afirmar cobertura espacial.')
+          payload = json.loads(Path('data/references/POBLACION_EUSTAT_2025_v1.json').read_text(encoding='utf-8'))
+          anchors = json.loads(Path('data/real/geography/population_anchors.json').read_text(encoding='utf-8'))
+          assert payload['total_population'] == 724797
+          assert payload['sections'] == 544
+          assert payload['municipality_count'] == 88
+          assert anchors['census_population'] == 724797
+          assert anchors['method_version'] == 'walk-network-anchors-v2'
+          assert anchors['anchors'] and not anchors['unallocated']
+          print('Gipuzkoa: 544 secciones, 88 municipios, 724.797 habitantes y anclajes completos.')
           PY

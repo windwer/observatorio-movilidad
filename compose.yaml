@@ -1,17 +1,42 @@
-# Deployment stays private: Caddy handles HTTPS, the app requires HTTP Basic.
-# Set OBS_DOMAIN, OBS_USERNAME and a strong OBS_PASSWORD in .env, then configure DNS.
+# Code and immutable data are separate artifacts. Build a validated release with
+# data_release.py and set OBS_DATA_RELEASE_DIR to that folder.
+x-observatorio-environment: &observatorio-environment
+  OBS_HOST: 0.0.0.0
+  OBS_PORT: 8000
+  OBS_PUBLIC_READ: ${OBS_PUBLIC_READ:-1}
+  OBS_ADMIN_USERNAME: ${OBS_ADMIN_USERNAME:-administrador}
+  OBS_ADMIN_PASSWORD: ${OBS_ADMIN_PASSWORD:?Define OBS_ADMIN_PASSWORD}
+  OBS_DB: /srv/observatorio/runtime/observatorio_real.sqlite3
+  OBS_GEOGRAPHY_DIR: /srv/observatorio/runtime/geography
+  OBS_REFERENCE_CSV: /srv/observatorio/runtime/references/eustat_2025_original.csv
+  OBS_STATE_DB: /srv/observatorio/state/observatorio_state.sqlite3
+  OBS_DATA_RELEASE: ${OBS_DATA_RELEASE:?Define OBS_DATA_RELEASE}
+  OBS_IMMUTABLE_DATA: 1
 services:
   app:
     build: .
     restart: unless-stopped
-    environment:
-      OBS_HOST: 0.0.0.0
-      OBS_PORT: 8000
-      OBS_USERNAME: ${OBS_USERNAME:?Define OBS_USERNAME}
-      OBS_PASSWORD: ${OBS_PASSWORD:?Define OBS_PASSWORD}
-      OBS_DB: /srv/observatorio/data/observatorio.sqlite3
+    environment: *observatorio-environment
     volumes:
-      - observatorio_data:/srv/observatorio/data
+      - ${OBS_DATA_RELEASE_DIR:?Define OBS_DATA_RELEASE_DIR}:/srv/observatorio/runtime:ro
+      - observatorio_state:/srv/observatorio/state
+    read_only: true
+    tmpfs: [/tmp]
+    mem_limit: 4g
+    cpus: 2.0
+    networks: [private]
+  worker:
+    build: .
+    restart: unless-stopped
+    command: ["python","worker.py"]
+    environment: *observatorio-environment
+    volumes:
+      - ${OBS_DATA_RELEASE_DIR:?Define OBS_DATA_RELEASE_DIR}:/srv/observatorio/runtime:ro
+      - observatorio_state:/srv/observatorio/state
+    read_only: true
+    tmpfs: [/tmp]
+    mem_limit: 4g
+    cpus: 2.0
     networks: [private]
   caddy:
     image: caddy:2-alpine
@@ -25,10 +50,12 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-    depends_on: [app]
+    depends_on:
+      app:
+        condition: service_healthy
     networks: [private]
 volumes:
-  observatorio_data:
+  observatorio_state:
   caddy_data:
   caddy_config:
 networks:

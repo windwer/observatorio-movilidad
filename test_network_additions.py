@@ -58,14 +58,14 @@ class NetworkAdditionTests(unittest.TestCase):
         geo_dir = Path(__file__).resolve().parent / 'data' / 'real' / 'geography'
         store = territory.TerritoryStore(geo_dir)
         status = store.status()
-        self.assertEqual(status['census_sections'], 109)
-        self.assertEqual(status['census_population'], 150832)
+        self.assertEqual(status['census_sections'], 544)
+        self.assertEqual(status['census_population'], 724797)
         self.assertGreater(status['walk_segments'], 0)
-        self.assertTrue(status['area_interpolation_ready'])
+        self.assertTrue(status['population_access_ready'])
         result = store.stop(43.3392, -1.7894, minutes=10)
         self.assertEqual(result['status'], 'calculated')
         self.assertGreater(result['population'], 0)
-        self.assertEqual(result['population_method'], 'census_section_area_interpolation')
+        self.assertIn('network_anchor',result['population_method'])
 
     def test_new_network_routes_are_mappable(self):
         con = engine.connect(Path('network_additions_test.sqlite3'))
