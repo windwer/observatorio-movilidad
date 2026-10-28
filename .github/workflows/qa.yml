@@ -27,6 +27,7 @@ jobs:
           python -m compileall -q -x '(\.git|data/real)' .
           node --check static/app.js
           node --check static/offline_map.js
+          node --test scripts/test_ui_performance.js
       - name: Validar despliegue Compose
         env:
           OBS_ADMIN_PASSWORD: ci_only_secret_with_more_than_24_chars
@@ -43,7 +44,7 @@ jobs:
           from pathlib import Path
           import app, engine
 
-          assert app.version(True)['version'] == '1.1.0'
+          assert app.version(True)['version'] == '1.2.0'
           with tempfile.TemporaryDirectory() as folder:
               path = Path(folder) / 'qa.sqlite3'
               conn = engine.connect(path)
@@ -54,7 +55,7 @@ jobs:
               catalog = engine.route_catalog(conn, 'ekialdebus', 2026, 10)
               assert [row['name'] for row in catalog['routes']] == ['L1', 'L2']
               conn.close()
-          print('v1.1.0 y catálogo estable: OK')
+          print('v1.2.0 y catálogo estable: OK')
           PY
       - name: Validar población y cartografía provincial
         run: |

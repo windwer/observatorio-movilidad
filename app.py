@@ -10,6 +10,7 @@ from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.gzip import GZipMiddleware
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi import Depends
 import uvicorn
@@ -39,6 +40,7 @@ ADMIN_PASSWORD=CONFIG.admin_password
 ADMIN_USERNAME=CONFIG.admin_username
 APP_VERSION=settings.APP_VERSION
 app=FastAPI(title='Observatorio de Movilidad · Gipuzkoa', version=APP_VERSION,docs_url=None,redoc_url=None,openapi_url=None)
+app.add_middleware(GZipMiddleware,minimum_size=1000,compresslevel=4)
 _REQUESTS=defaultdict(int);_LATENCY_MS=defaultdict(float);_RATE=defaultdict(deque);_METRICS_LOCK=threading.Lock()
 _READ_CACHE=OrderedDict();_READ_CACHE_LOCK=threading.RLock();_READ_KEY_LOCKS=defaultdict(threading.Lock)
 
@@ -92,6 +94,25 @@ async def demo_readonly(request:Request,call_next):
 
 _TERRITORY=None
 _TERRITORY_LOCK=threading.Lock()
+_ACCESS_CACHE=None
+_ACCESS_STAMP=None
+_ACCESS_LOCK=threading.Lock()
+def prepared_stop(lat,lon,minutes):
+    """Serve a prepared stop before loading the provincial graph on cold starts."""
+    global _ACCESS_CACHE,_ACCESS_STAMP
+    if Path(DB).resolve()!=CONFIG.db:return None
+    directory=CONFIG.geography_dir
+    if not (directory/'walkways.geojson').is_file():return None
+    names=('census.geojson','buildings.geojson','walkways.geojson','population_anchors.json')
+    stamp=(str(directory),str(CONFIG.state_db),tuple((name,(directory/name).stat().st_mtime_ns,
+           (directory/name).stat().st_size) for name in names if (directory/name).is_file()))
+    with _ACCESS_LOCK:
+        if _ACCESS_STAMP!=stamp:
+            from access_cache import AccessCache,fingerprint
+            _ACCESS_CACHE=AccessCache(CONFIG.state_db.with_name('access-cache.sqlite3'),fingerprint(directory))
+            _ACCESS_STAMP=stamp
+    return _ACCESS_CACHE.get(f'stop:{float(lat):.6f}:{float(lon):.6f}:{int(minutes)}')
+
 def geo_store():
     global _TERRITORY
     destination=CONFIG.geography_dir if Path(DB).resolve()==CONFIG.db else DB.parent/'geography'
@@ -107,7 +128,8 @@ def geo_store():
     if _TERRITORY is None or _TERRITORY.directory!=destination:
         with _TERRITORY_LOCK:
             if _TERRITORY is None or _TERRITORY.directory!=destination:
-                _TERRITORY=territory.TerritoryStore(destination,cache_entries=CONFIG.cache_entries)
+                _TERRITORY=territory.TerritoryStore(destination,cache_entries=CONFIG.cache_entries,
+                    artifact_path=CONFIG.state_db.with_name('access-cache.sqlite3') if Path(DB).resolve()==CONFIG.db else None)
     return _TERRITORY
 security=HTTPBasic(auto_error=False)
 
@@ -246,6 +268,10 @@ def ready(_:bool=Depends(guard)):
     except (OSError,FileNotFoundError,ValueError):pass
     checks['census_file']=(CONFIG.geography_dir/'census.geojson').is_file()
     checks['walkways_file']=(CONFIG.geography_dir/'walkways.geojson').is_file()
+    if checks['population_reference']:
+        reference=ensure_population()
+        checks['population_total']=reference.get('total_population')
+        checks['study_area_population']=reference.get('study_area_population')
     ok=checks['database'] and checks['feeds']>0 and checks['census_file'] and checks['walkways_file'] and checks['population_reference']
     if not ok:raise HTTPException(status_code=503,detail={'ready':False,'checks':checks})
     return {'ready':True,'kind':'readiness','checks':checks,'data_release':os.environ.get('OBS_DATA_RELEASE','local-unversioned'),
@@ -297,19 +323,19 @@ def map_view(operator:str='ekialdebus',day:str='2026-10-16',route_id:str='',_:bo
 def route_metrics(operator:str,route_id:str,day:str,_:bool=Depends(guard)):
     if operator not in engine.OPERATORS or not route_id:
         raise HTTPException(status_code=400,detail='Línea u operador inválido')
-    return handle(route_insights.route_metrics,operator,route_id,day)
+    return cached_read(('route_metrics',operator,route_id,day),lambda:handle(route_insights.route_metrics,operator,route_id,day))
 
 @app.get('/api/route/frequency')
 def route_frequency(operator:str,route_id:str,year:int=2026,month:int=10,day:str='2026-10-16',_:bool=Depends(guard)):
     if operator not in engine.OPERATORS or not route_id or not CONFIG.min_year<=year<=CONFIG.max_year or month not in range(1,13):
         raise HTTPException(status_code=400,detail='Selección inválida')
-    return handle(route_insights.route_frequency_week,operator,route_id,year,month,day)
+    return cached_read(('route_frequency',operator,route_id,year,month,day),lambda:handle(route_insights.route_frequency_week,operator,route_id,year,month,day))
 
 @app.get('/api/route/compare')
 def route_compare(operator:str,route_id:str,old_day:str='2025-10-16',new_day:str='2026-10-16',_:bool=Depends(guard)):
     if operator not in engine.OPERATORS or not route_id:
         raise HTTPException(status_code=400,detail='Línea u operador inválido')
-    return handle(route_insights.route_comparison,operator,route_id,old_day,new_day)
+    return cached_read(('route_compare',operator,route_id,old_day,new_day),lambda:handle(route_insights.route_comparison,operator,route_id,old_day,new_day))
 
 @app.get('/api/map/both')
 def map_both(day:str='2026-10-16',scope:str='core',_:bool=Depends(guard)):
@@ -343,6 +369,9 @@ def stop(operator:str,day:str,stop_id:str,_:bool=Depends(guard)):
 def coverage(operator:str='ekialdebus',year:int=2026,_:bool=Depends(guard)):
     if operator not in engine.OPERATORS or not CONFIG.min_year<=year<=CONFIG.max_year:
         raise HTTPException(status_code=400,detail='Filtros inválidos')
+    return cached_read(('coverage',operator,year),lambda:_coverage_matrix(operator,year))
+
+def _coverage_matrix(operator,year):
     con=db()
     try:
         from calendar import monthrange
@@ -415,9 +444,11 @@ def geo_stop(operator:str,day:str,stop_id:str,minutes:int=10,_:bool=Depends(guar
         s=con.execute('SELECT lat,lon,name FROM stops WHERE feed_id=? AND stop_id=?',(version['id'],stop_id)).fetchone()
         if not s:raise HTTPException(status_code=404,detail='Parada no encontrada')
         if s['lat'] is None or s['lon'] is None:raise HTTPException(status_code=422,detail='La parada carece de coordenadas')
+        result=prepared_stop(s['lat'],s['lon'],minutes)
+        if result is None:result=geo_store().stop(s['lat'],s['lon'],minutes=minutes)
         return {'operator':operator,'day':day,'stop_id':stop_id,'stop_name':s['name'],
           'time_state':'historical' if day<=engine.CUTOFF.isoformat() else 'planning',
-          'source_quality':quality,**geo_store().stop(s['lat'],s['lon'],minutes=minutes)}
+          'source_quality':quality,**result}
     finally:con.close()
 
 @app.post('/api/sources/refresh')

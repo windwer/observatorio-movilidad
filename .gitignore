@@ -5,6 +5,8 @@ __pycache__/
 .env
 *.log
 .DS_Store
+**/access-cache.sqlite3*
+data/runtime/
 
 # Runtime data: the complete historical package is distributed separately.
 data/real/observatorio_real.sqlite3

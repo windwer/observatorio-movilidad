@@ -44,7 +44,7 @@ class EustatRealTests(unittest.TestCase):
   doc=self.client.get('/').text
   self.assertIn('Población Eustat 2025 · Gipuzkoa',doc)
   self.assertIn('eustat-population-panel',doc)
-  self.assertIn('/static/app.js?v=1.1.0',doc)
+  self.assertIn('/static/app.js?v=1.2.0',doc)
   self.assertIn('loadEustatPopulation',Path(__file__).resolve().parent.joinpath('static/app.js').read_text(encoding='utf-8'))
 
 if __name__=='__main__':unittest.main()

@@ -12,6 +12,7 @@ import json
 import sqlite3
 import statistics
 import zipfile
+from contextlib import nullcontext
 from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -24,6 +25,51 @@ CUTOFF = settings.SETTINGS.cutoff
 # comparison.
 OPERATORS = {key: value["label"] for key, value in settings.OPERATOR_CATALOG.items()}
 CORE_OPERATORS = settings.CORE_OPERATORS
+SUMMARY_SCHEMA='''
+CREATE TABLE IF NOT EXISTS trip_summaries(
+ feed_id INTEGER NOT NULL,trip_id TEXT NOT NULL,first_dep REAL,last_arr REAL,origin_id TEXT,
+ PRIMARY KEY(feed_id,trip_id),FOREIGN KEY(feed_id,trip_id) REFERENCES trips(feed_id,trip_id) ON DELETE CASCADE);
+CREATE TABLE IF NOT EXISTS trip_summary_feeds(
+ feed_id INTEGER PRIMARY KEY,sha256 TEXT NOT NULL,trip_count INTEGER NOT NULL,
+ FOREIGN KEY(feed_id) REFERENCES feeds(id) ON DELETE CASCADE);
+'''
+
+
+def has_trip_summary(conn,feed_id):
+    try:
+        return conn.execute('''SELECT 1 FROM trip_summary_feeds s JOIN feeds f ON f.id=s.feed_id
+            WHERE s.feed_id=? AND s.sha256=f.sha256''',(feed_id,)).fetchone() is not None
+    except sqlite3.OperationalError:return False
+
+
+def prepare_trip_summaries(conn,feed_id=None):
+    """Materialize endpoint times once at import/release preparation, never on GET.
+
+    Keeping each trip (including direction and service through the trips join)
+    preserves arbitrary date exceptions, overnight times and hourly filters.
+    """
+    for statement in SUMMARY_SCHEMA.split(';'):
+        if statement.strip():conn.execute(statement)
+    feeds=conn.execute('SELECT id,sha256 FROM feeds'+(' WHERE id=?' if feed_id is not None else ''),
+                       (feed_id,) if feed_id is not None else ()).fetchall()
+    prepared=0
+    for feed in feeds:
+        fid=feed['id']
+        if has_trip_summary(conn,fid):continue
+        with (conn if feed_id is None else nullcontext()):
+            conn.execute('DELETE FROM trip_summaries WHERE feed_id=?',(fid,))
+            conn.execute('''INSERT INTO trip_summaries
+                SELECT t.feed_id,t.trip_id,
+                  (SELECT s.dep_min FROM stop_times s WHERE s.feed_id=t.feed_id AND s.trip_id=t.trip_id ORDER BY s.seq LIMIT 1),
+                  (SELECT COALESCE(s.arr_min,s.dep_min) FROM stop_times s WHERE s.feed_id=t.feed_id AND s.trip_id=t.trip_id ORDER BY s.seq DESC LIMIT 1),
+                  (SELECT s.stop_id FROM stop_times s WHERE s.feed_id=t.feed_id AND s.trip_id=t.trip_id ORDER BY s.seq LIMIT 1)
+                FROM trips t WHERE t.feed_id=?''',(fid,))
+            count=conn.execute('SELECT COUNT(*) FROM trip_summaries WHERE feed_id=?',(fid,)).fetchone()[0]
+            conn.execute('INSERT OR REPLACE INTO trip_summary_feeds VALUES (?,?,?)',(fid,feed['sha256'],count))
+        prepared+=1
+    if feed_id is None:
+        conn.execute('ANALYZE trip_summaries');conn.commit()
+    return {'prepared_feeds':prepared,'summary_trips':conn.execute('SELECT COUNT(*) FROM trip_summaries').fetchone()[0]}
 
 # The official Euskotren feed contains rail, tram and funicular services for
 # the whole Basque Country.  This observatory is scoped to the
@@ -458,6 +504,7 @@ def ingest(conn, content:bytes, operator:str, snapshot_date:str, filename:str):
             int(s.get('pickup_type') or 0),int(s.get('drop_off_type') or 0)) for s in data['stop_times']))
         conn.executemany('INSERT OR REPLACE INTO shapes(feed_id,shape_id,seq,lat,lon) VALUES (?,?,?,?,?)',
           ((fid,s['shape_id'],int(s['shape_pt_sequence']),safe_float(s.get('shape_pt_lat')),safe_float(s.get('shape_pt_lon'))) for s in data['shapes']))
+        prepare_trip_summaries(conn,fid)
         if staged_zip is not None:
             staged_zip.replace(original_zip)
     except Exception:
@@ -501,6 +548,13 @@ def all_days(year,month,day_type):
 def date_trip_rows(conn,feed_id,services,hour_start=0,hour_end=2880):
     if not services: return []
     markers=','.join('?' for _ in services)
+    if has_trip_summary(conn,feed_id):
+        return [dict(row) for row in conn.execute(f'''SELECT t.trip_id,t.route_id,t.direction_id,t.headsign,
+            r.short_name,r.long_name,s.first_dep,s.origin_id
+            FROM trips t JOIN routes r ON r.feed_id=t.feed_id AND r.route_id=t.route_id
+            JOIN trip_summaries s ON s.feed_id=t.feed_id AND s.trip_id=t.trip_id
+            WHERE t.feed_id=? AND t.service_id IN ({markers}) AND s.first_dep>=? AND s.first_dep<?''',
+            (feed_id,*services,hour_start,hour_end))]
     sql=f'''SELECT t.trip_id,t.route_id,t.direction_id,t.headsign,r.short_name,r.long_name,
       (SELECT s.dep_min FROM stop_times s WHERE s.feed_id=t.feed_id AND s.trip_id=t.trip_id ORDER BY s.seq LIMIT 1) AS first_dep,
       (SELECT s.stop_id FROM stop_times s WHERE s.feed_id=t.feed_id AND s.trip_id=t.trip_id ORDER BY s.seq LIMIT 1) AS origin_id
@@ -517,6 +571,7 @@ def month_analysis(conn, operator,year,month,day_type,hour_start=0,hour_end=2880
         raise ValueError('Filtros no válidos')
     result={"operator":operator,"year":year,"month":month,"day_type":day_type,"hour_start":hour_start,"hour_end":hour_end,"cutoff":CUTOFF.isoformat(),"calendar_filter":calendar_filter,"segments":[]}
     grouped={"historical":[],"planning":[]}
+    departures_cache={}
     for d in all_days(year,month,day_type):
         segment='historical' if d<=CUTOFF else 'planning'
         version,confidence=pick_version(conn,operator,d.isoformat())
@@ -527,7 +582,9 @@ def month_analysis(conn, operator,year,month,day_type,hour_start=0,hour_end=2880
         if calendar_filter=='ordinary' and explicit_exceptions or calendar_filter=='exception' and not explicit_exceptions:
             continue
         sid=active_services(conn,version['id'],d.isoformat())
-        trips=date_trip_rows(conn,version['id'],sid,hour_start,hour_end)
+        key=(version['id'],tuple(sorted(sid)))
+        if key not in departures_cache:departures_cache[key]=date_trip_rows(conn,version['id'],sid,hour_start,hour_end)
+        trips=departures_cache[key]
         if route_filter: trips=[r for r in trips if r['route_id']==route_filter]
         grouped[segment].append({"date":d.isoformat(),"source":version['id'],"sha256":version['sha256'],"snapshot_quality":confidence,"explicit_exception":bool(explicit_exceptions),"trips":trips})
     for segment,items in grouped.items():
@@ -636,7 +693,7 @@ def map_data(conn, operator,day,route_filter=''):
             if coords:
                 lines.append({'id':route_id,'name':r['short_name'] or route_id,'long_name':r['long_name'],
                     'direction':pattern['direction_id'],'shape_id':shape_id,
-                    'coordinates':coords[::max(1,len(coords)//350)]})
+                    'coordinates':coords})
     stops=[]
     if stop_ids:
         marks=','.join('?' for _ in stop_ids)

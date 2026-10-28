@@ -26,11 +26,11 @@ def network_coverage(store,params):
     ops=engine.CORE_OPERATORS if operator=='both' else tuple(engine.OPERATORS) if operator=='all' else (operator,)
     conn=engine.connect(settings.SETTINGS.db,readonly=True,initialize=False)
     try:
-        records=[engine.map_data(conn,op,day) for op in ops]
+        records=[engine.map_data(conn,op,day,route_id) for op in ops]
         missing=[op for op,row in zip(ops,records) if row['quality']=='missing']
         available=[(op,row) for op,row in zip(ops,records) if row['quality']!='missing']
         if not available:return {'status':'missing_gtfs','population':None,'missing_operators':missing}
-        stops=[{**stop,'operator':op} for op,_ in available for stop in engine.map_data(conn,op,day,route_id)['stops']]
+        stops=[{**stop,'operator':op} for op,record in available for stop in record['stops']]
         result={'operator':operator,'day':day,'route_id':route_id or None,'minutes':minutes,
                 'time_state':'historical' if day<=engine.CUTOFF.isoformat() else 'planning',
                 'source_quality':{op:row['quality'] for op,row in available},'missing_operators':missing,
@@ -55,7 +55,8 @@ def run_once(store):
 
 def main():
     signal.signal(signal.SIGINT,_stop);signal.signal(signal.SIGTERM,_stop)
-    store=territory.TerritoryStore(settings.SETTINGS.geography_dir,cache_entries=settings.SETTINGS.cache_entries)
+    store=territory.TerritoryStore(settings.SETTINGS.geography_dir,cache_entries=settings.SETTINGS.cache_entries,
+        artifact_path=settings.SETTINGS.state_db.with_name('access-cache.sqlite3'))
     while not STOP:
         if not run_once(store):time.sleep(.4)
 

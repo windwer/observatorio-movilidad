@@ -3,11 +3,14 @@
 Visor reproducible para analizar red, oferta y accesibilidad peatonal de
 Irunbus, Ekialdebus, Euskotren (líneas ferroviarias E1/E2) y Errenteria bus
 urbano, con histórico GTFS local y referencia poblacional Eustat 2025. La entrega corresponde al paquete histórico `v1` y a la aplicación
-`v1.1.0`; mantiene la fase de
+`v1.2.0`; mantiene la fase de
 Product Review: los horarios GTFS describen oferta programada, no prueban por sí
 solos el servicio prestado.
 
 ## Qué contiene este repositorio
+
+Las optimizaciones y las mediciones de esta versión se detallan en
+[PERFORMANCE_V1.2.0.md](PERFORMANCE_V1.2.0.md).
 
 - Código del visor, motor de red, isócronas y métricas de línea.
 - Catálogo seleccionable de las cuatro redes del ámbito; el mapa combinado

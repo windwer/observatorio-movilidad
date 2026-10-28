@@ -13,7 +13,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.2.0"
 API_SCHEMA_VERSION = "1.1"
 METHOD_VERSION = "walk-network-anchors-v2"
 DEFAULT_CUTOFF = date(2026, 10, 18)

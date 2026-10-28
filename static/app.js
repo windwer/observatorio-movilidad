@@ -13,8 +13,19 @@ const routeCatalogCache=new Map();
 // newly selected map (the source of the intermittent/asynchronous-looking
 // 5/10 minute curves).
 let mapRenderToken=0;
+let lastMapData=null;
+let lastMapScope=null;
 let isoRequestId=0;
 let refreshController=null;
+const responseCache=new Map();
+async function cachedApi(endpoint,options={}){
+ const hit=responseCache.get(endpoint);
+ if(hit&&Date.now()-hit.at<300000){responseCache.delete(endpoint);responseCache.set(endpoint,hit);return hit.value;}
+ const value=await api(endpoint,options);
+ responseCache.set(endpoint,{at:Date.now(),value});
+ while(responseCache.size>96)responseCache.delete(responseCache.keys().next().value);
+ return value;
+}
 function ensureRouteScheduleUI(){
  const panel=$('route-insights');if(!panel||$('route-service-window'))return;
  const metrics=panel.querySelector('.route-metrics');
@@ -59,7 +70,7 @@ async function init(){
 function openModal(){ $('import-modal').classList.add('open');$('import-operator').value=state.operator;updateVersions(); }
 function closeModal(){ $('import-modal').classList.remove('open') }
 window.openModal=openModal;window.closeModal=closeModal;
-async function api(endpoint,options={}){const response=await fetch(endpoint,options);let out=await response.json();if(!response.ok){const detail=typeof out.detail==='string'?out.detail:(out.detail?JSON.stringify(out.detail):`HTTP ${response.status}`);throw Error(detail)}return out}
+async function api(endpoint,options={}){const response=await fetch(endpoint,options);let out=await response.json();if(!response.ok){const detail=typeof out.detail==='string'?out.detail:(out.detail?JSON.stringify(out.detail):`HTTP ${response.status}`);throw Error(detail)}if(options.method&&options.method!=='GET'&&!endpoint.startsWith('/api/analysis/')){responseCache.clear();routeCatalogCache.clear();}return out}
 function qs(endpoint,params){return endpoint+'?'+new URLSearchParams(params)}
 function fmt(num,decimal=0){return typeof num==='number'?new Intl.NumberFormat('es-ES',{maximumFractionDigits:decimal}).format(num):'—'}
 function setText(id,text){$(id).textContent=text}
@@ -111,19 +122,30 @@ async function refresh(){const token=++refreshToken;
  setText('year-label',state.year);renderDateOptions();
  try {
    const base={operator:state.operator,year:state.year,month:state.month,day_type:state.dayType,hour_start:state.hourFrom,hour_end:state.hourTo===1440?2880:state.hourTo,calendar_filter:state.calendarFilter};
-   const [result,coverage,comparison,routeActivity]=await Promise.all([
-     api(qs('/api/month',{...base,route_id:state.route}),{signal}),
-     api(qs('/api/coverage',{operator:state.operator,year:state.year}),{signal}),
-     api(qs('/api/compare',{operator:state.operator,month:state.month,day_type:state.dayType,hour_start:state.hourFrom,hour_end:state.hourTo===1440?2880:state.hourTo}),{signal}),
-     state.route?api(qs('/api/month',{...base,route_id:''}),{signal}):Promise.resolve(null)
-   ]);
+   const route=state.route,exactDate=state.exactDate,allOperators=$('map-both').checked;
+   const monthPromise=cachedApi(qs('/api/month',{...base,route_id:route}),{signal});
+   const activityPromise=route?cachedApi(qs('/api/month',{...base,route_id:''}),{signal}):monthPromise;
+   // Auxiliary panels render independently. A slow comparison must not gate the map.
+   const coverageTask=cachedApi(qs('/api/coverage',{operator:base.operator,year:base.year}),{signal})
+     .then(cov=>{if(token===refreshToken)renderCoverage(cov)});
+   const comparisonTask=Promise.all([monthPromise,cachedApi(qs('/api/compare',{operator:base.operator,month:base.month,day_type:base.day_type,hour_start:base.hour_start,hour_end:base.hour_end}),{signal})])
+     .then(([res,comparison])=>{if(token===refreshToken)renderCompare(res,comparison)});
+   const mainTask=Promise.all([monthPromise,activityPromise]).then(([res,activity])=>{
+     if(token===refreshToken)renderMain(res,null,null,activity);
+   });
+   const mapTask=(async()=>{
+     const day=exactDate||chooseMapDate(await monthPromise);
+     if(token!==refreshToken)return;
+     state.activeMapDate=day;
+     const geographic=await cachedApi(allOperators?qs('/api/map/both',{day,scope:'all'}):qs('/api/map',{operator:base.operator,day,route_id:route}),{signal});
+     if(token!==refreshToken)return;
+     renderMap(geographic);
+     await loadRouteInsights(token,signal);
+   })();
+   const results=await Promise.allSettled([mapTask,mainTask,coverageTask,comparisonTask]);
    if(token!==refreshToken)return;
-   renderMain(result,coverage,comparison,routeActivity||result);
-   const day=state.exactDate||chooseMapDate(result);state.activeMapDate=day;
-    let geographic=await api($('map-both').checked?qs('/api/map/both',{day,scope:'all'}):qs('/api/map',{operator:state.operator,day,route_id:state.route}),{signal});
-   if(token!==refreshToken)return;
-   renderMap(geographic);
-    await loadRouteInsights(token,signal);
+   for(const result of results)if(result.status==='rejected'&&result.reason.name!=='AbortError')console.error(result.reason);
+   if(results[0].status==='rejected')throw results[0].reason;
   } catch(e){if(e.name!=='AbortError'){setText('page-sub',`Error de datos: ${e.message}`);console.error(e)}}
 }
 function renderMain(res,cov,other,routeActivity=res){let primary=selectMainSegment(res);const hasData=primary!==null;
@@ -139,8 +161,8 @@ function renderMain(res,cov,other,routeActivity=res){let primary=selectMainSegme
  <div class="metric-row"><div><div class="label">Fuente actual</div><div class="detail">Estado temporal de la selección</div></div><strong>${hasData?segmentState(primary):'Sin datos'}</strong></div>
  <p class="hint">${escapeHTML(periodSegments||'Sin fuentes importadas')}</p>`;
  renderLines(primary);
- renderCoverage(cov);
- renderCompare(res,other);
+ if(cov)renderCoverage(cov);
+ if(other)renderCompare(res,other);
  updateRoutes(routeActivity);
 }
 function renderCoverage(coverage){
@@ -194,7 +216,7 @@ async function loadRouteInsights(token,signal){
  if(!state.route){renderRouteMetrics(null);renderFrequency(null);renderRouteComparison(null);return}
  try{
   const params={operator:state.operator,route_id:state.route,day:state.activeMapDate,year:state.year,month:state.month};
-  const [metrics,frequency]=await Promise.all([api(qs('/api/route/metrics',params),{signal}),api(qs('/api/route/frequency',params),{signal})]);
+  const [metrics,frequency]=await Promise.all([cachedApi(qs('/api/route/metrics',params),{signal}),cachedApi(qs('/api/route/frequency',params),{signal})]);
   if(token!==refreshToken)return;
   renderRouteMetrics(metrics);renderFrequency(frequency);await loadRouteComparison(token);
  }catch(e){if(token===refreshToken){renderRouteMetrics({status:'error'});renderFrequency(null);setText('route-insights-state','No disponible: '+e.message)}}
@@ -209,7 +231,7 @@ function renderCompare(r1,analysis){
 `;
 }
 
-async function updateRoutes(res){
+async function updateRoutes(res,selectionToken=refreshToken){
  const op=state.operator,year=state.year,month=state.month;
  const active=selectMainSegment(res)?.lines||[];
  const activeIds=new Set(active.map(x=>x.route_id));
@@ -221,7 +243,7 @@ async function updateRoutes(res){
      catalog=await api(qs('/api/routes',{operator:op,year,month}));
      routeCatalogCache.set(cacheKey,catalog);
    }
-   if(op!==state.operator||year!==state.year||month!==state.month)return;
+   if(selectionToken!==refreshToken||op!==state.operator||year!==state.year||month!==state.month)return;
    if(catalog.routes?.length)choices=catalog.routes;
  }catch(e){
    // Older/demo servers may not expose /api/routes yet; retain the previous
@@ -232,7 +254,7 @@ async function updateRoutes(res){
      if(catalog.routes?.length)choices=catalog.routes;
    }catch(ignore){ /* active lines remain a safe last resort */ }
  }
- if(op!==state.operator||year!==state.year||month!==state.month)return;
+ if(selectionToken!==refreshToken||op!==state.operator||year!==state.year||month!==state.month)return;
  const select=$('route'),old=state.route;
  if(old&&!choices.some(x=>x.route_id===old))choices=[{route_id:old,name:old},...choices];
  select.innerHTML='<option value="">Todas las líneas con servicio este día</option>'+choices.map(x=>
@@ -243,6 +265,10 @@ async function updateRoutes(res){
 function escapeHTML(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function clearMap(){if(map){layers.forEach(l=>map.removeLayer(l));layers=[];if(geoLayer){map.removeLayer(geoLayer);geoLayer=null}}fallback.innerHTML=''}
 function renderMap(data){
+ const scope=JSON.stringify([state.operator,state.route,$('map-both').checked]);
+ if(data===lastMapData&&scope===lastMapScope)return;
+ lastMapData=data;lastMapScope=scope;
+ networkRequestId++;
  const renderToken=++mapRenderToken;
  // Invalidate an in-flight stop request from the previous map snapshot.
  isoRequestId++;
@@ -298,6 +324,7 @@ async function importFeed(e){e.preventDefault();const operator=$('import-operato
  const form=new FormData();form.append('operator',operator);form.append('snapshot_date',stamp);form.append('file',file);
  const submit=$('upload-submit');submit.disabled=true;submit.textContent='Importando…';setText('import-status','Procesando archivos y calendario; puede tardar según el GTFS.');
  try{let resp=await fetch('/api/import',{method:'POST',body:form});let data=await resp.json();if(!resp.ok)throw Error(data.detail||'Fallo de importación');
+ responseCache.clear();routeCatalogCache.clear();lastMapData=null;
  setText('import-status',data.already_imported?'Este GTFS ya estaba registrado.':`Importado: ${data.routes} rutas, ${data.stops} paradas, ${data.trips} viajes. Fuente ${data.min_date}–${data.max_date}.`);$('operator').value=operator;state.operator=operator;state.route='';await updateVersions();await refresh();await loadPublicationReadiness();await loadAuditMonthly();
  }catch(err){setText('import-status','No se pudo importar: '+err.message)}finally{submit.disabled=false;submit.textContent='Importar y analizar'}
 }
@@ -332,6 +359,7 @@ async function importGeo(e){e.preventDefault();const file=$('geo-file').files[0]
  const layer=$('geo-layer').value;const form=new FormData();form.append('layer',layer);form.append('file',file);
  $('geo-upload').disabled=true;setText('geo-upload-status','Procesando geometrías en la red local…');
  try{const response=await fetch('/api/geo/import',{method:'POST',body:form});const data=await response.json();if(!response.ok)throw Error(data.detail||'Error al importar');
+ responseCache.clear();lastMapData=null;
  setText('geo-upload-status',`Capa procesada. ${data.walk_segments} tramos peatonales, ${data.census_sections} secciones y ${data.residential_buildings} edificios residenciales.`);await loadGeoStatus();await loadPublicationReadiness();}
  catch(e){setText('geo-upload-status','No se ha importado: '+e.message)}finally{$('geo-upload').disabled=false}
 }
@@ -339,6 +367,7 @@ async function downloadSource(source,button){
  button.disabled=true;setText('source-status',`Solicitando ${source} a la fuente oficial…`);
  const endpoint=source==='buildings'?'/api/sources/buildings':source==='osm'?'/api/sources/osm':['ekialdebus','irunbus','euskotren','errenteria_urbanoa'].includes(source)?qs('/api/sources/refresh',{operator:source}):qs('/api/sources/reference',{name:source});
  try{const response=await fetch(endpoint,{method:'POST'});const result=await response.json();if(!response.ok)throw Error(result.detail||'Descarga fallida');
+ responseCache.clear();routeCatalogCache.clear();lastMapData=null;
    setText('source-status',`${source}: obtenido y registrado. ${result.trips===undefined?'Referencia conservada; requiere transformación geográfica.':`${result.trips} expediciones base de GTFS`}`);
    await updateVersions();await loadGeoStatus();await refresh();}
  catch(e){setText('source-status',`${source}: no disponible — ${e.message}. Puedes importar el fichero manualmente si lo obtienes de la fuente.`)}finally{button.disabled=false}

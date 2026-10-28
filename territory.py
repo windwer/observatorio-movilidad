@@ -253,7 +253,7 @@ class WalkNetwork:
         self.tree=STRtree(self.geoms)
 
     def isochrone(self,lat,lon,minutes=10,speed_kmh=4.5,display_buffer_m=18,
-                  max_snap_m=80):
+                  max_snap_m=80,geometry=True):
         if not 0<minutes<=30:raise ValueError('Tiempo fuera de rango')
         point=Point(*TO_LOCAL(lon,lat))
         closest=int(self.tree.nearest(point));geom=self.geoms[closest]
@@ -276,6 +276,11 @@ class WalkNetwork:
                 nxt=d+step
                 if nxt<distances.get(dest,float('inf')) and nxt<=limit:
                     distances[dest]=nxt;heapq.heappush(queue,(nxt,dest))
+        if not geometry:
+            return {'status':'calculated','snap_m':round(snap_dist,1),'reached_nodes':len(distances),
+                    '_node_distances':distances,'_limit_m':limit,'_origin_edge':closest,
+                    '_origin_offset':origin_offset,'_origin_access_m':snap_dist,
+                    '_search_geometry':point.buffer(limit+85)}
         fragments=[]
         # Only segments with at least one endpoint reachable contribute to the polygon.
         # Inspect only edges adjacent to reachable nodes. Iterating the entire
@@ -378,12 +383,16 @@ def calculate_population_by_census_area(iso, census, municipalities=None):
 
 class TerritoryStore:
     """In-memory analysed layers, backed by original GeoJSON files for local persistence."""
-    def __init__(self, directory,cache_entries=64):
+    def __init__(self, directory,cache_entries=64,artifact_path=None):
         self.directory=Path(directory);self.directory.mkdir(parents=True,exist_ok=True)
         self.census=[];self.buildings=[];self.residents=[];self.unallocated=[];self.network=None
         self.changes={};self.load_errors=[];self._cache_entries=max(8,int(cache_entries))
         self._iso_cache=OrderedDict();self._cache_hits=0;self._cache_misses=0
         self._lock=threading.RLock();self._resident_tree=None;self._resident_points=[];self._load()
+        self._artifact_path=artifact_path;self._artifacts=None;self._artifact_hits=0
+        if artifact_path:
+            from access_cache import AccessCache,fingerprint
+            self._artifacts=AccessCache(artifact_path,fingerprint(self.directory))
 
     def _load(self):
         for layer in ('census','buildings','walkways'):
@@ -469,6 +478,9 @@ class TerritoryStore:
             os.replace(pending,dest)
             with self._lock:
                 self._apply(layer,feats);self._assign()
+                if self._artifact_path:
+                    from access_cache import AccessCache,fingerprint
+                    self._artifacts=AccessCache(self._artifact_path,fingerprint(self.directory))
         finally:
             if pending.exists():pending.unlink()
         return self.status()
@@ -488,11 +500,14 @@ class TerritoryStore:
     def cache_status(self):
         with self._lock:
             return {'loaded':True,'entries':len(self._iso_cache),'max_entries':self._cache_entries,
-                    'hits':self._cache_hits,'misses':self._cache_misses}
+                    'hits':self._cache_hits,'misses':self._cache_misses,'artifact_hits':self._artifact_hits}
 
     def _reachable_indices(self,iso):
-        if self._resident_tree is None or iso.get('polygon') is None:return set()
-        search=iso['polygon'].buffer(85)
+        if self._resident_tree is None or iso.get('status')!='calculated':return set()
+        search=iso.get('_search_geometry')
+        if search is None:
+            if iso.get('polygon') is None:return set()
+            search=iso['polygon'].buffer(85)
         reached=set()
         for raw_idx in self._resident_tree.query(search):
             idx=int(raw_idx);resident=self.residents[idx]
@@ -544,15 +559,13 @@ class TerritoryStore:
         if not self.network or not self.residents:
             return {'status':'incomplete_geography','population':None,'stops':len(stops)}
         if len(stops)>2500:raise ValueError('Demasiadas paradas en una consulta')
-        seen=set();snapped=0;outside=0;statuses={}
-        polygons=[]
+        seen=set();snapped=0;outside=0
         for stop in stops:
             point=(round(float(stop['lat']),6),round(float(stop['lon']),6))
-            iso=self._isochrone(*point,minutes)
-            if iso['polygon'] is None:
+            access=self.reachable(*point,minutes)
+            if access['status']!='calculated':
                 outside+=1;continue
-            snapped+=1;poly=iso['polygon'];polygons.append(poly)
-            seen.update(self._reachable_indices(iso))
+            snapped+=1;seen.update(access['indices'])
         by_municipality=defaultdict(float);methods=set()
         for i in seen:
             r=self.residents[i];by_municipality[r['municipality']]+=r['population'];methods.add(r.get('allocation_method'))
@@ -566,9 +579,23 @@ class TerritoryStore:
                 'method_version':'walk-network-anchors-v2',
                 'certified':False}
 
+    def reachable(self,lat,lon,minutes=10):
+        key=f'reach:{float(lat):.6f}:{float(lon):.6f}:{int(minutes)}'
+        cached=self._artifacts.get(key) if self._artifacts else None
+        if cached is not None:self._artifact_hits+=1;return cached
+        iso=self.network.isochrone(lat,lon,minutes=minutes,geometry=False)
+        result={'status':iso['status'],'indices':sorted(self._reachable_indices(iso))}
+        if self._artifacts:self._artifacts.put(key,result)
+        return result
+
     def stop(self,lat,lon,geometry=True,minutes=10):
         if not self.network:return {'status':'missing_pedestrian_network','population':None}
         if not 0 < minutes <= 30:raise ValueError('Minutos fuera de rango')
+        artifact_key=f'stop:{float(lat):.6f}:{float(lon):.6f}:{int(minutes)}'
+        cached=self._artifacts.get(artifact_key) if self._artifacts else None
+        if cached is not None:
+            self._artifact_hits+=1
+            return cached if geometry else {**cached,'geometry':None}
         key=(round(float(lat),6),round(float(lon),6),int(minutes))
         result=self._isochrone(lat,lon,minutes)
         # Independent hull simplification can make a 5-minute envelope poke
@@ -600,6 +627,8 @@ class TerritoryStore:
             pop={'population':None,'units_reached':0,'municipalities':{},'population_method':'unavailable'}
         display=result.get('display_polygon',result.get('polygon'))
         geom=mapping(transform(TO_WGS,display)) if geometry and display is not None else None
-        return {**{k:v for k,v in result.items() if not k.startswith('_') and k not in ('polygon','display_polygon')},**pop,
+        payload={**{k:v for k,v in result.items() if not k.startswith('_') and k not in ('polygon','display_polygon')},**pop,
                 'geometry':geom,'minutes':minutes,
                 'method_version':'walk-network-anchors-v2','population_certified':False}
+        if self._artifacts and geometry:self._artifacts.put(artifact_key,payload)
+        return payload

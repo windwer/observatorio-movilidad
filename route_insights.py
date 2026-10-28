@@ -97,7 +97,13 @@ def _route_metrics_from_context(conn, operator, route_id, day, version, quality,
     marks = ','.join('?' for _ in services)
     route_marks = ','.join('?' for _ in route_ids)
     lengths = _shape_lengths(conn, version['id'], route_ids, services)
-    rows = conn.execute(
+    if engine.has_trip_summary(conn,version['id']):
+        rows=conn.execute(f'''SELECT t.trip_id,t.shape_id,s.first_dep,s.last_arr
+            FROM trips t JOIN trip_summaries s ON s.feed_id=t.feed_id AND s.trip_id=t.trip_id
+            WHERE t.feed_id=? AND t.route_id IN ({route_marks}) AND t.service_id IN ({marks})''',
+            (version['id'],*route_ids,*services)).fetchall()
+    else:
+        rows = conn.execute(
         f'''SELECT t.trip_id,t.shape_id,
               (SELECT st.dep_min FROM stop_times st WHERE st.feed_id=t.feed_id AND st.trip_id=t.trip_id ORDER BY st.seq LIMIT 1) AS first_dep,
               (SELECT COALESCE(st.arr_min,st.dep_min) FROM stop_times st WHERE st.feed_id=t.feed_id AND st.trip_id=t.trip_id ORDER BY st.seq DESC LIMIT 1) AS last_arr
@@ -152,6 +158,7 @@ def route_frequency_week(conn, operator, route_id, year, month, day):
     public_line_id = selected['public_line_id'] or selected['short_name'] or route_id
     line_name = selected['short_name'] or public_line_id
     observations = defaultdict(list)
+    departure_cache={}
     ids_seen = set()
     for d in sorted(date(year, month, n) for n in range(1, __import__('calendar').monthrange(year, month)[1] + 1)):
         version, _, ids, _ = _route_context(conn, operator, route_id, d.isoformat(), line_name=public_line_id)
@@ -167,14 +174,23 @@ def route_frequency_week(conn, operator, route_id, year, month, day):
         ids = ids or fallback_ids
         ids_seen.update(ids)
         marks, rmarks = ','.join('?' for _ in services), ','.join('?' for _ in ids)
-        rows = conn.execute(
-            f'''SELECT (SELECT st.dep_min FROM stop_times st
-                        WHERE st.feed_id=t.feed_id AND st.trip_id=t.trip_id
-                        ORDER BY st.seq LIMIT 1) AS first_dep
-                FROM trips t WHERE t.feed_id=? AND t.route_id IN ({rmarks}) AND t.service_id IN ({marks})''',
-            (version['id'], *ids, *services),
-        ).fetchall()
-        departures = [float(r['first_dep']) for r in rows if r['first_dep'] is not None]
+        cache_key=(version['id'],tuple(sorted(ids)),tuple(sorted(services)))
+        if cache_key not in departure_cache:
+            if engine.has_trip_summary(conn,version['id']):
+                rows=conn.execute(f'''SELECT s.first_dep FROM trips t JOIN trip_summaries s
+                    ON s.feed_id=t.feed_id AND s.trip_id=t.trip_id
+                    WHERE t.feed_id=? AND t.route_id IN ({rmarks}) AND t.service_id IN ({marks})''',
+                    (version['id'],*ids,*services)).fetchall()
+            else:
+                rows = conn.execute(
+                    f'''SELECT (SELECT st.dep_min FROM stop_times st
+                                WHERE st.feed_id=t.feed_id AND st.trip_id=t.trip_id
+                                ORDER BY st.seq LIMIT 1) AS first_dep
+                        FROM trips t WHERE t.feed_id=? AND t.route_id IN ({rmarks}) AND t.service_id IN ({marks})''',
+                    (version['id'], *ids, *services),
+                ).fetchall()
+            departure_cache[cache_key]=[float(r['first_dep']) for r in rows if r['first_dep'] is not None]
+        departures=departure_cache[cache_key]
         observations[engine.day_category(d)].append({
             'trips': len(departures),
             'first': min(departures) if departures else None,

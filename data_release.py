@@ -54,7 +54,7 @@ def sqlite_backup(source: Path,destination: Path) -> None:
         src.execute("PRAGMA query_only=ON");src.backup(dst,pages=8192)
 
 
-def build(source_db: Path,geography: Path,reference_csv: Path,output: Path,release_id: str) -> dict:
+def build(source_db: Path,geography: Path,reference_csv: Path,output: Path,release_id: str,access_cache_path=None) -> dict:
     inspect_database(source_db)
     if output.exists():raise FileExistsError(f"El destino ya existe: {output}")
     output.parent.mkdir(parents=True,exist_ok=True)
@@ -65,6 +65,7 @@ def build(source_db: Path,geography: Path,reference_csv: Path,output: Path,relea
         # database that may still be serving the local application.
         import engine
         migrated=engine.connect(staging/"observatorio_real.sqlite3",readonly=False,initialize=True)
+        summaries=engine.prepare_trip_summaries(migrated)
         migrated.close()
         (staging/"geography").mkdir()
         for name in ("census.geojson","walkways.geojson","buildings.geojson","population_anchors.json"):
@@ -73,12 +74,15 @@ def build(source_db: Path,geography: Path,reference_csv: Path,output: Path,relea
         if reference_csv.is_file():
             (staging/"references").mkdir();shutil.copy2(reference_csv,staging/"references"/reference_csv.name)
         metadata=validate(staging,verify_manifest=False)
+        if access_cache_path:
+            from scripts.prepare_accessibility import prepare
+            prepare(staging/'observatorio_real.sqlite3',staging/'geography',access_cache_path)
         files={}
         for path in sorted(p for p in staging.rglob("*") if p.is_file()):
             relative=path.relative_to(staging).as_posix()
             files[relative]={"bytes":path.stat().st_size,"sha256":digest(path)}
         manifest={"schema":1,"release_id":release_id,"created_at":datetime.now(timezone.utc).isoformat(),
-                  "immutable":True,"database":metadata["database"],"files":files}
+                  "immutable":True,"database":metadata["database"],"trip_summaries":summaries,"files":files}
         (staging/"release-manifest.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding="utf-8")
         os.replace(staging,output)
         return manifest
@@ -139,10 +143,11 @@ def main():
     actions=parser.add_subparsers(dest="action",required=True)
     create=actions.add_parser("build");create.add_argument("--db",type=Path,required=True);create.add_argument("--geography",type=Path,required=True)
     create.add_argument("--reference",type=Path,required=True);create.add_argument("--output",type=Path,required=True);create.add_argument("--release-id",required=True)
+    create.add_argument("--access-cache",type=Path,help="Precalcular todas las paradas en esta caché de runtime")
     check=actions.add_parser("validate");check.add_argument("root",type=Path)
     recover=actions.add_parser("restore");recover.add_argument("release",type=Path);recover.add_argument("destination",type=Path)
     args=parser.parse_args()
-    if args.action=="build":result=build(args.db,args.geography,args.reference,args.output,args.release_id)
+    if args.action=="build":result=build(args.db,args.geography,args.reference,args.output,args.release_id,args.access_cache)
     elif args.action=="validate":result=validate(args.root)
     else:result=restore(args.release,args.destination)
     print(json.dumps(result,ensure_ascii=False,indent=2))
