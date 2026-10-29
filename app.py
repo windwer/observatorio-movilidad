@@ -4,6 +4,8 @@ import hmac
 import secrets
 import threading
 import time
+import weakref
+import data_identity
 from collections import defaultdict, deque, OrderedDict
 from datetime import date
 from pathlib import Path
@@ -26,6 +28,7 @@ import data_quality
 import population_reference
 import settings
 import analysis_jobs
+from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 
 ROOT=Path(__file__).resolve().parent
@@ -42,17 +45,26 @@ APP_VERSION=settings.APP_VERSION
 app=FastAPI(title='Observatorio de Movilidad · Gipuzkoa', version=APP_VERSION,docs_url=None,redoc_url=None,openapi_url=None)
 app.add_middleware(GZipMiddleware,minimum_size=1000,compresslevel=4)
 _REQUESTS=defaultdict(int);_LATENCY_MS=defaultdict(float);_RATE=defaultdict(deque);_METRICS_LOCK=threading.Lock()
-_READ_CACHE=OrderedDict();_READ_CACHE_LOCK=threading.RLock();_READ_KEY_LOCKS=defaultdict(threading.Lock)
+_READ_CACHE=OrderedDict();_READ_CACHE_LOCK=threading.RLock();_READ_KEY_LOCKS=weakref.WeakValueDictionary()
+
+def current_identity():
+    return data_identity.identity(DB,CONFIG.geography_dir,CONFIG.release_id,CONFIG.cutoff)
+
+def require_analysis_worker():
+    if CONFIG.immutable_data and not analysis_jobs.worker_status(CONFIG.state_db,current_identity())['healthy']:
+        raise HTTPException(status_code=503,detail='El servicio de cálculo no está disponible; vuelve a intentarlo',headers={'Retry-After':'15'})
 
 def cached_read(key,loader,max_entries=128):
     """Bounded request cache with per-key single-flight on cold reads."""
     try:stamp=Path(DB).stat().st_mtime_ns
     except OSError:stamp=0
-    full=(str(Path(DB).resolve()),stamp,*key)
+    wal=Path(str(DB)+'-wal');wal_stamp=wal.stat().st_mtime_ns if wal.is_file() else 0
+    full=(str(Path(DB).resolve()),stamp,wal_stamp,*key)
     with _READ_CACHE_LOCK:
         if full in _READ_CACHE:
             value=_READ_CACHE[full];_READ_CACHE.move_to_end(full);return value
-        lock=_READ_KEY_LOCKS[full]
+        lock=_READ_KEY_LOCKS.get(full)
+        if lock is None:lock=threading.Lock();_READ_KEY_LOCKS[full]=lock
     with lock:
         with _READ_CACHE_LOCK:
             if full in _READ_CACHE:
@@ -61,7 +73,6 @@ def cached_read(key,loader,max_entries=128):
         with _READ_CACHE_LOCK:
             _READ_CACHE[full]=value;_READ_CACHE.move_to_end(full)
             while len(_READ_CACHE)>max_entries:_READ_CACHE.popitem(last=False)
-            _READ_KEY_LOCKS.pop(full,None)
         return value
 
 @app.middleware('http')
@@ -71,6 +82,10 @@ async def request_budget_and_metrics(request:Request,call_next):
     if path.startswith('/api/') and path not in ('/api/health','/api/ready'):
         now=time.monotonic()
         with _METRICS_LOCK:
+            if len(_RATE)>10000:
+                for expired in list(_RATE):
+                    if not _RATE[expired] or _RATE[expired][-1]<now-60:_RATE.pop(expired,None)
+                while len(_RATE)>10000:_RATE.pop(next(iter(_RATE)))
             bucket=_RATE[client]
             while bucket and bucket[0] < now-60:bucket.popleft()
             if len(bucket)>=CONFIG.rate_limit_per_minute:
@@ -80,7 +95,8 @@ async def request_budget_and_metrics(request:Request,call_next):
             bucket.append(now)
     response=await call_next(request)
     elapsed=(time.perf_counter()-started)*1000
-    key=f'{request.method} {path} {response.status_code}'
+    route=request.scope.get('route')
+    key=f"{request.method} {getattr(route,'path','<unmatched>')} {response.status_code}"
     with _METRICS_LOCK:
         _REQUESTS[key]+=1;_LATENCY_MS[key]+=elapsed
     response.headers['X-Response-Time-Ms']=f'{elapsed:.1f}'
@@ -163,6 +179,8 @@ def write_db(): return engine.connect(DB,readonly=False,initialize=True)
 def prepare_runtime():
     """Apply migrations once before accepting traffic and initialise state."""
     if CONFIG.immutable_data:
+        if settings.MANIFEST and settings.MANIFEST.get('method_version')!=settings.METHOD_VERSION:
+            raise RuntimeError('La release requiere reconstrucción con el método peatonal vigente')
         con=engine.connect(DB,readonly=True,initialize=False)
         try:con.execute('SELECT 1 FROM schema_migrations LIMIT 1')
         finally:con.close()
@@ -242,7 +260,7 @@ async def population_import(file:UploadFile=File(...),_:bool=Depends(write_guard
     if len(raw)>2_000_000:
         raise HTTPException(status_code=413,detail='CSV demasiado grande')
     try:
-        result=population_reference.ingest(DB,raw,source_name=file.filename)
+        result=await run_in_threadpool(population_reference.ingest,DB,raw,source_name=file.filename)
         dest=CONFIG.reference_csv
         dest.parent.mkdir(parents=True,exist_ok=True)
         pending=dest.with_suffix(dest.suffix+'.pending')
@@ -254,6 +272,10 @@ async def population_import(file:UploadFile=File(...),_:bool=Depends(write_guard
 @app.get('/api/health')
 def health(_:bool=Depends(guard)):
     return {'ok':True,'kind':'liveness','cutoff':engine.CUTOFF.isoformat(),'scope':'Gipuzkoa: población Eustat 2025; transporte y cobertura peatonal según fuentes cargadas','published':False,'observed_service':False,'version':APP_VERSION,'historical_service_certified':False}
+
+@app.get('/internal/health')
+def process_health():
+    return {'ok':True}
 
 @app.get('/api/ready')
 def ready(_:bool=Depends(guard)):
@@ -274,7 +296,8 @@ def ready(_:bool=Depends(guard)):
         checks['study_area_population']=reference.get('study_area_population')
     ok=checks['database'] and checks['feeds']>0 and checks['census_file'] and checks['walkways_file'] and checks['population_reference']
     if not ok:raise HTTPException(status_code=503,detail={'ready':False,'checks':checks})
-    return {'ready':True,'kind':'readiness','checks':checks,'data_release':os.environ.get('OBS_DATA_RELEASE','local-unversioned'),
+    checks['worker']=analysis_jobs.worker_status(CONFIG.state_db,current_identity())
+    return {'ready':True,'analysis_ready':checks['worker']['healthy'],'kind':'readiness','checks':checks,'data_release':CONFIG.release_id,
             'method_version':settings.METHOD_VERSION}
 
 @app.get('/api/metrics')
@@ -294,7 +317,8 @@ async def upload(operator:str=Form(...),snapshot_date:str=Form(...),file:UploadF
         raise HTTPException(status_code=400,detail='Se requiere un GTFS .zip')
     # Limit before reading unbounded content
     content=await file.read(90_000_001)
-    return handle_write(engine.ingest,content,operator,snapshot_date,file.filename)
+    if len(content)>90_000_000:raise HTTPException(status_code=413,detail='GTFS demasiado grande')
+    return await run_in_threadpool(handle_write,engine.ingest,content,operator,snapshot_date,file.filename)
 
 @app.get('/api/month')
 def month(operator:str='ekialdebus',year:int=2026,month:int=10,day_type:str='LJ',hour_start:int=0,hour_end:int=2880,route_id:str='',calendar_filter:str='all',_:bool=Depends(guard)):
@@ -309,11 +333,11 @@ def routes(operator:str='ekialdebus',year:int=2026,month:int=10,_:bool=Depends(g
     return cached_read(('routes',operator,year,month),lambda:handle(engine.route_catalog,operator,year,month))
 
 @app.get('/api/compare')
-def compare(operator:str='ekialdebus',month:int=10,day_type:str='LJ',hour_start:int=0,hour_end:int=2880,_:bool=Depends(guard)):
+def compare(operator:str='ekialdebus',month:int=10,day_type:str='LJ',hour_start:int=0,hour_end:int=2880,old_year:int=2025,new_year:int=2026,_:bool=Depends(guard)):
     if hour_start<0 or hour_end>2880 or hour_start>=hour_end:
         raise HTTPException(status_code=400,detail='Intervalo horario inválido')
-    return cached_read(('compare',operator,month,day_type,hour_start,hour_end),
-        lambda:handle(engine.historical_comparison,operator,month,day_type,hour_start,hour_end))
+    return cached_read(('compare',operator,month,day_type,hour_start,hour_end,old_year,new_year),
+        lambda:handle(engine.historical_comparison,operator,month,day_type,hour_start,hour_end,old_year,new_year))
 
 @app.get('/api/map')
 def map_view(operator:str='ekialdebus',day:str='2026-10-16',route_id:str='',_:bool=Depends(guard)):
@@ -351,7 +375,7 @@ def map_both(day:str='2026-10-16',scope:str='core',_:bool=Depends(guard)):
         missing=[op for op,r in responses.items() if r['quality']=='missing']
         routes=[];stops=[]
         for op,r in responses.items():
-            routes.extend([{**route,'id':op+':'+route['id'],'operator':op} for route in r['routes']])
+            routes.extend([{**route,'visual_id':op+':'+route['id'],'operator':op} for route in r['routes']])
             stops.extend([{**stop,'operator':op} for stop in r['stops']])
         return {'day':day,'state':'historical' if day<=engine.CUTOFF.isoformat() else 'planning',
             'quality':'missing' if len(missing)==len(operators) else 'partial' if missing else 'available_unverified',
@@ -401,11 +425,13 @@ async def geo_import(layer:str=Form(...),file:UploadFile=File(...),_:bool=Depend
     if not file.filename.lower().endswith(('.geojson','.json')):
         raise HTTPException(status_code=400,detail='Se necesita GeoJSON (FeatureCollection)')
     raw=await file.read(180_000_001)
-    try:return geo_store().ingest(layer,raw)
+    if len(raw)>180_000_000:raise HTTPException(status_code=413,detail='GeoJSON demasiado grande')
+    try:return await run_in_threadpool(lambda:geo_store().ingest(layer,raw))
     except (ValueError,KeyError,TypeError) as e:raise HTTPException(status_code=400,detail=str(e))
 
 @app.get('/api/geo/network')
 def geo_network(operator:str,day:str,route_id:str='',minutes:int=10,_:bool=Depends(guard)):
+    if CONFIG.immutable_data:raise HTTPException(status_code=410,detail='Usa POST /api/analysis/jobs')
     if operator not in engine.OPERATORS and operator not in ('both','all'):raise HTTPException(status_code=400,detail='Operador inválido')
     if minutes not in (5,10):raise HTTPException(status_code=400,detail='Se admiten coberturas de 5 y 10 minutos')
     con=db()
@@ -445,6 +471,14 @@ def geo_stop(operator:str,day:str,stop_id:str,minutes:int=10,_:bool=Depends(guar
         if not s:raise HTTPException(status_code=404,detail='Parada no encontrada')
         if s['lat'] is None or s['lon'] is None:raise HTTPException(status_code=422,detail='La parada carece de coordenadas')
         result=prepared_stop(s['lat'],s['lon'],minutes)
+        if result is None and CONFIG.immutable_data:
+            require_analysis_worker()
+            params={'lat':s['lat'],'lon':s['lon'],'minutes':minutes,'operator':operator,'day':day,'stop_id':stop_id,
+                    'stop_name':s['name'],'source_quality':quality}
+            try:job=analysis_jobs.enqueue(CONFIG.state_db,'stop_isochrone',params,current_identity(),settings.METHOD_VERSION,CONFIG.max_pending_jobs)
+            except OverflowError as exc:raise HTTPException(status_code=429,detail=str(exc),headers={'Retry-After':'30'})
+            from fastapi.responses import JSONResponse
+            return JSONResponse(status_code=202,content=job)
         if result is None:result=geo_store().stop(s['lat'],s['lon'],minutes=minutes)
         return {'operator':operator,'day':day,'stop_id':stop_id,'stop_name':s['name'],
           'time_state':'historical' if day<=engine.CUTOFF.isoformat() else 'planning',
@@ -457,7 +491,8 @@ def refresh_gtfs(operator:str, _:bool=Depends(write_guard)):
     if operator not in engine.OPERATORS:raise HTTPException(status_code=400,detail='Operador inválido')
     try:
         content=source_fetch.fetch_gtfs(operator)
-        return handle_write(engine.ingest,content,operator,__import__('datetime').date.today().isoformat(),f'{operator}_current_from_Moveuskadi.zip')
+        provider='Transitland_mirror' if 'transit.land' in source_fetch.GTFS_URLS[operator] else 'Moveuskadi'
+        return handle_write(engine.ingest,content,operator,__import__('datetime').date.today().isoformat(),f'{operator}_current_from_{provider}.zip')
     except (OSError,TimeoutError,ValueError) as e:
         raise HTTPException(status_code=502,detail='No se pudo descargar el feed oficial: '+str(e)[:300])
 
@@ -522,13 +557,47 @@ class HistoricalReview(BaseModel):
     status:str='verified'
 
 class NetworkAnalysisRequest(BaseModel):
-    operator:str
-    day:str
-    route_id:str=''
+    operator:str=Field(max_length=64)
+    day:str=Field(max_length=10)
+    route_id:str=Field(default='',max_length=256)
     minutes:int=10
+
+class TaskRequest(NetworkAnalysisRequest):
+    kind:str=Field(max_length=32)
+    old_day:str=Field(default='',max_length=10)
+    new_day:str=Field(default='',max_length=10)
+    hour_start:int=420
+    hour_end:int=540
+    territorial_scope:bool=True
+
+@app.post('/api/tasks',status_code=202)
+def create_task(body:TaskRequest,_:bool=Depends(guard)):
+    require_analysis_worker()
+    import tasks
+    if body.kind not in tasks.PUBLIC_KINDS:raise HTTPException(status_code=400,detail='Operación no permitida')
+    if body.operator not in engine.OPERATORS and body.operator not in ('all','both'):
+        raise HTTPException(status_code=400,detail='Operador inválido')
+    if body.kind.startswith('compare_') and body.operator not in engine.OPERATORS:
+        raise HTTPException(status_code=400,detail='Selecciona un operador para comparar')
+    if body.minutes not in (5,10) or not 0<=body.hour_start<body.hour_end<=2880:
+        raise HTTPException(status_code=400,detail='Intervalo inválido')
+    params=body.model_dump(exclude={'kind'})
+    try:
+        params['day']=engine.clean_date(body.day)
+        if body.kind.startswith('compare_'):
+            params['old_day']=engine.clean_date(body.old_day);params['new_day']=engine.clean_date(body.new_day)
+    except ValueError:raise HTTPException(status_code=400,detail='Fecha inválida')
+    try:return analysis_jobs.enqueue(CONFIG.state_db,body.kind,params,current_identity(),settings.METHOD_VERSION,CONFIG.max_pending_jobs)
+    except OverflowError as exc:raise HTTPException(status_code=429,detail=str(exc),headers={'Retry-After':'30'})
+
+@app.get('/api/capabilities')
+def capabilities(_:bool=Depends(guard)):
+    return {'mutable':not CONFIG.immutable_data,'local_admin':CONFIG.writable_local_admin,
+            'job_timeout_seconds':CONFIG.job_timeout_seconds,'data_release':CONFIG.release_id}
 
 @app.post('/api/analysis/jobs',status_code=202)
 def create_analysis_job(body:NetworkAnalysisRequest,_:bool=Depends(guard)):
+    require_analysis_worker()
     if body.operator not in engine.OPERATORS and body.operator not in ('both','all'):
         raise HTTPException(status_code=400,detail='Operador inválido')
     if body.minutes not in (5,10):raise HTTPException(status_code=400,detail='Minutos inválidos')
@@ -537,7 +606,7 @@ def create_analysis_job(body:NetworkAnalysisRequest,_:bool=Depends(guard)):
     params={'operator':body.operator,'day':day,'route_id':body.route_id,'minutes':body.minutes}
     try:
         return analysis_jobs.enqueue(CONFIG.state_db,'network_coverage',params,
-          os.environ.get('OBS_DATA_RELEASE','local-unversioned'),settings.METHOD_VERSION,CONFIG.max_pending_jobs)
+          current_identity(),settings.METHOD_VERSION,CONFIG.max_pending_jobs)
     except OverflowError as exc:raise HTTPException(status_code=429,detail=str(exc),headers={'Retry-After':'30'})
 
 @app.get('/api/analysis/jobs/{job_id}')
@@ -547,13 +616,13 @@ def analysis_job(job_id:str,_:bool=Depends(guard)):
     return result
 
 @app.post('/api/analysis/jobs/{job_id}/cancel')
-def cancel_analysis_job(job_id:str,_:bool=Depends(guard)):
+def cancel_analysis_job(job_id:str,_:bool=Depends(admin_guard)):
     result=analysis_jobs.cancel(CONFIG.state_db,job_id)
     if result is None:raise HTTPException(status_code=404,detail='Trabajo no encontrado')
     return result
 
 @app.get('/api/audit/readiness')
-def audit_readiness(_:bool=Depends(guard)):
+def audit_readiness(_:bool=Depends(admin_guard)):
     con=db()
     try:return audit.readiness(con,geo_store().status())
     finally:con.close()
@@ -570,6 +639,7 @@ def audit_review(body:HistoricalReview,_:bool=Depends(write_guard)):
 @app.get('/api/geo/service-coverage')
 def geo_service_coverage(operator:str='both',day:str='2026-10-16',
                         hour_start:int=420,hour_end:int=540,_:bool=Depends(guard)):
+    if CONFIG.immutable_data:raise HTTPException(status_code=410,detail='Usa POST /api/tasks: service_coverage')
     if operator!='both' and operator not in engine.OPERATORS:
         raise HTTPException(status_code=400,detail='Operador desconocido')
     if not 0<=hour_start<hour_end<=2880:
@@ -609,6 +679,7 @@ def geo_service_coverage(operator:str='both',day:str='2026-10-16',
 @app.get('/api/diff/stops')
 def diff_stops(operator:str='ekialdebus',old_day:str='2025-10-15',
                new_day:str='2026-10-15',territorial_scope:bool=True,_:bool=Depends(guard)):
+    if CONFIG.immutable_data:raise HTTPException(status_code=410,detail='Usa POST /api/tasks: compare_stops')
     area=None
     if territorial_scope:
         from shapely.ops import unary_union
@@ -620,10 +691,11 @@ def diff_stops(operator:str='ekialdebus',old_day:str='2025-10-15',
 
 @app.get('/api/diff/routes')
 def diff_routes(operator:str='ekialdebus',old_day:str='2025-10-16',new_day:str='2026-10-15',_:bool=Depends(guard)):
+    if CONFIG.immutable_data:raise HTTPException(status_code=410,detail='Usa POST /api/tasks: compare_routes')
     return handle(network_compare.compare_routes,operator,old_day,new_day)
 
 @app.get('/api/quality')
-def data_quality_all(_:bool=Depends(guard)):
+def data_quality_all(_:bool=Depends(admin_guard)):
     return handle(data_quality.validate_all)
 
 @app.get('/api/version')
@@ -657,6 +729,8 @@ async def safe_response_headers(request:Request,call_next):
     return response
 
 app.mount('/static',StaticFiles(directory=str(ROOT/'static')),name='static')
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+app.add_middleware(TrustedHostMiddleware,allowed_hosts=[host.strip() for host in os.environ.get('OBS_ALLOWED_HOSTS','127.0.0.1,localhost,[::1]').split(',') if host.strip()])
 
 @app.get('/api/demo/status')
 def demo_status(_:bool=Depends(guard)):
@@ -685,5 +759,5 @@ def demo_catalog(operator:str='ekialdebus',year:int=2026,month:int=10,_:bool=Dep
 if __name__=='__main__':
     prepare_runtime()
     print(f"Observatorio {APP_VERSION} local: http://{HOST}:{CONFIG.port}")
-    uvicorn.run(app,host=HOST,port=CONFIG.port)
+    uvicorn.run(app,host=HOST,port=CONFIG.port,proxy_headers=True,forwarded_allow_ips=CONFIG.trusted_proxies)
 

@@ -84,6 +84,9 @@ class EndpointTests(unittest.TestCase):
     def test_csrf_origin_restriction(self):
         r=self.client.post('/api/sources/refresh?operator=irunbus',headers={'origin':'https://evil.invalid'})
         self.assertEqual(r.status_code,403)
+    def test_untrusted_host_rejected(self):
+        r=self.client.get('/api/health',headers={'host':'evil.invalid'})
+        self.assertEqual(r.status_code,400)
     def test_no_population_figures_without_inputs(self):
         r=self.client.get('/api/geo/service-coverage',params={'operator':'both','day':'2026-10-16'})
         self.assertEqual(r.status_code,200)

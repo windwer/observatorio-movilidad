@@ -3,14 +3,14 @@
 Visor reproducible para analizar red, oferta y accesibilidad peatonal de
 Irunbus, Ekialdebus, Euskotren (líneas ferroviarias E1/E2) y Errenteria bus
 urbano, con histórico GTFS local y referencia poblacional Eustat 2025. La entrega corresponde al paquete histórico `v1` y a la aplicación
-`v1.2.0`; mantiene la fase de
+`v1.3.0`; mantiene la fase de
 Product Review: los horarios GTFS describen oferta programada, no prueban por sí
 solos el servicio prestado.
 
 ## Qué contiene este repositorio
 
 Las optimizaciones y las mediciones de esta versión se detallan en
-[PERFORMANCE_V1.2.0.md](PERFORMANCE_V1.2.0.md).
+[PERFORMANCE_V1.2.0.md](PERFORMANCE_V1.2.0.md). Las correcciones posteriores y su validación se documentan en [VALIDACION_V1.3.0.md](VALIDACION_V1.3.0.md).
 
 - Código del visor, motor de red, isócronas y métricas de línea.
 - Catálogo seleccionable de las cuatro redes del ámbito; el mapa combinado
@@ -63,6 +63,11 @@ crea una copia SQLite consistente, cartografía, anclajes y un manifiesto SHA-25
 el despliegue local aislado, usa `docker compose -f compose.yaml -f
 compose.local.yaml up --build`; sólo expone `127.0.0.1:8873` y no activa Caddy.
 
+Para cargar nuevos datos sin modificar la versión consultada, activar una
+release local, volver a la anterior y recuperar copias, sigue
+[OPERACION_LOCAL.md](OPERACION_LOCAL.md). La ejecución con contenedores de
+v1.3.0 permanece pendiente de ensayo real; no se infiere de la configuración.
+
 La API diferencia `/api/health` (proceso vivo) de `/api/ready` (datos listos),
 separa lectura pública de administración, aplica límites de peticiones y ofrece
 métricas restringidas. Las importaciones se desactivan cuando la release se
@@ -70,7 +75,7 @@ monta como inmutable.
 
 ## Alcance y límites
 
-- No se conectan APIs Transitland en esta entrega.
+- No hay conexión a APIs de transporte Transitland. La descarga manual de GTFS actuales de Irunbus/Ekialdebus utiliza un espejo estático Transitland identificado como tal; los históricos locales no dependen de él.
 - La disponibilidad de un feed GTFS no equivale a servicio observado.
 - Los datos históricos son snapshots fechados y se preservan sin deduplicar
   contenidos idénticos capturados en fechas distintas.

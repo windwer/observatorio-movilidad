@@ -77,9 +77,7 @@ def prepare_trip_summaries(conn,feed_id=None):
 # under the Euskotren operator.  Keeping the filter at ingestion time avoids
 # silently presenting trams/funiculars as train routes in the selector,
 # coverage calculations or population estimates.
-OPERATOR_ROUTE_FILTERS = {
-    "euskotren": {"E1", "E2"},
-}
+OPERATOR_ROUTE_FILTERS = {code:set(entry['route_names']) for code,entry in settings.OPERATOR_CATALOG.items() if entry.get('route_names')}
 SCHEMA = """
 PRAGMA foreign_keys=ON;
 CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -174,10 +172,13 @@ CREATE INDEX IF NOT EXISTS ix_route_equivalences_public ON route_equivalences(fe
 def connect(path, *, readonly=False, initialize=True, timeout=30):
     """Open a database, explicitly separating request reads from setup/writes."""
     target=Path(path)
+    if not readonly and (target.resolve().parent/'release-manifest.json').is_file():
+        raise ValueError('La release publicada es inmutable; crea una copia de staging antes de importar')
     if readonly:
         if not target.is_file():
             raise FileNotFoundError(f'No existe la base de datos: {target}')
-        conn=sqlite3.connect(f'{target.resolve().as_uri()}?mode=ro',uri=True,timeout=timeout)
+        immutable='&immutable=1' if (target.resolve().parent/'release-manifest.json').is_file() else ''
+        conn=sqlite3.connect(f'{target.resolve().as_uri()}?mode=ro{immutable}',uri=True,timeout=timeout)
         conn.row_factory=sqlite3.Row
         conn.execute('PRAGMA query_only=ON')
         conn.execute('PRAGMA foreign_keys=ON')
@@ -716,7 +717,7 @@ def stop_departures(conn,operator,day,stop_id):
     return {"status":quality,"state":"historical" if date.fromisoformat(day)<=CUTOFF else "planning","departures":[{'time':fmt_minutes(x['dep_min']),'line':x['short_name'],'destination':x['headsign'],'direction':x['direction_id']} for x in conn.execute(sql,(v['id'],stop_id,*sid))]}
 
 
-def historical_comparison(conn,operator,month,day_type,hour_start=0,hour_end=2880):
+def historical_comparison(conn,operator,month,day_type,hour_start=0,hour_end=2880,old_year=2025,new_year=2026):
     """Compare the same calendar window and weekday category, only historical days.
 
     Comparison is exploratory, never labelled as certified or actually operated.
@@ -724,17 +725,17 @@ def historical_comparison(conn,operator,month,day_type,hour_start=0,hour_end=288
     """
     if month<1 or month>12 or operator not in OPERATORS or day_type not in ('LJ','V','S','D'):
         raise ValueError('Filtros inválidos')
-    # In October only 1-18 is historical in 2026. In Nov/Dec there are none.
-    days2026=[d for d in all_days(2026,month,day_type) if d<=CUTOFF]
+    if not max(2000,settings.SETTINGS.min_year-1)<=old_year<new_year<=settings.SETTINGS.max_year:raise ValueError('Años inválidos')
+    days2026=[d for d in all_days(new_year,month,day_type) if d<=CUTOFF]
     if not days2026:
         return {'operator':operator,'month':month,'day_type':day_type,'comparable':False,
-                'reason':'No hay histórico de 2026 para este periodo; solo planificación',
-                'cutoff':CUTOFF.isoformat(),'2025':None,'2026':None,'delta_pct':None}
+                'reason':f'No hay histórico de {new_year} para este periodo; solo planificación',
+                'cutoff':CUTOFF.isoformat(),'old_year':old_year,'new_year':new_year,str(old_year):None,str(new_year):None,'delta_pct':None}
     last_day=max(d.day for d in days2026)
     # Restrict both years to same day-of-month range; weekday distributions
     # differ so daily mean (not total monthly service) is the comparison unit.
     out={}
-    for year in (2025,2026):
+    for year in (old_year,new_year):
         days=[d for d in all_days(year,month,day_type) if d.day<=last_day]
         values=[];retrospective=0;missing=[];sources=set()
         for d in days:
@@ -749,11 +750,11 @@ def historical_comparison(conn,operator,month,day_type,hour_start=0,hour_end=288
          'days_missing':missing,'retrospective_days':retrospective,
          'average_trips_per_day':round(sum(values)/len(values),2) if values else None,
          'source_hashes':sorted(sources)}
-    valid=bool(out['2025']['days_expected'] and out['2026']['days_expected']
-          and not out['2025']['days_missing'] and not out['2026']['days_missing'])
-    a=out['2025']['average_trips_per_day'];b=out['2026']['average_trips_per_day']
+    valid=bool(out[str(old_year)]['days_expected'] and out[str(new_year)]['days_expected']
+          and not out[str(old_year)]['days_missing'] and not out[str(new_year)]['days_missing'])
+    a=out[str(old_year)]['average_trips_per_day'];b=out[str(new_year)]['average_trips_per_day']
     delta=round((b-a)/a*100,2) if valid and a is not None and a>0 and b is not None else None
     return {'operator':operator,'month':month,'day_type':day_type,'cutoff':CUTOFF.isoformat(),
             'period_window':f'1-{last_day} de cada mes','comparable':valid,'certified':False,
             'reason':'Cálculo exploratorio; falta certificación de versiones históricas' if valid else 'Faltan fechas con fuente validable en uno o ambos periodos',
-            '2025':out['2025'],'2026':out['2026'],'delta_pct':delta}
+            'old_year':old_year,'new_year':new_year,**out,'delta_pct':delta}

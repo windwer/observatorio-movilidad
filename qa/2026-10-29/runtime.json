@@ -1,0 +1,67 @@
+{
+  "operators": {
+    "irunbus": {
+      "routes": 13,
+      "stops": 75
+    },
+    "ekialdebus": {
+      "routes": 47,
+      "stops": 227
+    },
+    "euskotren": {
+      "routes": 35,
+      "stops": 101
+    },
+    "errenteria_urbanoa": {
+      "routes": 8,
+      "stops": 81
+    }
+  },
+  "cancellation_status": "cancelled",
+  "route_coverage": {
+    "route_id": "1",
+    "operator": "irunbus",
+    "day": "2026-10-22",
+    "minutes": 10,
+    "time_state": "planning",
+    "source_quality": {
+      "irunbus": "snapshot_on_or_before_date"
+    },
+    "missing_operators": [],
+    "status": "estimated",
+    "stops": 32,
+    "stops_connected": 32,
+    "stops_unconnected": 0,
+    "population": 42172,
+    "municipalities": {
+      "Irun": 41459,
+      "Hondarribia": 713
+    },
+    "units_reached": 4126,
+    "population_method": "census_walk_network_anchor",
+    "unallocated_population": 0,
+    "method": "unique population units on walk network + 10-min graph access; display independent",
+    "method_version": "walk-network-anchors-v3",
+    "certified": false
+  },
+  "stop": {
+    "id": "1509",
+    "population_5": 3602,
+    "population_10": 15049,
+    "nested": true,
+    "valid_geometry": true
+  },
+  "compare_routes": {
+    "status": null,
+    "comparable": true
+  },
+  "compare_stops": {
+    "status": null,
+    "comparable": true
+  },
+  "service_coverage": {
+    "status": "estimated",
+    "comparable": null
+  },
+  "duration_seconds": 135.92
+}

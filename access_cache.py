@@ -9,11 +9,13 @@ import sqlite3
 import zlib
 from contextlib import closing
 from pathlib import Path
+import model
 
 
-def fingerprint(directory):
-    digest=hashlib.sha256(b'access-artifact-v1')
+def fingerprint(directory,include_anchors=True):
+    digest=hashlib.sha256(('access-artifact-v2:'+model.signature()).encode())
     for name in ('census.geojson','buildings.geojson','walkways.geojson','population_anchors.json'):
+        if name=='population_anchors.json' and not include_anchors:continue
         digest.update(name.encode())
         path=Path(directory)/name
         if path.is_file():
@@ -29,6 +31,11 @@ class AccessCache:
         with closing(self.connect()) as conn:
             conn.execute('PRAGMA journal_mode=WAL')
             conn.execute('CREATE TABLE IF NOT EXISTS access_artifacts(namespace TEXT,key TEXT,value BLOB,PRIMARY KEY(namespace,key))')
+            conn.execute('CREATE TABLE IF NOT EXISTS access_namespaces(namespace TEXT PRIMARY KEY,last_used TEXT NOT NULL)')
+            conn.execute("INSERT OR IGNORE INTO access_namespaces SELECT DISTINCT namespace,datetime('now') FROM access_artifacts")
+            conn.execute("INSERT OR REPLACE INTO access_namespaces VALUES (?,datetime('now'))",(namespace,))
+            conn.execute("DELETE FROM access_artifacts WHERE namespace IN (SELECT namespace FROM access_namespaces WHERE last_used<datetime('now','-30 days') AND namespace<>?)",(namespace,))
+            conn.execute("DELETE FROM access_namespaces WHERE last_used<datetime('now','-30 days') AND namespace<>?",(namespace,))
             conn.commit()
 
     def connect(self):return sqlite3.connect(self.path,timeout=30)

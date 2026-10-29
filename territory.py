@@ -20,6 +20,7 @@ import threading
 from collections import Counter, defaultdict, OrderedDict
 from dataclasses import dataclass
 from pathlib import Path
+import model
 
 from pyproj import Transformer
 from shapely.geometry import Point, shape, mapping, LineString, Polygon, box
@@ -190,7 +191,7 @@ def allocate_population_to_network(census,network,section_ids=None,max_anchors_p
 
 class WalkNetwork:
     def __init__(self,features):
-        self.edges=[];self.graph=defaultdict(list);self.incident=defaultdict(list);self.geoms=[];self.osm_way_ids=set()
+        self.edges=[];self.forward_only=[];self.graph=defaultdict(list);self.incident=defaultdict(list);self.geoms=[];self.osm_way_ids=set()
         def coord_ident(p,layer='0'):return ('xy',round(p[0],1),round(p[1],1),str(layer or '0'))
         # OSM ways contain many shape vertices that are not intersections.
         # Turning every one into a graph node made the provincial graph exceed
@@ -214,10 +215,11 @@ class WalkNetwork:
             blocked={str(x) for x in (p.get('blocked_node_ids') or [])}
             surface=str(p.get('surface','')).lower()
             factor=1.0
-            if highway=='steps':factor=1.55
-            elif highway in {'track','bridleway'}:factor=1.25
-            elif surface in {'gravel','unpaved','ground','dirt','sand','mud'}:factor=max(factor,1.2)
-            one_way=str(p.get('oneway:foot','')).lower() in {'yes','1','true'}
+            if highway=='steps':factor=model.WALK_PROFILE['steps_factor']
+            elif highway in {'track','bridleway'}:factor=model.WALK_PROFILE['track_factor']
+            elif surface in {'gravel','unpaved','ground','dirt','sand','mud'}:factor=max(factor,model.WALK_PROFILE['unpaved_factor'])
+            direction=str(p.get('oneway:foot','')).lower()
+            one_way=direction in {'yes','1','true','-1','reverse'}
             try:g=shape(feat['geometry'])
             except Exception:continue
             if g.geom_type=='LineString': parts=[g]
@@ -228,23 +230,33 @@ class WalkNetwork:
                 local=transform(TO_LOCAL,part)
                 coords=list(local.coords)
                 part_ids=(node_ids[node_cursor:node_cursor+len(coords)] if node_ids else [])
+                if direction in {'-1','reverse'}:
+                    coords.reverse();part_ids=list(reversed(part_ids))
                 important={0,len(coords)-1}
                 for position,value in enumerate(part_ids):
                     if value is not None and (node_use[str(value)]>1 or str(value) in blocked):important.add(position)
                 ordered=sorted(important)
-                for start,end in zip(ordered,ordered[1:]):
+                def identity(position):
+                    value=str(part_ids[position]) if position<len(part_ids) and part_ids[position] is not None else None
+                    return ('osm',value) if value else coord_ident(coords[position],layer)
+                segments=list(zip(ordered,ordered[1:]))
+                while segments:
+                    start,end=segments.pop(0)
                     if end<=start:continue
                     raw_u=str(part_ids[start]) if start<len(part_ids) and part_ids[start] is not None else None
                     raw_v=str(part_ids[end]) if end<len(part_ids) and part_ids[end] is not None else None
                     if raw_u in blocked or raw_v in blocked:continue
                     u=('osm',raw_u) if raw_u else coord_ident(coords[start],layer)
                     v=('osm',raw_v) if raw_v else coord_ident(coords[end],layer)
-                    if u==v:continue
+                    if u==v:
+                        pivot=next((i for i in range(start+1,end) if identity(i)!=u),None)
+                        if pivot is not None:segments[0:0]=[(start,pivot),(pivot,end)]
+                        continue
                     ls=LineString(coords[start:end+1]);length=ls.length
                     if length<.25:continue
                     idx=len(self.edges)
                     cost=length*factor
-                    self.edges.append((u,v,length,cost));self.geoms.append(ls)
+                    self.edges.append((u,v,length,cost));self.forward_only.append(one_way);self.geoms.append(ls)
                     self.graph[u].append((v,cost,idx))
                     if not one_way:self.graph[v].append((u,cost,idx))
                     self.incident[u].append(idx);self.incident[v].append(idx)
@@ -252,8 +264,8 @@ class WalkNetwork:
         if not self.edges:raise ValueError('No se han encontrado caminos peatonales conectables')
         self.tree=STRtree(self.geoms)
 
-    def isochrone(self,lat,lon,minutes=10,speed_kmh=4.5,display_buffer_m=18,
-                  max_snap_m=80,geometry=True):
+    def isochrone(self,lat,lon,minutes=10,speed_kmh=model.WALK_PROFILE['speed_kmh'],display_buffer_m=model.WALK_PROFILE['display_buffer_m'],
+                  max_snap_m=model.WALK_PROFILE['max_snap_m'],geometry=True):
         if not 0<minutes<=30:raise ValueError('Tiempo fuera de rango')
         point=Point(*TO_LOCAL(lon,lat))
         closest=int(self.tree.nearest(point));geom=self.geoms[closest]
@@ -266,8 +278,9 @@ class WalkNetwork:
         d0=snap_dist+origin_offset*factor
         d1=snap_dist+(length-origin_offset)*factor
         distances={};queue=[]
-        for node,initial in ((u,d0),(v,d1)):
-            if initial<=limit:
+        origins=((v,d1),) if self.forward_only[closest] else ((u,d0),(v,d1))
+        for node,initial in origins:
+            if initial<=limit and initial<distances.get(node,float('inf')):
                 distances[node]=initial;heapq.heappush(queue,(initial,node))
         while queue:
             d,node=heapq.heappop(queue)
@@ -291,7 +304,7 @@ class WalkNetwork:
             ls=self.geoms[edge_index]
             da=distances.get(a,float('inf'));db=distances.get(b,float('inf'))
             reach_a=max(0,min(length,(limit-da)/factor))
-            reach_b=max(0,min(length,(limit-db)/factor))
+            reach_b=0 if self.forward_only[edge_index] else max(0,min(length,(limit-db)/factor))
             if reach_a<=0 and reach_b<=0:continue
             if reach_a+reach_b>=length-.01: fragments.append(ls)
             else:
@@ -304,7 +317,7 @@ class WalkNetwork:
         if budget>0:
             offset=geom.project(snap)
             local_budget=budget/origin_factor
-            local_fragment=substring(geom,max(0,offset-local_budget),min(geom.length,offset+local_budget))
+            local_fragment=substring(geom,offset if self.forward_only[closest] else max(0,offset-local_budget),min(geom.length,offset+local_budget))
             if not local_fragment.is_empty:fragments.append(local_fragment)
         if not fragments:return {'status':'unreachable','snap_m':round(snap_dist,1),'polygon':None,'reached_nodes':len(distances)}
         # The graph search is the calculation. Render only reached edge
@@ -330,9 +343,9 @@ class WalkNetwork:
         idx=int(edge_index) if edge_index is not None else int(self.tree.nearest(point));edge=self.geoms[idx]
         offset=edge.project(point);snap=edge.interpolate(offset);u,v,length,cost=self.edges[idx];factor=cost/length
         du=distances.get(u,float('inf'))+offset*factor
-        dv=distances.get(v,float('inf'))+(length-offset)*factor
+        dv=float('inf') if self.forward_only[idx] else distances.get(v,float('inf'))+(length-offset)*factor
         direct=float('inf')
-        if origin_edge==idx and origin_offset is not None:
+        if origin_edge==idx and origin_offset is not None and (not self.forward_only[idx] or offset>=origin_offset):
             direct=origin_access_m+abs(offset-origin_offset)*factor
         return point.distance(snap)+min(du,dv,direct)
 
@@ -409,7 +422,9 @@ class TerritoryStore:
         if not path.is_file() or not self.census or not self.network:return False
         try:
             doc=json.loads(path.read_text(encoding='utf-8'))
-            if doc.get('method_version')!='walk-network-anchors-v2':return False
+            if doc.get('method_version')!=model.METHOD_VERSION:return False
+            from access_cache import fingerprint
+            if doc.get('input_fingerprint')!=fingerprint(self.directory,include_anchors=False):return False
             if int(doc.get('walk_segments',-1))!=len(self.network.edges):return False
             if round(sum(row['population'] for row in self.census))!=int(doc.get('census_population',-1)):return False
             rows=[]
@@ -429,10 +444,12 @@ class TerritoryStore:
         if self.buildings:raise ValueError('El artefacto de anclajes sólo corresponde al fallback sin edificios')
         if not self.residents:raise ValueError('No hay anclajes calculados')
         destination=Path(path) if path else self.directory/'population_anchors.json'
-        doc={'method_version':'walk-network-anchors-v2','walk_segments':len(self.network.edges),
+        doc={'method_version':model.METHOD_VERSION,'walk_segments':len(self.network.edges),
              'census_population':round(sum(row['population'] for row in self.census)),
              'anchors':[[r['id'],r['municipality'],round(r['population'],8),round(r['point'].x,2),round(r['point'].y,2),r['edge_index']] for r in self.residents],
              'unallocated':self.unallocated}
+        from access_cache import fingerprint
+        doc['input_fingerprint']=fingerprint(self.directory,include_anchors=False)
         raw=json.dumps(doc,ensure_ascii=False,separators=(',',':')).encode('utf-8')
         with tempfile.NamedTemporaryFile(dir=destination.parent,prefix=destination.name+'.',suffix='.pending',delete=False) as handle:
             pending=Path(handle.name);handle.write(raw);handle.flush();os.fsync(handle.fileno())
@@ -532,7 +549,7 @@ class TerritoryStore:
              'census_walk_network_anchor' if self.residents else 'unavailable'),
           'method':'Residential buildings where complete; otherwise census totals allocated to deterministic walk-network anchors. Display-buffer independent.',
           'walk_method':'Dijkstra on walkable OSM graph; population by graph distance; union of reached network segments',
-          'method_version':'walk-network-anchors-v2','load_errors':list(self.load_errors),
+          'method_version':model.METHOD_VERSION,'load_errors':list(self.load_errors),
           'cache':self.cache_status(),
           'geography_scope':'Gipuzkoa provincial census and pedestrian network',
           'attribution':'Geometry: INE Secciones_2025; counts: Eustat 2025; walkways: OpenStreetMap contributors; verify source licences'}
@@ -558,7 +575,6 @@ class TerritoryStore:
         if minutes not in (5,10):raise ValueError('Minutos fuera de rango')
         if not self.network or not self.residents:
             return {'status':'incomplete_geography','population':None,'stops':len(stops)}
-        if len(stops)>2500:raise ValueError('Demasiadas paradas en una consulta')
         seen=set();snapped=0;outside=0
         for stop in stops:
             point=(round(float(stop['lat']),6),round(float(stop['lon']),6))
@@ -576,7 +592,7 @@ class TerritoryStore:
                 'population_method':'+'.join(sorted(x for x in methods if x)) or self.status()['population_method'],
                 'unallocated_population':round(sum(c['population'] for c in self.unallocated)),
                 'method':f'unique population units on walk network + {minutes}-min graph access; display independent',
-                'method_version':'walk-network-anchors-v2',
+                'method_version':model.METHOD_VERSION,
                 'certified':False}
 
     def reachable(self,lat,lon,minutes=10):
@@ -629,6 +645,6 @@ class TerritoryStore:
         geom=mapping(transform(TO_WGS,display)) if geometry and display is not None else None
         payload={**{k:v for k,v in result.items() if not k.startswith('_') and k not in ('polygon','display_polygon')},**pop,
                 'geometry':geom,'minutes':minutes,
-                'method_version':'walk-network-anchors-v2','population_certified':False}
+                'method_version':model.METHOD_VERSION,'population_certified':False}
         if self._artifacts and geometry:self._artifacts.put(artifact_key,payload)
         return payload

@@ -1,3 +1,4 @@
+-c requirements.lock
 fastapi==0.151.0
 uvicorn==0.54.0
 python-multipart==0.0.32

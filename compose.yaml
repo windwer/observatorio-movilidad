@@ -3,7 +3,11 @@
 x-observatorio-environment: &observatorio-environment
   OBS_HOST: 0.0.0.0
   OBS_PORT: 8000
+  OBS_ALLOWED_HOSTS: 127.0.0.1,localhost,${OBS_DOMAIN:-localhost}
   OBS_PUBLIC_READ: ${OBS_PUBLIC_READ:-1}
+  OBS_READER_USERNAME: ${OBS_READER_USERNAME:-analista}
+  OBS_READER_PASSWORD: ${OBS_READER_PASSWORD:-}
+  FORWARDED_ALLOW_IPS: 127.0.0.1,::1,172.30.71.2
   OBS_ADMIN_USERNAME: ${OBS_ADMIN_USERNAME:-administrador}
   OBS_ADMIN_PASSWORD: ${OBS_ADMIN_PASSWORD:?Define OBS_ADMIN_PASSWORD}
   OBS_DB: /srv/observatorio/runtime/observatorio_real.sqlite3
@@ -12,8 +16,16 @@ x-observatorio-environment: &observatorio-environment
   OBS_STATE_DB: /srv/observatorio/state/observatorio_state.sqlite3
   OBS_DATA_RELEASE: ${OBS_DATA_RELEASE:?Define OBS_DATA_RELEASE}
   OBS_IMMUTABLE_DATA: 1
+  OBS_RATE_LIMIT_PER_MINUTE: ${OBS_RATE_LIMIT_PER_MINUTE:-3000}
+  OBS_JOB_TIMEOUT_SECONDS: ${OBS_JOB_TIMEOUT_SECONDS:-900}
+  OBS_RETENTION_DAYS: ${OBS_RETENTION_DAYS:-30}
 services:
   app:
+    logging: &bounded-logging
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
     build: .
     restart: unless-stopped
     environment: *observatorio-environment
@@ -26,9 +38,16 @@ services:
     cpus: 2.0
     networks: [private]
   worker:
+    logging: *bounded-logging
     build: .
     restart: unless-stopped
     command: ["python","worker.py"]
+    healthcheck:
+      test: ["CMD","python","worker.py","--healthcheck"]
+      interval: 15s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
     environment: *observatorio-environment
     volumes:
       - ${OBS_DATA_RELEASE_DIR:?Define OBS_DATA_RELEASE_DIR}:/srv/observatorio/runtime:ro
@@ -39,6 +58,7 @@ services:
     cpus: 2.0
     networks: [private]
   caddy:
+    logging: *bounded-logging
     image: caddy:2-alpine
     restart: unless-stopped
     environment:
@@ -53,10 +73,15 @@ services:
     depends_on:
       app:
         condition: service_healthy
-    networks: [private]
+    networks:
+      private:
+        ipv4_address: 172.30.71.2
 volumes:
   observatorio_state:
   caddy_data:
   caddy_config:
 networks:
-  private: {}
+  private:
+    ipam:
+      config:
+        - subnet: 172.30.71.0/24

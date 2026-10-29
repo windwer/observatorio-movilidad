@@ -4,14 +4,9 @@
  */
 'use strict';
 function euskadiExportTile(z,x,y){
-  // GeoEuskadi publishes the official base through an ArcGIS MapServer. The
-  // export request below uses the same Web-Mercator tile bounds as the SVG
-  // renderer, avoiding the blank tiles produced by the legacy WMTS tile path
-  // in some browsers while retaining a real official raster source.
-  const half=20037508.342789244,span=(half*2)/Math.pow(2,z);
-  const xmin=-half+x*span,xmax=xmin+span;
-  const ymax=half-y*span,ymin=ymax-span;
-  return `https://www.geo.euskadi.eus/geoeuskadi/rest/services/U11/WMTS_KARTO/MapServer/export?bbox=${xmin.toFixed(2)}%2C${ymin.toFixed(2)}%2C${xmax.toFixed(2)}%2C${ymax.toFixed(2)}&bboxSR=3857&imageSR=3857&size=256%2C256&format=png&transparent=false&f=image`;
+  // This service is a fused raster cache. Dynamic export can return a valid
+  // but blank PNG; use its documented Web-Mercator cache, in row/column order.
+  return `https://www.geo.euskadi.eus/geoeuskadi/rest/services/U11/WMTS_KARTO/MapServer/tile/${z}/${y}/${x}`;
 }
 class GeographicReviewMap {
   constructor(container, handlers={}) {

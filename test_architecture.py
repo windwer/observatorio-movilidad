@@ -27,7 +27,7 @@ class ArchitectureTests(unittest.TestCase):
             path=Path(folder)/'state.sqlite3';params={'operator':'irunbus','day':'2026-10-16','minutes':10}
             first=analysis_jobs.enqueue(path,'network_coverage',params,'r1','m1',3)
             row=analysis_jobs.claim(path,60);self.assertEqual(row['id'],first['id'])
-            analysis_jobs.finish(path,row['id'],result={'population':123})
+            analysis_jobs.finish(path,row['id'],result={'population':123},lease_token=row['lease_token'])
             reused=analysis_jobs.enqueue(path,'network_coverage',params,'r1','m1',3)
             self.assertTrue(reused['reused']);self.assertEqual(reused['result']['population'],123)
 
@@ -39,15 +39,17 @@ class ArchitectureTests(unittest.TestCase):
             conn.execute("INSERT INTO feeds(sha256,operator,snapshot_date,original_name,imported_at) VALUES ('x','irunbus','2026-01-01','x.zip','2026-01-01')")
             conn.commit();conn.close()
             geo=root/'geo';geo.mkdir()
-            empty={'type':'FeatureCollection','features':[]}
-            (geo/'census.geojson').write_text(json.dumps(empty),encoding='utf-8')
-            (geo/'walkways.geojson').write_text(json.dumps(empty),encoding='utf-8')
-            (geo/'population_anchors.json').write_text(json.dumps({'method_version':'walk-network-anchors-v2','census_population':10,'anchors':[['a','Irun',10,1,1,0]]}),encoding='utf-8')
+            from test_territory import collection,feat,square,coord
+            (geo/'census.geojson').write_bytes(collection([feat({'type':'Polygon','coordinates':[square(0,0,500)]},municipality='Irun',population=10,section_id='a')]))
+            (geo/'walkways.geojson').write_bytes(collection([feat({'type':'LineString','coordinates':[coord(0,0),coord(300,0)]},highway='footway')]))
             reference=root/'reference.csv';reference.write_text('x',encoding='utf-8')
             release=root/'release';data_release.build(source,geo,reference,release,'test-release')
             checked=data_release.validate(release);self.assertTrue(checked['valid'])
             restored=root/'restored';data_release.restore(release,restored)
             self.assertTrue((restored/'release-manifest.json').is_file())
+            with self.assertRaises(ValueError):engine.connect(restored/'observatorio_real.sqlite3')
+            with (restored/'geography'/'walkways.geojson').open('a') as stream:stream.write(' ')
+            with self.assertRaises(ValueError):data_release.validate(restored)
 
 
 if __name__=='__main__':unittest.main()

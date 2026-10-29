@@ -1,0 +1,91 @@
+{
+  "base": "http://127.0.0.1:8874",
+  "sessions": 20,
+  "distinct_paths": 33,
+  "duration_seconds": 45.8,
+  "requests": 545,
+  "errors": 17,
+  "counts": {
+    "/api/health": 21,
+    "/api/version": 19,
+    "/api/map?operator=irunbus&day=2026-10-22": 8,
+    "/api/map?operator=ekialdebus&day=2026-10-22": 15,
+    "/api/routes?operator=irunbus&year=2026&month=10": 16,
+    "/api/month?operator=euskotren&year=2025&month=10&day_type=LJ": 20,
+    "/api/geo/stop?operator=ekialdebus&day=2026-10-22&stop_id=1&minutes=10": 19,
+    "/api/geo/stop?operator=ekialdebus&day=2026-10-22&stop_id=1&minutes=5": 18,
+    "/api/geo/stop?operator=irunbus&day=2026-10-22&stop_id=1502&minutes=5": 11,
+    "/api/route/metrics?operator=ekialdebus&route_id=101&day=2026-10-22": 16,
+    "/api/route/metrics?operator=irunbus&route_id=1&day=2026-10-22": 9,
+    "/api/month?operator=euskotren&year=2026&month=10&day_type=S": 20,
+    "/api/geo/stop?operator=irunbus&day=2026-10-22&stop_id=1502&minutes=10": 12,
+    "/api/route/frequency?operator=ekialdebus&route_id=101&day=2026-10-22&year=2026&month=10": 17,
+    "/api/month?operator=ekialdebus&year=2026&month=10&day_type=S": 14,
+    "/api/map?operator=euskotren&day=2026-10-22": 20,
+    "/api/map?operator=irunbus&day=2026-10-16": 18,
+    "/api/month?operator=irunbus&year=2026&month=10&day_type=S": 14,
+    "/api/month?operator=irunbus&year=2025&month=10&day_type=LJ": 13,
+    "/api/month?operator=irunbus&year=2026&month=10&day_type=LJ&hour_start=0&hour_end=2880": 19,
+    "/api/route/frequency?operator=irunbus&route_id=1&day=2026-10-22&year=2026&month=10": 10,
+    "/api/month?operator=ekialdebus&year=2025&month=10&day_type=LJ": 13,
+    "/api/route/metrics?operator=euskotren&route_id=ES%3AEuskotren%3ALine%3A11%3A&day=2026-10-22": 20,
+    "/api/route/frequency?operator=euskotren&route_id=ES%3AEuskotren%3ALine%3A11%3A&day=2026-10-22&year=2026&month=10": 20,
+    "/api/geo/stop?operator=euskotren&day=2026-10-22&stop_id=ES%3AEuskotren%3AQuay%3A2577_Plataforma_Q1%3A&minutes=5": 20,
+    "/api/geo/stop?operator=euskotren&day=2026-10-22&stop_id=ES%3AEuskotren%3AQuay%3A2577_Plataforma_Q1%3A&minutes=10": 20,
+    "/api/month?operator=errenteria_urbanoa&year=2025&month=10&day_type=LJ": 20,
+    "/api/month?operator=errenteria_urbanoa&year=2026&month=10&day_type=S": 20,
+    "/api/map?operator=errenteria_urbanoa&day=2026-10-22": 20,
+    "/api/route/metrics?operator=errenteria_urbanoa&route_id=11&day=2026-10-22": 20,
+    "/api/route/frequency?operator=errenteria_urbanoa&route_id=11&day=2026-10-22&year=2026&month=10": 20,
+    "/api/geo/stop?operator=errenteria_urbanoa&day=2026-10-22&stop_id=138&minutes=5": 20,
+    "/api/geo/stop?operator=errenteria_urbanoa&day=2026-10-22&stop_id=138&minutes=10": 3
+  },
+  "latency_ms": {
+    "average": 851.1,
+    "p50": 574.4,
+    "p95": 2190.6,
+    "maximum": 5356.9
+  },
+  "error_examples": [
+    {
+      "path": "/api/geo/stop?operator=errenteria_urbanoa&day=2026-10-22&stop_id=138&minutes=10",
+      "error": "TimeoutError: timed out"
+    },
+    {
+      "path": "/api/geo/stop?operator=errenteria_urbanoa&day=2026-10-22&stop_id=138&minutes=10",
+      "error": "TimeoutError: timed out"
+    },
+    {
+      "path": "/api/geo/stop?operator=errenteria_urbanoa&day=2026-10-22&stop_id=138&minutes=10",
+      "error": "TimeoutError: timed out"
+    },
+    {
+      "path": "/api/geo/stop?operator=errenteria_urbanoa&day=2026-10-22&stop_id=138&minutes=10",
+      "error": "TimeoutError: timed out"
+    },
+    {
+      "path": "/api/geo/stop?operator=errenteria_urbanoa&day=2026-10-22&stop_id=138&minutes=10",
+      "error": "TimeoutError: timed out"
+    },
+    {
+      "path": "/api/geo/stop?operator=errenteria_urbanoa&day=2026-10-22&stop_id=138&minutes=10",
+      "error": "TimeoutError: timed out"
+    },
+    {
+      "path": "/api/geo/stop?operator=errenteria_urbanoa&day=2026-10-22&stop_id=138&minutes=10",
+      "error": "TimeoutError: timed out"
+    },
+    {
+      "path": "/api/geo/stop?operator=errenteria_urbanoa&day=2026-10-22&stop_id=138&minutes=10",
+      "error": "TimeoutError: timed out"
+    },
+    {
+      "path": "/api/geo/stop?operator=errenteria_urbanoa&day=2026-10-22&stop_id=138&minutes=10",
+      "error": "TimeoutError: timed out"
+    },
+    {
+      "path": "/api/geo/stop?operator=errenteria_urbanoa&day=2026-10-22&stop_id=138&minutes=10",
+      "error": "TimeoutError: timed out"
+    }
+  ]
+}

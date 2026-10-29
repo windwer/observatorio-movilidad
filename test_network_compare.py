@@ -39,6 +39,6 @@ class NetworkComparisonTests(unittest.TestCase):
     def test_future_not_historical(self):
         with self.assertRaises(ValueError):network_compare.compare_routes(self.c,'ekialdebus','2025-10-16','2026-10-19')
     def test_never_confuse_old_port(self):
-        self.assertEqual(launcher.VERSION,'1.2.0')
+        self.assertEqual(launcher.VERSION,'1.3.0')
 
 if __name__=='__main__':unittest.main()

@@ -76,6 +76,11 @@ test('province and focused views request a bounded nonempty tile grid',()=>{
  }
 });
 
+test('GeoEuskadi uses its cached raster in zoom/row/column order',()=>{
+ const ctx={window:{}};vm.createContext(ctx);vm.runInContext(fs.readFileSync('static/offline_map.js','utf8'),ctx);
+ assert.equal(vm.runInContext('euskadiExportTile(15,16221,11998)',ctx),'https://www.geo.euskadi.eus/geoeuskadi/rest/services/U11/WMTS_KARTO/MapServer/tile/15/11998/16221');
+});
+
 test('a late catalogue cannot replace line activity for the current day type',async()=>{
  const start=source.indexOf('async function updateRoutes('),end=source.indexOf('function escapeHTML(');
  let releaseOld;let calls=0;

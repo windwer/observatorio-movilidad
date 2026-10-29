@@ -5,4 +5,8 @@ __pycache__
 data/*
 !data/.gitkeep
 .env
+.git
+*.log
+test_*.py
+dependency-audit.json
 *.zip

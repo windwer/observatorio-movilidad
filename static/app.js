@@ -58,7 +58,7 @@ async function init(){
  // Geographic basemap comes from geoEuskadi / Esri; transport geometry comes from the selected GTFS snapshot.
  window.reviewMap=new GeographicReviewMap(document.getElementById('map'), {viewStop,showIsochrone,onRoute:(code,op)=>{
    if(op && $('operator').value!==op){$('operator').value=op;state.operator=op;$('map-both').checked=false;}
-   $('route').value=code;state.route=code;refresh();
+   $('map-both').checked=false;$('route').value=code;state.route=code;refresh();
  }});
  fallback.style.display='none';
  $('map-both').addEventListener('change',refresh);
@@ -80,10 +80,11 @@ async function loadOperatorCatalog(){
    const catalog=await api('/api/data/requirements');
    const codes=Array.isArray(catalog.operators)?catalog.operators:[];
    const labels=catalog.operator_labels||{};
+   Object.assign(OPERATOR_NAMES,labels);
    if(!codes.length)return;
    const selected=$('operator')?.value;
    const makeOptions=(includeBoth=false)=>{
-     const first=includeBoth?'<option value="both">Ambos autobuses sin duplicar población</option>':'';
+     const first=includeBoth?'<option value="all">Todos los operadores sin duplicar población</option>':'';
      return first+codes.map(code=>`<option value="${escapeHTML(code)}">${escapeHTML(labels[code]||operatorName(code))}</option>`).join('');
    };
    for(const id of ['operator','import-operator']){
@@ -93,7 +94,7 @@ async function loadOperatorCatalog(){
      select.value=codes.includes(value)?value:(codes.includes(state.operator)?state.operator:codes[0]);
    }
    const frequency=$('frequency-operator');
-   if(frequency){const value=frequency.value||'both';frequency.innerHTML=makeOptions(true);frequency.value=(value==='both'||codes.includes(value))?value:'both';}
+   if(frequency){const value=frequency.value||'all';frequency.innerHTML=makeOptions(true);frequency.value=(value==='all'||codes.includes(value))?value:'all';}
    state.operator=$('operator')?.value||state.operator;
     const years=Array.isArray(catalog.available_years)?catalog.available_years:[];
     if(years.length&&$('year')){
@@ -128,7 +129,7 @@ async function refresh(){const token=++refreshToken;
    // Auxiliary panels render independently. A slow comparison must not gate the map.
    const coverageTask=cachedApi(qs('/api/coverage',{operator:base.operator,year:base.year}),{signal})
      .then(cov=>{if(token===refreshToken)renderCoverage(cov)});
-   const comparisonTask=Promise.all([monthPromise,cachedApi(qs('/api/compare',{operator:base.operator,month:base.month,day_type:base.day_type,hour_start:base.hour_start,hour_end:base.hour_end}),{signal})])
+   const comparisonTask=Promise.all([monthPromise,cachedApi(qs('/api/compare',{operator:base.operator,month:base.month,day_type:base.day_type,hour_start:base.hour_start,hour_end:base.hour_end,old_year:base.year-1,new_year:base.year}),{signal})])
      .then(([res,comparison])=>{if(token===refreshToken)renderCompare(res,comparison)});
    const mainTask=Promise.all([monthPromise,activityPromise]).then(([res,activity])=>{
      if(token===refreshToken)renderMain(res,null,null,activity);
@@ -222,7 +223,9 @@ async function loadRouteInsights(token,signal){
  }catch(e){if(token===refreshToken){renderRouteMetrics({status:'error'});renderFrequency(null);setText('route-insights-state','No disponible: '+e.message)}}
 }
 function renderCompare(r1,analysis){
- const old=analysis['2025'],newer=analysis['2026'];
+ const old=analysis[String(analysis.old_year||2025)],newer=analysis[String(analysis.new_year||2026)];
+ const oldLabel=$('compare-2025')?.closest('.kpi')?.querySelector('.name');if(oldLabel)oldLabel.textContent=`${analysis.old_year||2025} · expediciones/día`;
+ const newLabel=$('compare-2026')?.closest('.kpi')?.querySelector('.name');if(newLabel)newLabel.textContent=`${analysis.new_year||2026} · expediciones/día`;
  setText('compare-2025',old&&analysis.comparable?fmt(old.average_trips_per_day,1):'—');
  setText('compare-2026',newer&&analysis.comparable?fmt(newer.average_trips_per_day,1):'—');
  if(!analysis.comparable){$('compare-note').textContent=analysis.reason+' · No se muestran diferencias numéricas para periodos incompletos.';return}
@@ -299,7 +302,7 @@ async function previewIsochrone(candidates,renderToken){
  for(const candidate of candidates.slice(0,8)){
    if(renderToken!==mapRenderToken)return;
    try{
-     const probe=await api(qs('/api/geo/stop',{operator:candidate.operator||state.operator,day:state.activeMapDate,stop_id:candidate.id,minutes:10}));
+     const probe=await stopApi(qs('/api/geo/stop',{operator:candidate.operator||state.operator,day:state.activeMapDate,stop_id:candidate.id,minutes:10}));
      if(renderToken!==mapRenderToken)return;
      if(probe.status==='calculated'&&typeof probe.population==='number'&&probe.population>0){
        return showIsochrone(candidate,{auto:true,renderToken});
@@ -385,8 +388,8 @@ async function showIsochrone(stop,{auto=false,renderToken=null}={}){
  try{
   const base={operator:stop.operator||state.operator,day:state.activeMapDate,stop_id:stop.id};
   const [iso5,iso10]=await Promise.all([
-    api(qs('/api/geo/stop',{...base,minutes:5})),
-    api(qs('/api/geo/stop',{...base,minutes:10}))
+    stopApi(qs('/api/geo/stop',{...base,minutes:5})),
+    stopApi(qs('/api/geo/stop',{...base,minutes:10}))
   ]);
   if(requestId!==isoRequestId||(renderToken!==null&&renderToken!==mapRenderToken))return;
   const geometries={};
@@ -432,19 +435,28 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 let networkRequestId=0;
+async function stopApi(endpoint){const result=await api(endpoint);return result.kind==='stop_isochrone'?waitForJob(result):result;}
+async function waitForJob(job,isCurrent=()=>true){
+ const until=Date.now()+905000;let delay=500;
+ while(['pending','running'].includes(job.status)){
+  if(!isCurrent())throw Error('Selección sustituida');
+  if(Date.now()>until)throw Error('El cálculo sigue pendiente; vuelve a consultarlo');
+  await new Promise(resolve=>setTimeout(resolve,delay));
+  job=await api(`/api/analysis/jobs/${encodeURIComponent(job.id)}`);delay=Math.min(3000,delay*1.25);
+ }
+ if(job.status!=='complete')throw Error(job.error||`Trabajo ${job.status}`);
+ return job.result;
+}
+async function runTask(kind,params){
+ const job=await api('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind,day:params.day||params.new_day||state.activeMapDate,...params})});
+ return waitForJob(job);
+}
 async function computeNetworkPopulation({silent=false}={}){
  const requestId=++networkRequestId;
  const button=$('geo-network-button');button.disabled=true;setText('geo-result','Calculando cobertura única…');
  try{
-  const queued=await api('/api/analysis/jobs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({operator:$('map-both').checked?'all':state.operator,day:state.activeMapDate,route_id:state.route||'',minutes:10})});
-  let job=queued;
-  for(let attempt=0;attempt<180&&['pending','running'].includes(job.status);attempt++){
-    if(requestId!==networkRequestId)return;
-    setText('geo-result',job.status==='pending'?'Cobertura en cola…':'Calculando cobertura única en segundo plano…');
-    await new Promise(resolve=>setTimeout(resolve,500));job=await api(`/api/analysis/jobs/${encodeURIComponent(job.id)}`);
-  }
-  if(job.status!=='complete')throw Error(job.error||`Trabajo ${job.status}`);
-  const data=job.result;
+  const queued=await api('/api/analysis/jobs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({operator:$('map-both').checked?'all':state.operator,day:state.activeMapDate,route_id:$('map-both').checked?'':state.route||'',minutes:10})});
+  const data=await waitForJob(queued,()=>requestId===networkRequestId);
  if(requestId!==networkRequestId)return;
  if(data.population===null){
    setText('geo-result',data.status==='missing_gtfs'
@@ -468,6 +480,7 @@ async function computeNetworkPopulation({silent=false}={}){
 
 // Historical audit and provisional spatial stop matching: API data, no simulated results.
 async function loadPublicationReadiness(){
+  const capabilities=await api('/api/capabilities');if(!capabilities.local_admin||!capabilities.mutable)return;
  try{
   const r=await api('/api/audit/readiness');
   setText('audit-gate',r.data_gate_passed?'Datos verificados · pendiente aprobación de publicación':'PUBLICACIÓN BLOQUEADA');
@@ -493,7 +506,7 @@ async function loadAuditMonthly(){
 async function compareStopsUI(){
  const button=$('diff-run');button.disabled=true;setText('diff-results','Calculando diferencias entre paradas…');
  try{
-  const result=await api(qs('/api/diff/stops',{operator:state.operator,old_day:$('diff-old').value,new_day:$('diff-new').value,territorial_scope:$('diff-local').checked}));
+  const result=await runTask('compare_stops',{operator:state.operator,old_day:$('diff-old').value,new_day:$('diff-new').value,territorial_scope:$('diff-local').checked});
   if(!result.comparable){setText('diff-results',result.reason);return}
   setText('diff-results',`Fuente previa: ${result.counts.old} paradas; fuente posterior: ${result.counts.new}. Coincidencias espaciales: ${result.counts.matched}; posibles altas: ${result.counts.added}; posibles bajas: ${result.counts.removed}; desplazamientos >10 m: ${result.counts.moved_over_10m}. ${result.warning}`);
  }catch(e){setText('diff-results','No se puede comparar: '+e.message)}finally{button.disabled=false}
@@ -509,8 +522,8 @@ async function runFrequencyCoverage(){
  setText('frequency-status','Calculando población única por frecuencia…');$('frequency-values').innerHTML='';
  try{
   const [start,end]=$('frequency-hours').value.split(',').map(Number);
-  const d=await api(qs('/api/geo/service-coverage',{operator:$('frequency-operator').value,
-    day:$('frequency-date').value,hour_start:start,hour_end:end}));
+  const d=await runTask('service_coverage',{operator:$('frequency-operator').value,
+    day:$('frequency-date').value,hour_start:start,hour_end:end});
   if(d.status!=='estimated'){
     setText('frequency-status',d.status==='missing_gtfs'?'No calculable: falta GTFS de uno o varios operadores para esta fecha.':'No calculable: faltan capas geográficas verificables.');
     return;
@@ -536,7 +549,7 @@ async function confirmAppVersion(){
 async function compareRoutesUI(){
   const button=$('routes-run');button.disabled=true;setText('route-diff-status','Calculando correspondencias por paradas…');
   try{
-    const doc=await api(qs('/api/diff/routes',{operator:state.operator,old_day:$('routes-old').value,new_day:$('routes-new').value}));
+    const doc=await runTask('compare_routes',{operator:state.operator,old_day:$('routes-old').value,new_day:$('routes-new').value});
     if(!doc.comparable){setText('route-diff-status',doc.reason||'Sin GTFS para fechas seleccionadas');$('route-diff-body').innerHTML='<tr><td colspan="5" class="empty-table">Sin comparación disponible</td></tr>';return;}
     setText('route-diff-status',`${doc.old_routes} líneas antes · ${doc.new_routes} después · ${doc.pairs.length} correspondencias provisionales · ${doc.unmatched_old.length} sin pareja antigua y ${doc.unmatched_new.length} nuevas sin pareja. No certificado.`);
     $('route-diff-body').innerHTML=doc.pairs.length?doc.pairs.map(r=>`<tr><td class="route">${escapeHTML(r.old_route)}</td><td class="route">${escapeHTML(r.new_route)}</td><td>${fmt(r.shared_physical_stops)}</td><td>${fmt(r.stop_jaccard*100,1)}% · ${escapeHTML(r.matching_quality)}</td><td>${fmt(r.old_trips)} / ${fmt(r.new_trips)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty-table">Sin correspondencias automáticas: requieren revisión humana</td></tr>';
@@ -611,6 +624,21 @@ async function loadEustatPopulation(){
 }
 document.addEventListener('DOMContentLoaded',loadEustatPopulation);
 
+document.addEventListener('DOMContentLoaded',async()=>{
+ try{
+  const c=await api('/api/capabilities');
+  if(!c.mutable||!c.local_admin){
+   for(const id of ['import-button','source-button','geo-import-button','eustat-import','quality-run']){
+    const element=$(id);if(element)element.hidden=true;
+   }
+  }
+  if(!c.local_admin||!c.mutable){
+   $('quality-run')?.closest('.panel')?.setAttribute('hidden','');
+   $('publication-audit')?.setAttribute('hidden','');
+  }
+ }catch(error){console.warn('No se pudieron consultar permisos',error)}
+});
+
 // Product-review flag comes from the server, not from the GTFS feed names.
 document.addEventListener('DOMContentLoaded',async()=>{
   try{
@@ -620,7 +648,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
       const banner=document.querySelector('.review-banner');
       if(banner)banner.innerHTML='<strong>DATOS REALES · GTFS IMPORTADO</strong> <span class="soft">— Instantáneas entregadas por el usuario. Horarios programados: no equivalen a servicio prestado. Eustat 2025 y las secciones oficiales permiten estimar la población dentro de las isócronas; los edificios residenciales mejoran la precisión.</span>';
       const head=document.querySelector('header .brand p');if(head)head.textContent=`Gipuzkoa · DATOS REALES v${cfg.version||window.OBSERVATORIO_VERSION||'?' } · GTFS oficial`;
-      const tag=document.querySelector('header .tag');if(tag)tag.textContent='DATOS REALES · GTFS';
+      const tag=document.querySelector('header .tag');if(tag)tag.textContent=`DATOS REALES · v${cfg.version||'?'}`;
       const mapTitle=document.querySelector('.map-frame')?.closest('.panel')?.querySelector('.panel-head h3');if(mapTitle)mapTitle.textContent='Mapa geográfico real · Líneas GTFS';
       const legend=document.querySelector('.mini-legend');if(legend)legend.textContent='● Parada GTFS · ━ Recorrido según shape GTFS';
       const popNote=document.getElementById('kpi-population-note');if(popNote && popNote.textContent.includes('No calculable'))popNote.textContent='Base Eustat 2025 incluida · no equivale a cobertura del recorrido';

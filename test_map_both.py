@@ -24,6 +24,9 @@ class CombinedMapTests(unittest.TestCase):
   self.assertEqual(data['quality'],'available_unverified')
   self.assertEqual({s['operator'] for s in data['stops']},{'ekialdebus','irunbus'})
   self.assertEqual(len(data['routes']),2)
+  for route in data['routes']:
+   self.assertNotIn(':',route['id'])
+   self.assertEqual(route['visual_id'],route['operator']+':'+route['id'])
   self.assertFalse(data['certified'])
  def test_future_date_clearly_planning(self):
   self.upload('ekialdebus','OR01');self.upload('irunbus','L1')

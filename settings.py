@@ -7,24 +7,47 @@ the meaning of an already approved historic snapshot.
 from __future__ import annotations
 
 import os
+import json
+import re
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent
-APP_VERSION = "1.2.0"
-API_SCHEMA_VERSION = "1.1"
-METHOD_VERSION = "walk-network-anchors-v2"
+APP_VERSION = "1.3.0"
+API_SCHEMA_VERSION = "1.3"
+from model import METHOD_VERSION
 DEFAULT_CUTOFF = date(2026, 10, 18)
 
 OPERATOR_CATALOG = {
     "ekialdebus": {"label": "Ekialdebus", "mode": "bus"},
     "irunbus": {"label": "Irunbus", "mode": "bus"},
-    "euskotren": {"label": "Euskotren (tren · E1/E2)", "mode": "rail"},
+    "euskotren": {"label": "Euskotren (tren · E1/E2)", "mode": "rail", "route_names":["E1","E2"]},
     "errenteria_urbanoa": {"label": "Errenteria bus urbano", "mode": "bus"},
 }
 CORE_OPERATORS = ("ekialdebus", "irunbus")
+
+def active_release():
+    pointer=os.environ.get('OBS_ACTIVE_RELEASE_FILE')
+    if pointer:
+        data=json.loads(Path(pointer).read_text(encoding='utf-8'))
+        return Path(data['release_dir']).resolve(),data
+    db=Path(os.environ.get('OBS_DB',ROOT/'data'/'real'/'observatorio_real.sqlite3'))
+    return db.resolve().parent,{}
+
+RELEASE_ROOT,ACTIVE_POINTER=active_release()
+MANIFEST=json.loads((RELEASE_ROOT/'release-manifest.json').read_text(encoding='utf-8')) if (RELEASE_ROOT/'release-manifest.json').is_file() else {}
+catalog_path=os.environ.get('OBS_CATALOG_FILE')
+catalog=json.loads(Path(catalog_path).read_text(encoding='utf-8')) if catalog_path else MANIFEST.get('operator_catalog',{})
+for code,entry in catalog.items():
+    if not re.fullmatch(r'[a-z0-9_]{1,64}',code) or not isinstance(entry,dict) or not entry.get('label'):
+        raise RuntimeError('Catálogo de operadores inválido')
+    if not isinstance(entry['label'],str) or len(entry['label'])>160:
+        raise RuntimeError('Etiqueta de operador inválida')
+    if 'route_names' in entry and (not isinstance(entry['route_names'],list) or not all(isinstance(name,str) and 0<len(name)<=128 for name in entry['route_names'])):
+        raise RuntimeError('Filtro de líneas inválido')
+    OPERATOR_CATALOG[code]=entry
 
 
 def _bool(name: str, default: bool) -> bool:
@@ -64,6 +87,10 @@ class RuntimeSettings:
     max_pending_jobs: int
     job_timeout_seconds: int
     immutable_data: bool
+    release_id: str = 'local-unversioned'
+    history_start: date = date(2025,1,1)
+    trusted_proxies: str = '127.0.0.1,::1'
+    retention_days: int = 30
 
     @property
     def loopback(self) -> bool:
@@ -92,18 +119,18 @@ class RuntimeSettings:
 def load_settings() -> RuntimeSettings:
     real_db = ROOT / "data" / "real" / "observatorio_real.sqlite3"
     default_db = real_db if real_db.exists() else ROOT / "data" / "observatorio.sqlite3"
-    db = Path(os.environ.get("OBS_DB", default_db)).resolve()
+    db = (RELEASE_ROOT/'observatorio_real.sqlite3') if ACTIVE_POINTER else Path(os.environ.get("OBS_DB", default_db)).resolve()
     default_geo = db.parent / "geography"
     bundled_geo = ROOT / "data" / "real" / "geography"
     if db.name.lower() == "observatorio_real.sqlite3" and not default_geo.exists() and bundled_geo.exists():
         default_geo = bundled_geo
-    cutoff = date.fromisoformat(os.environ.get("OBS_DATA_CUTOFF", DEFAULT_CUTOFF.isoformat()))
+    cutoff = date.fromisoformat(os.environ.get("OBS_DATA_CUTOFF", MANIFEST.get('cutoff',DEFAULT_CUTOFF.isoformat())))
     return RuntimeSettings(
         root=ROOT,
         db=db,
         geography_dir=Path(os.environ.get("OBS_GEOGRAPHY_DIR", default_geo)).resolve(),
-        reference_csv=Path(os.environ.get("OBS_REFERENCE_CSV", ROOT / "data" / "references" / "eustat_2025_original.csv")).resolve(),
-        state_db=Path(os.environ.get("OBS_STATE_DB", db.parent / "observatorio_state.sqlite3")).resolve(),
+        reference_csv=Path(os.environ.get("OBS_REFERENCE_CSV", (RELEASE_ROOT/'references'/'eustat_2025_original.csv') if MANIFEST else ROOT / "data" / "references" / "eustat_2025_original.csv")).resolve(),
+        state_db=Path(os.environ.get("OBS_STATE_DB", ACTIVE_POINTER.get('state_db',db.parent / "observatorio_state.sqlite3"))).resolve(),
         host=os.environ.get("OBS_HOST", "127.0.0.1"),
         port=_int("OBS_PORT", 8765, 1024, 65535),
         cutoff=cutoff,
@@ -118,7 +145,11 @@ def load_settings() -> RuntimeSettings:
         rate_limit_per_minute=_int("OBS_RATE_LIMIT_PER_MINUTE", 3000, 10, 10000),
         max_pending_jobs=_int("OBS_MAX_PENDING_JOBS", 50, 1, 1000),
         job_timeout_seconds=_int("OBS_JOB_TIMEOUT_SECONDS", 900, 30, 86400),
-        immutable_data=_bool("OBS_IMMUTABLE_DATA", False),
+        immutable_data=_bool("OBS_IMMUTABLE_DATA", bool(ACTIVE_POINTER)),
+        release_id=MANIFEST.get('release_id',os.environ.get('OBS_DATA_RELEASE','local-unversioned')),
+        history_start=date.fromisoformat(MANIFEST.get('history_start','2025-01-01')),
+        trusted_proxies=os.environ.get('FORWARDED_ALLOW_IPS','127.0.0.1,::1'),
+        retention_days=_int('OBS_RETENTION_DAYS',30,1,3650),
     ).validate()
 
 

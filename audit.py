@@ -13,9 +13,9 @@ from typing import Iterable
 import engine
 import data_quality
 
-START = date(2025, 1, 1)
+START = engine.settings.SETTINGS.history_start
 END = engine.CUTOFF
-MONTHS = tuple((year, month) for year in (2025, 2026) for month in range(1, 13))
+MONTHS = tuple((year, month) for year in range(START.year,END.year+1) for month in range(1, 13))
 REVIEW_SCHEMA = """
 CREATE TABLE IF NOT EXISTS service_reviews (
  id INTEGER PRIMARY KEY,
@@ -73,7 +73,7 @@ def provenance_day(conn, operator:str, d:date):
 
 
 def month_grid(conn, operator:str, year:int):
-    if operator not in engine.OPERATORS or year not in (2025,2026):
+    if operator not in engine.OPERATORS or not engine.settings.SETTINGS.min_year<=year<=engine.settings.SETTINGS.max_year:
         raise ValueError('Operador o año no válido')
     require_review_schema(conn)
     out=[]

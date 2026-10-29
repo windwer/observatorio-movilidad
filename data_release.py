@@ -12,10 +12,12 @@ import json
 import os
 import shutil
 import sqlite3
+import math
 import tempfile
 from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
+import model
 
 
 REQUIRED_TABLES = {"feeds", "routes", "stops", "trips", "stop_times", "services", "population_reference_meta"}
@@ -56,6 +58,7 @@ def sqlite_backup(source: Path,destination: Path) -> None:
 
 def build(source_db: Path,geography: Path,reference_csv: Path,output: Path,release_id: str,access_cache_path=None) -> dict:
     inspect_database(source_db)
+    source_stamps={p.name:(p.stat().st_size,p.stat().st_mtime_ns) for p in geography.iterdir() if p.is_file()}
     if output.exists():raise FileExistsError(f"El destino ya existe: {output}")
     output.parent.mkdir(parents=True,exist_ok=True)
     staging=Path(tempfile.mkdtemp(prefix=output.name+".pending-",dir=output.parent))
@@ -71,6 +74,12 @@ def build(source_db: Path,geography: Path,reference_csv: Path,output: Path,relea
         for name in ("census.geojson","walkways.geojson","buildings.geojson","population_anchors.json"):
             source=geography/name
             if source.is_file():shutil.copy2(source,staging/"geography"/name)
+        if source_stamps!={p.name:(p.stat().st_size,p.stat().st_mtime_ns) for p in geography.iterdir() if p.is_file()}:
+            raise ValueError('La geografía cambió durante la copia; detén las importaciones de staging y repite')
+        from territory import TerritoryStore
+        store=TerritoryStore(staging/'geography')
+        if not store.network or not store.residents:raise ValueError('La release requiere red y población espacial válidas')
+        if not store.buildings:store.save_population_anchors()
         if reference_csv.is_file():
             (staging/"references").mkdir();shutil.copy2(reference_csv,staging/"references"/reference_csv.name)
         metadata=validate(staging,verify_manifest=False)
@@ -81,7 +90,12 @@ def build(source_db: Path,geography: Path,reference_csv: Path,output: Path,relea
         for path in sorted(p for p in staging.rglob("*") if p.is_file()):
             relative=path.relative_to(staging).as_posix()
             files[relative]={"bytes":path.stat().st_size,"sha256":digest(path)}
-        manifest={"schema":1,"release_id":release_id,"created_at":datetime.now(timezone.utc).isoformat(),
+        import settings
+        manifest={"schema":2,"release_id":release_id,"created_at":datetime.now(timezone.utc).isoformat(),
+                  'software_version':settings.APP_VERSION,'method_version':model.METHOD_VERSION,'walk_profile':model.WALK_PROFILE,
+                  'cutoff':settings.SETTINGS.cutoff.isoformat(),
+                  'history_start':min([settings.SETTINGS.history_start.isoformat()]+[row['first_snapshot'] for row in metadata['database']['captures']]),
+                  'operator_catalog':settings.OPERATOR_CATALOG,
                   "immutable":True,"database":metadata["database"],"trip_summaries":summaries,"files":files}
         (staging/"release-manifest.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding="utf-8")
         os.replace(staging,output)
@@ -100,10 +114,18 @@ def validate(root: Path,verify_manifest=True) -> dict:
         anchors=json.loads((root/"geography/population_anchors.json").read_text(encoding="utf-8"))
         if census.get("type")!="FeatureCollection" or walkways.get("type")!="FeatureCollection":
             raise ValueError("La cartografía no es un FeatureCollection")
-        if anchors.get("method_version")!="walk-network-anchors-v2" or not anchors.get("anchors"):
+        if anchors.get("method_version") not in ("walk-network-anchors-v2",model.METHOD_VERSION) or not anchors.get("anchors"):
             raise ValueError("Los anclajes poblacionales no corresponden al método vigente")
         if int(anchors.get("census_population",-1))!=database["population"]:
             raise ValueError("La población de los anclajes no coincide con la referencia de la base")
+        if anchors.get('method_version')==model.METHOD_VERSION:
+            total=0;ids=set();segments=int(anchors.get('walk_segments',0))
+            for ident,town,population,x,y,index in anchors['anchors']:
+                if ident in ids or not all(math.isfinite(float(v)) for v in (population,x,y)) or float(population)<0 or not 0<=int(index)<segments:
+                    raise ValueError('Anclaje poblacional inválido')
+                ids.add(ident);total+=float(population)
+            total+=sum(float(row['population']) for row in anchors.get('unallocated',[]))
+            if abs(total-database['population'])>.1:raise ValueError('La población espacial no conserva el total censal')
     except (OSError,json.JSONDecodeError,TypeError,AttributeError) as exc:
         raise ValueError(f"Cartografía o anclajes inválidos: {exc}") from exc
     checked=0
@@ -111,8 +133,12 @@ def validate(root: Path,verify_manifest=True) -> dict:
         manifest_path=root/"release-manifest.json"
         if not manifest_path.is_file():raise ValueError("Falta release-manifest.json")
         manifest=json.loads(manifest_path.read_text(encoding="utf-8"))
+        if not set(REQUIRED_FILES).issubset(manifest.get('files',{})):raise ValueError('Manifest incompleto')
+        if manifest.get('schema',1)>=2 and anchors.get('method_version')!=manifest.get('method_version'):
+            raise ValueError('El método de la release no coincide con los anclajes')
         for relative,expected in manifest.get("files",{}).items():
-            path=root/relative
+            path=(root/relative).resolve()
+            if not path.is_relative_to(root.resolve()):raise ValueError('Ruta fuera de la release')
             if not path.is_file() or path.stat().st_size!=expected["bytes"] or digest(path)!=expected["sha256"]:
                 raise ValueError(f"Hash o tamaño incorrecto: {relative}")
             checked+=1

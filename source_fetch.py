@@ -73,7 +73,7 @@ def fetch_reference(name,dest):
             'notice':'Archivo original conservado; no está georreferenciado ni interpretado hasta cruzarlo con secciones censales'}
 
 
-def fetch_osm_walkways():
+def fetch_osm_walkways(*,allow_pilot=False):
     """Return the bundled provincial OSM network, preserving its provenance.
 
     The production package contains the filtered Gipuzkoa extract generated
@@ -85,6 +85,7 @@ def fetch_osm_walkways():
     bundled=Path(__file__).resolve().parent/'data'/'real'/'geography'/'walkways.geojson'
     if bundled.is_file():
         return bundled.read_bytes()
+    if not allow_pilot:raise ValueError('Falta la red provincial. Importa un extracto completo; el piloto parcial requiere autorización explícita de desarrollo.')
     ways={}
     for south,west,north,east in OSM_PILOT_BBOXES:
         query=f'[out:json][timeout:60];way["highway"]({south},{west},{north},{east});out geom;'
